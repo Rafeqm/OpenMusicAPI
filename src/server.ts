@@ -5,8 +5,8 @@ dotenv.config();
 
 const init = async () => {
   const server = new Server({
-    port: process.env["PORT"],
-    host: process.env["HOST"],
+    port: process.env.PORT,
+    host: process.env.HOST,
     routes: {
       cors: {
         origin: ["*"],
