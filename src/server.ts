@@ -1,7 +1,21 @@
+import { Server } from "@hapi/hapi";
 import dotenv from "dotenv";
+
 dotenv.config();
 
-const host = process.env["HOST"];
-const port = process.env["PORT"];
+const init = async () => {
+  const server = new Server({
+    port: process.env["PORT"],
+    host: process.env["HOST"],
+    routes: {
+      cors: {
+        origin: ["*"],
+      },
+    },
+  });
 
-console.log(`Server is running on http://${host}:${port}/`);
+  await server.start();
+  console.log(`Server is running on ${server.info.uri}`);
+};
+
+init();
