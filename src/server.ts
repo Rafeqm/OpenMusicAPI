@@ -1,6 +1,8 @@
 import { Server } from "@hapi/hapi";
 import dotenv from "dotenv";
 
+import albums from "./api/albums/index.js";
+
 dotenv.config();
 
 const init = async () => {
@@ -13,6 +15,8 @@ const init = async () => {
       },
     },
   });
+
+  await server.register(albums);
 
   await server.start();
   console.log(`Server is running on ${server.info.uri}`);
