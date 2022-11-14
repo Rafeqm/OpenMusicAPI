@@ -2,6 +2,7 @@ import { Server } from "@hapi/hapi";
 import dotenv from "dotenv";
 
 import albums from "./api/albums/index.js";
+import AlbumsService from "./services/database/AlbumsService.js";
 
 dotenv.config();
 
@@ -16,7 +17,14 @@ const init = async () => {
     },
   });
 
-  await server.register(albums);
+  const albumsService = new AlbumsService();
+
+  await server.register({
+    plugin: albums,
+    options: {
+      service: albumsService,
+    },
+  });
 
   await server.start();
   console.log(`Server is running on ${server.info.uri}`);
