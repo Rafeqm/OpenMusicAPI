@@ -1,5 +1,5 @@
-import { badData } from "@hapi/boom";
-import { PrismaClient } from "@prisma/client";
+import { badData, notFound } from "@hapi/boom";
+import { Album, PrismaClient } from "@prisma/client";
 import { nanoid } from "nanoid";
 
 export default class AlbumsService {
@@ -27,6 +27,18 @@ export default class AlbumsService {
       return album.id;
     } catch (error) {
       throw badData("Invalid input data. Failed to add album.");
+    }
+  }
+
+  async getAlbumById(id: string): Promise<Album> {
+    try {
+      return await this._prisma.album.findUniqueOrThrow({
+        where: {
+          id,
+        },
+      });
+    } catch (error) {
+      throw notFound("Album not found.");
     }
   }
 }

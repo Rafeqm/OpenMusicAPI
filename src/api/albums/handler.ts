@@ -41,4 +41,36 @@ export default class AlbumsHandler {
         .code(500);
     }
   };
+
+  getAlbumById: Lifecycle.Method = async (request, h) => {
+    try {
+      const { id } = request.params;
+      const album = await this.service.getAlbumById(id);
+
+      return {
+        status: "success",
+        data: {
+          album,
+        },
+      };
+    } catch (error) {
+      if (isBoom(error)) {
+        return h
+          .response({
+            status: "fail",
+            message: error.message,
+          })
+          .code(error.output.statusCode);
+      }
+
+      // Server ERROR!
+      console.error(error);
+      return h
+        .response({
+          status: "error",
+          message: "Sorry, there was a failure on our server.",
+        })
+        .code(500);
+    }
+  };
 }
