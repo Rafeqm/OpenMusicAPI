@@ -9,7 +9,8 @@ export default class AlbumsHandler {
 
   postAlbum: Lifecycle.Method = async (request, h) => {
     try {
-      const albumId = await this.service.addAlbum(<Album>request.payload);
+      const { name, year } = <Album>request.payload;
+      const albumId = await this.service.addAlbum(name, year);
 
       return h
         .response({

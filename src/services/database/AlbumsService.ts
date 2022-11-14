@@ -1,5 +1,5 @@
 import { badData } from "@hapi/boom";
-import { Album, PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import { nanoid } from "nanoid";
 
 export default class AlbumsService {
@@ -11,7 +11,7 @@ export default class AlbumsService {
     });
   }
 
-  async addAlbum({ name, year }: Album): Promise<string> {
+  async addAlbum(name: string, year: number): Promise<string> {
     try {
       const album = await this._prisma.album.create({
         data: {
