@@ -59,4 +59,14 @@ export default class AlbumsService {
       throw badData("Invalid input data. Failed to update album.");
     }
   }
+
+  async deleteAlbumById(id: string): Promise<void> {
+    await this.getAlbumById(id);
+
+    await this._prisma.album.delete({
+      where: {
+        id,
+      },
+    });
+  }
 }

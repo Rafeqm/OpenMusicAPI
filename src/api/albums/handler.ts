@@ -104,4 +104,34 @@ export default class AlbumsHandler {
         .code(500);
     }
   };
+
+  deleteAlbumById: Lifecycle.Method = async (request, h) => {
+    try {
+      const { id } = request.params;
+      await this.service.deleteAlbumById(id);
+
+      return {
+        status: "success",
+        message: "Album deleted successfully",
+      };
+    } catch (error) {
+      if (isBoom(error)) {
+        return h
+          .response({
+            status: "fail",
+            message: error.message,
+          })
+          .code(error.output.statusCode);
+      }
+
+      // Server ERROR!
+      console.error(error);
+      return h
+        .response({
+          status: "error",
+          message: "Sorry, there was a failure on our server.",
+        })
+        .code(500);
+    }
+  };
 }

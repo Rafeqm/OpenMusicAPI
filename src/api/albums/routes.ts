@@ -18,4 +18,9 @@ export default (handler: AlbumsHandler): ServerRoute | Array<ServerRoute> => [
     path: "/albums/{id}",
     handler: handler.putAlbumById,
   },
+  {
+    method: "DELETE",
+    path: "/albums/{id}",
+    handler: handler.deleteAlbumById,
+  },
 ];
