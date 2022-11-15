@@ -26,8 +26,43 @@ const init = async () => {
     },
   });
 
+  server.ext("onPreResponse", (request, h) => {
+    const { response } = request;
+
+    if (response instanceof Error) {
+      // Automatic client error handling by @hapi/boom
+      if (response.isBoom) {
+        return h
+          .response({
+            status: "fail",
+            message: response.message,
+          })
+          .code(response.output.statusCode);
+      }
+
+      // Internal server error handling
+      if (response.isServer) {
+        console.error(response);
+        return h
+          .response({
+            status: "error",
+            message: "Sorry, there was a failure on our server.",
+          })
+          .code(500);
+      }
+
+      // Native client error handling by @hapi/hapi (e.g. 404, etc)
+      return h.continue;
+    }
+
+    return h.continue;
+  });
+
+  server.ext("onPostStart", () => {
+    console.log(`Server is ready at ${server.info.uri}`);
+  });
+
   await server.start();
-  console.log(`Server is running on ${server.info.uri}`);
 };
 
 init();
