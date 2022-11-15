@@ -41,4 +41,22 @@ export default class AlbumsService {
       throw notFound("Album not found.");
     }
   }
+
+  async editAlbumById(id: string, name: string, year: number): Promise<void> {
+    await this.getAlbumById(id);
+
+    try {
+      await this._prisma.album.update({
+        where: {
+          id,
+        },
+        data: {
+          name,
+          year,
+        },
+      });
+    } catch (error) {
+      throw badData("Invalid input data. Failed to update album.");
+    }
+  }
 }

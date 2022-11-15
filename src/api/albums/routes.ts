@@ -13,4 +13,9 @@ export default (handler: AlbumsHandler): ServerRoute | Array<ServerRoute> => [
     path: "/albums/{id}",
     handler: handler.getAlbumById,
   },
+  {
+    method: "PUT",
+    path: "/albums/{id}",
+    handler: handler.putAlbumById,
+  },
 ];

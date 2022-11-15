@@ -73,4 +73,35 @@ export default class AlbumsHandler {
         .code(500);
     }
   };
+
+  putAlbumById: Lifecycle.Method = async (request, h) => {
+    try {
+      const { id } = request.params;
+      const { name, year } = <Album>request.payload;
+      await this.service.editAlbumById(id, name, year);
+
+      return {
+        status: "success",
+        message: "Album updated successfully",
+      };
+    } catch (error) {
+      if (isBoom(error)) {
+        return h
+          .response({
+            status: "fail",
+            message: error.message,
+          })
+          .code(error.output.statusCode);
+      }
+
+      // Server ERROR!
+      console.error(error);
+      return h
+        .response({
+          status: "error",
+          message: "Sorry, there was a failure on our server.",
+        })
+        .code(500);
+    }
+  };
 }
