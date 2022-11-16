@@ -2,11 +2,17 @@ import { Lifecycle } from "@hapi/hapi";
 import { Album } from "@prisma/client";
 
 import AlbumsService from "../../services/database/AlbumsService";
+import AlbumsPayloadValidator from "../../validator/albums";
 
 export default class AlbumsHandler {
-  constructor(private readonly service: AlbumsService) {}
+  constructor(
+    private readonly service: AlbumsService,
+    private readonly validator: typeof AlbumsPayloadValidator
+  ) {}
 
   postAlbum: Lifecycle.Method = async (request, h) => {
+    await this.validator.validateAsync(request.payload);
+
     const { name, year } = <Album>request.payload;
     const albumId = await this.service.addAlbum(name, year);
 
@@ -34,6 +40,8 @@ export default class AlbumsHandler {
   };
 
   putAlbumById: Lifecycle.Method = async (request) => {
+    await this.validator.validateAsync(request.payload);
+
     const { id } = request.params;
     const { name, year } = <Album>request.payload;
     await this.service.editAlbumById(id, name, year);

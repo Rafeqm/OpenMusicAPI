@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 
 import albums from "./api/albums/index.js";
 import AlbumsService from "./services/database/AlbumsService.js";
+import AlbumsPayloadValidator from "./validator/albums/index.js";
 
 dotenv.config();
 
@@ -23,6 +24,7 @@ const init = async () => {
     plugin: albums,
     options: {
       service: albumsService,
+      validator: AlbumsPayloadValidator,
     },
   });
 

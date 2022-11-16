@@ -1,6 +1,6 @@
 {
   "name": "open-music-api",
-  "version": "0.0.7",
+  "version": "0.1.0",
   "description": "",
   "main": "src/server.ts",
   "type": "module",
@@ -29,6 +29,7 @@
     "@hapi/hapi": "^21.0.0",
     "@prisma/client": "^4.6.1",
     "dotenv": "^16.0.3",
+    "joi": "^17.7.0",
     "nanoid": "^4.0.0"
   }
 }
