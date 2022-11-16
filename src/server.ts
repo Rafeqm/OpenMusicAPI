@@ -32,16 +32,6 @@ const init = async () => {
     const { response } = request;
 
     if (response instanceof Error) {
-      // Automatic client error handling by @hapi/boom
-      if (response.isBoom) {
-        return h
-          .response({
-            status: "fail",
-            message: response.message,
-          })
-          .code(response.output.statusCode);
-      }
-
       // Internal server error handling
       if (response.isServer) {
         console.error(response);
@@ -51,6 +41,16 @@ const init = async () => {
             message: "Sorry, there was a failure on our server.",
           })
           .code(500);
+      }
+
+      // Automatic client error handling by @hapi/boom
+      if (response.isBoom) {
+        return h
+          .response({
+            status: "fail",
+            message: response.message,
+          })
+          .code(response.output.statusCode);
       }
 
       // Native client error handling by @hapi/hapi (e.g. 404, etc)
