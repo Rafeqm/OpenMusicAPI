@@ -1,5 +1,6 @@
 import { badData, notFound } from "@hapi/boom";
 import { Album, PrismaClient } from "@prisma/client";
+import { PrismaClientValidationError } from "@prisma/client/runtime/index.js";
 import { nanoid } from "nanoid";
 
 export default class AlbumsService {
@@ -26,7 +27,7 @@ export default class AlbumsService {
 
       return album.id;
     } catch (error) {
-      throw badData("Invalid input data. Failed to add album.");
+      throw badData("Data could not be processed. Failed to add album.");
     }
   }
 
@@ -43,8 +44,6 @@ export default class AlbumsService {
   }
 
   async editAlbumById(id: string, name: string, year: number): Promise<void> {
-    await this.getAlbumById(id);
-
     try {
       await this._prisma.album.update({
         where: {
@@ -56,17 +55,23 @@ export default class AlbumsService {
         },
       });
     } catch (error) {
-      throw badData("Invalid input data. Failed to update album.");
+      if (error instanceof PrismaClientValidationError) {
+        throw badData("Data could not be processed. Failed to update album.");
+      }
+
+      throw notFound("Album not found. Failed to update album.");
     }
   }
 
   async deleteAlbumById(id: string): Promise<void> {
-    await this.getAlbumById(id);
-
-    await this._prisma.album.delete({
-      where: {
-        id,
-      },
-    });
+    try {
+      await this._prisma.album.delete({
+        where: {
+          id,
+        },
+      });
+    } catch (error) {
+      throw notFound("Album not found. Failed to delete album.");
+    }
   }
 }
