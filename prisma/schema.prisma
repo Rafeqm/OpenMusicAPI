@@ -11,9 +11,23 @@ datasource db {
 }
 
 model Album {
-  id   String @id @db.VarChar(50)
-  name String
-  year Int
+  id    String @id @db.VarChar(50)
+  name  String
+  year  Int
+  songs Song[]
 
   @@map("albums")
+}
+
+model Song {
+  id        String  @id @db.VarChar(50)
+  title     String
+  year      Int
+  performer String
+  genre     String
+  duration  Int?
+  album     Album?  @relation(fields: [albumId], references: [id])
+  albumId   String? @map("album_id") @db.VarChar(50)
+
+  @@map("songs")
 }
