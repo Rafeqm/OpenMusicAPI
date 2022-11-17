@@ -5,6 +5,8 @@ import albums from "./api/albums/index.js";
 import AlbumsService from "./services/database/AlbumsService.js";
 import AlbumsPayloadValidator from "./validator/albums/index.js";
 
+import songs from "./api/songs/index.js";
+
 dotenv.config();
 
 const init = async () => {
@@ -20,13 +22,18 @@ const init = async () => {
 
   const albumsService = new AlbumsService();
 
-  await server.register({
-    plugin: albums,
-    options: {
-      service: albumsService,
-      validator: AlbumsPayloadValidator,
+  await server.register([
+    {
+      plugin: albums,
+      options: {
+        service: albumsService,
+        validator: AlbumsPayloadValidator,
+      },
     },
-  });
+    {
+      plugin: songs,
+    },
+  ]);
 
   server.ext("onPreResponse", (request, h) => {
     const { response } = request;
