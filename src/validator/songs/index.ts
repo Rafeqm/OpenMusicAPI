@@ -1,12 +1,12 @@
 import { badRequest } from "@hapi/boom";
 import { Request } from "@hapi/hapi";
 
-import AlbumPayloadSchema from "./schema.js";
+import SongPayloadSchema from "./schema.js";
 
 export default {
   /** Intended only for necessary/certain use case (e.g. performance testing). */
   validate: (payload: Request["payload"]) => {
-    const validationResult = AlbumPayloadSchema.validate(payload);
+    const validationResult = SongPayloadSchema.validate(payload);
 
     if (validationResult.error !== undefined) {
       throw badRequest(validationResult.error.message);
@@ -15,7 +15,7 @@ export default {
 
   validateAsync: async (payload: Request["payload"]) => {
     try {
-      await AlbumPayloadSchema.validateAsync(payload);
+      await SongPayloadSchema.validateAsync(payload);
     } catch (error) {
       throw badRequest((<Error>error).message);
     }
