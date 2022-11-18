@@ -1,4 +1,6 @@
+import { badData } from "@hapi/boom";
 import { PrismaClient } from "@prisma/client";
+import { nanoid } from "nanoid";
 
 export default class SongsService {
   private readonly _prisma: PrismaClient;
@@ -7,5 +9,35 @@ export default class SongsService {
     this._prisma = new PrismaClient({
       errorFormat: "pretty",
     });
+  }
+
+  async addSong(
+    title: string,
+    year: number,
+    performer: string,
+    genre: string,
+    duration: number | null,
+    albumId: string | null
+  ): Promise<string> {
+    try {
+      const song = await this._prisma.song.create({
+        data: {
+          id: nanoid(),
+          title,
+          year,
+          performer,
+          genre,
+          duration,
+          albumId,
+        },
+        select: {
+          id: true,
+        },
+      });
+
+      return song.id;
+    } catch (error) {
+      throw badData("Data could not be processed. Failed to add song.");
+    }
   }
 }
