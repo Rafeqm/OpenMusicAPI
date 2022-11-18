@@ -1,5 +1,5 @@
 import { badData } from "@hapi/boom";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Song } from "@prisma/client";
 import { nanoid } from "nanoid";
 
 export default class SongsService {
@@ -39,5 +39,15 @@ export default class SongsService {
     } catch (error) {
       throw badData("Data could not be processed. Failed to add song.");
     }
+  }
+
+  async getSongs(): Promise<Array<Pick<Song, "id" | "title" | "performer">>> {
+    return await this._prisma.song.findMany({
+      select: {
+        id: true,
+        title: true,
+        performer: true,
+      },
+    });
   }
 }

@@ -35,4 +35,15 @@ export default class SongsHandler {
       })
       .code(201);
   };
+
+  getSongs: Lifecycle.Method = async () => {
+    const songs = await this.service.getSongs();
+
+    return {
+      status: "success",
+      data: {
+        songs,
+      },
+    };
+  };
 }
