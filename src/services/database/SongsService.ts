@@ -1,4 +1,4 @@
-import { badData } from "@hapi/boom";
+import { badData, notFound } from "@hapi/boom";
 import { PrismaClient, Song } from "@prisma/client";
 import { nanoid } from "nanoid";
 
@@ -49,5 +49,17 @@ export default class SongsService {
         performer: true,
       },
     });
+  }
+
+  async getSongById(id: string): Promise<Song> {
+    try {
+      return await this._prisma.song.findUniqueOrThrow({
+        where: {
+          id,
+        },
+      });
+    } catch (error) {
+      throw notFound("Song not found.");
+    }
   }
 }

@@ -46,4 +46,16 @@ export default class SongsHandler {
       },
     };
   };
+
+  getSongById: Lifecycle.Method = async (request) => {
+    const { id } = request.params;
+    const song = await this.service.getSongById(id);
+
+    return {
+      status: "success",
+      data: {
+        song,
+      },
+    };
+  };
 }
