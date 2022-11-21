@@ -23,4 +23,9 @@ export default (handler: SongsHandler): ServerRoute | Array<ServerRoute> => [
     path: "/songs/{id}",
     handler: handler.putSongById,
   },
+  {
+    method: "DELETE",
+    path: "/songs/{id}",
+    handler: handler.deleteSongById,
+  },
 ];

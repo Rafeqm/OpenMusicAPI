@@ -95,4 +95,16 @@ export default class SongsService {
       throw notFound("Song not found. Failed to update song.");
     }
   }
+
+  async deleteSongById(id: string): Promise<void> {
+    try {
+      await this._prisma.song.delete({
+        where: {
+          id,
+        },
+      });
+    } catch (error) {
+      throw notFound("Song not found. Failed to delete song.");
+    }
+  }
 }

@@ -81,4 +81,14 @@ export default class SongsHandler {
       message: "Song updated successfully.",
     };
   };
+
+  deleteSongById: Lifecycle.Method = async (request) => {
+    const { id } = request.params;
+    await this.service.deleteSongById(id);
+
+    return {
+      status: "success",
+      message: "Song deleted successfully.",
+    };
+  };
 }

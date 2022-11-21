@@ -12,7 +12,7 @@ type SongsPluginOptions = {
 
 export default <Plugin<SongsPluginOptions>>{
   name: "songs",
-  version: "0.4.0",
+  version: "1.0.0",
   // eslint-disable-next-line require-await
   register: async (server, { service, validator }) => {
     const songsHandler = new SongsHandler(service, validator);
