@@ -20,9 +20,6 @@ export default class AlbumsService {
           name,
           year,
         },
-        select: {
-          id: true,
-        },
       });
 
       return album.id;

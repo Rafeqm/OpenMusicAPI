@@ -31,9 +31,6 @@ export default class SongsService {
           duration,
           albumId,
         },
-        select: {
-          id: true,
-        },
       });
 
       return song.id;
