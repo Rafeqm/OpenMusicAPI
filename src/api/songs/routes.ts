@@ -18,4 +18,9 @@ export default (handler: SongsHandler): ServerRoute | Array<ServerRoute> => [
     path: "/songs/{id}",
     handler: handler.getSongById,
   },
+  {
+    method: "PUT",
+    path: "/songs/{id}",
+    handler: handler.putSongById,
+  },
 ];

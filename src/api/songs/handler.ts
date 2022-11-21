@@ -58,4 +58,27 @@ export default class SongsHandler {
       },
     };
   };
+
+  putSongById: Lifecycle.Method = async (request) => {
+    await this.validator.validateAsync(request.payload);
+
+    const { id } = request.params;
+    const { title, year, performer, genre, duration, albumId } = <Song>(
+      request.payload
+    );
+    await this.service.editSongById(
+      id,
+      title,
+      year,
+      performer,
+      genre,
+      duration,
+      albumId
+    );
+
+    return {
+      status: "success",
+      message: "Song updated successfully.",
+    };
+  };
 }

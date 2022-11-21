@@ -1,5 +1,6 @@
 import { badData, notFound } from "@hapi/boom";
 import { PrismaClient, Song } from "@prisma/client";
+import { PrismaClientValidationError } from "@prisma/client/runtime/index.js";
 import { nanoid } from "nanoid";
 
 export default class SongsService {
@@ -60,6 +61,38 @@ export default class SongsService {
       });
     } catch (error) {
       throw notFound("Song not found.");
+    }
+  }
+
+  async editSongById(
+    id: string,
+    title: string,
+    year: number,
+    performer: string,
+    genre: string,
+    duration: number | null,
+    albumId: string | null
+  ): Promise<void> {
+    try {
+      await this._prisma.song.update({
+        where: {
+          id,
+        },
+        data: {
+          title,
+          year,
+          performer,
+          genre,
+          duration,
+          albumId,
+        },
+      });
+    } catch (error) {
+      if (error instanceof PrismaClientValidationError) {
+        throw badData("Data could not be processed. Failed to update song.");
+      }
+
+      throw notFound("Song not found. Failed to update song.");
     }
   }
 }
