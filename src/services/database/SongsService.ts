@@ -12,24 +12,12 @@ export default class SongsService {
     });
   }
 
-  async addSong(
-    title: string,
-    year: number,
-    performer: string,
-    genre: string,
-    duration: number | null,
-    albumId: string | null
-  ): Promise<string> {
+  async addSong(input: Song): Promise<Song["id"]> {
     try {
       const song = await this._prisma.song.create({
         data: {
+          ...input,
           id: nanoid(),
-          title,
-          year,
-          performer,
-          genre,
-          duration,
-          albumId,
         },
       });
 
@@ -40,8 +28,8 @@ export default class SongsService {
   }
 
   async getSongs(
-    title?: string,
-    performer?: string
+    title?: Song["title"],
+    performer?: Song["performer"]
   ): Promise<Array<Pick<Song, "id" | "title" | "performer">>> {
     return await this._prisma.song.findMany({
       where: {
@@ -62,7 +50,7 @@ export default class SongsService {
     });
   }
 
-  async getSongById(id: string): Promise<Song> {
+  async getSongById(id: Song["id"]): Promise<Song> {
     try {
       return await this._prisma.song.findUniqueOrThrow({
         where: {
@@ -74,27 +62,14 @@ export default class SongsService {
     }
   }
 
-  async editSongById(
-    id: string,
-    title: string,
-    year: number,
-    performer: string,
-    genre: string,
-    duration: number | null,
-    albumId: string | null
-  ): Promise<void> {
+  async editSongById(id: Song["id"], input: Song): Promise<void> {
     try {
       await this._prisma.song.update({
         where: {
           id,
         },
         data: {
-          title,
-          year,
-          performer,
-          genre,
-          duration,
-          albumId,
+          ...input,
         },
       });
     } catch (error) {
@@ -106,7 +81,7 @@ export default class SongsService {
     }
   }
 
-  async deleteSongById(id: string): Promise<void> {
+  async deleteSongById(id: Song["id"]): Promise<void> {
     try {
       await this._prisma.song.delete({
         where: {

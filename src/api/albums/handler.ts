@@ -13,8 +13,7 @@ export default class AlbumsHandler {
   postAlbum: Lifecycle.Method = async (request, h) => {
     await this.validator.validateAsync(request.payload);
 
-    const { name, year } = <Album>request.payload;
-    const albumId = await this.service.addAlbum(name, year);
+    const albumId = await this.service.addAlbum(<Album>request.payload);
 
     return h
       .response({
@@ -28,7 +27,7 @@ export default class AlbumsHandler {
   };
 
   getAlbumById: Lifecycle.Method = async (request) => {
-    const { id } = request.params;
+    const { id } = <Album>request.params;
     const album = await this.service.getAlbumById(id);
 
     return {
@@ -42,9 +41,8 @@ export default class AlbumsHandler {
   putAlbumById: Lifecycle.Method = async (request) => {
     await this.validator.validateAsync(request.payload);
 
-    const { id } = request.params;
-    const { name, year } = <Album>request.payload;
-    await this.service.editAlbumById(id, name, year);
+    const { id } = <Album>request.params;
+    await this.service.editAlbumById(id, <Album>request.payload);
 
     return {
       status: "success",
@@ -53,7 +51,7 @@ export default class AlbumsHandler {
   };
 
   deleteAlbumById: Lifecycle.Method = async (request) => {
-    const { id } = request.params;
+    const { id } = <Album>request.params;
     await this.service.deleteAlbumById(id);
 
     return {

@@ -12,13 +12,12 @@ export default class AlbumsService {
     });
   }
 
-  async addAlbum(name: string, year: number): Promise<string> {
+  async addAlbum(input: Album): Promise<Album["id"]> {
     try {
       const album = await this._prisma.album.create({
         data: {
+          ...input,
           id: nanoid(),
-          name,
-          year,
         },
       });
 
@@ -28,7 +27,7 @@ export default class AlbumsService {
     }
   }
 
-  async getAlbumById(id: string): Promise<Album> {
+  async getAlbumById(id: Album["id"]): Promise<Album> {
     try {
       return await this._prisma.album.findUniqueOrThrow({
         where: {
@@ -49,15 +48,14 @@ export default class AlbumsService {
     }
   }
 
-  async editAlbumById(id: string, name: string, year: number): Promise<void> {
+  async editAlbumById(id: Album["id"], input: Album): Promise<void> {
     try {
       await this._prisma.album.update({
         where: {
           id,
         },
         data: {
-          name,
-          year,
+          ...input,
         },
       });
     } catch (error) {
@@ -69,7 +67,7 @@ export default class AlbumsService {
     }
   }
 
-  async deleteAlbumById(id: string): Promise<void> {
+  async deleteAlbumById(id: Album["id"]): Promise<void> {
     try {
       await this._prisma.album.delete({
         where: {

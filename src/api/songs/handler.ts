@@ -13,17 +13,7 @@ export default class SongsHandler {
   postSong: Lifecycle.Method = async (request, h) => {
     await this.validator.validateAsync(request.payload);
 
-    const { title, year, performer, genre, duration, albumId } = <Song>(
-      request.payload
-    );
-    const songId = await this.service.addSong(
-      title,
-      year,
-      performer,
-      genre,
-      duration,
-      albumId
-    );
+    const songId = await this.service.addSong(<Song>request.payload);
 
     return h
       .response({
@@ -37,7 +27,7 @@ export default class SongsHandler {
   };
 
   getSongs: Lifecycle.Method = async (request) => {
-    const { title, performer } = request.query;
+    const { title, performer } = <Partial<Song>>request.query;
     const songs = await this.service.getSongs(title, performer);
 
     return {
@@ -49,7 +39,7 @@ export default class SongsHandler {
   };
 
   getSongById: Lifecycle.Method = async (request) => {
-    const { id } = request.params;
+    const { id } = <Song>request.params;
     const song = await this.service.getSongById(id);
 
     return {
@@ -63,19 +53,8 @@ export default class SongsHandler {
   putSongById: Lifecycle.Method = async (request) => {
     await this.validator.validateAsync(request.payload);
 
-    const { id } = request.params;
-    const { title, year, performer, genre, duration, albumId } = <Song>(
-      request.payload
-    );
-    await this.service.editSongById(
-      id,
-      title,
-      year,
-      performer,
-      genre,
-      duration,
-      albumId
-    );
+    const { id } = <Song>request.params;
+    await this.service.editSongById(id, <Song>request.payload);
 
     return {
       status: "success",
@@ -84,7 +63,7 @@ export default class SongsHandler {
   };
 
   deleteSongById: Lifecycle.Method = async (request) => {
-    const { id } = request.params;
+    const { id } = <Song>request.params;
     await this.service.deleteSongById(id);
 
     return {
