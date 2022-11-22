@@ -34,6 +34,15 @@ export default class AlbumsService {
         where: {
           id,
         },
+        include: {
+          songs: {
+            select: {
+              id: true,
+              title: true,
+              performer: true,
+            },
+          },
+        },
       });
     } catch (error) {
       throw notFound("Album not found.");
