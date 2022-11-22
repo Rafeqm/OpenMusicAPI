@@ -39,8 +39,21 @@ export default class SongsService {
     }
   }
 
-  async getSongs(): Promise<Array<Pick<Song, "id" | "title" | "performer">>> {
+  async getSongs(
+    title?: string,
+    performer?: string
+  ): Promise<Array<Pick<Song, "id" | "title" | "performer">>> {
     return await this._prisma.song.findMany({
+      where: {
+        title: {
+          contains: title ?? "",
+          mode: "insensitive",
+        },
+        performer: {
+          contains: performer ?? "",
+          mode: "insensitive",
+        },
+      },
       select: {
         id: true,
         title: true,

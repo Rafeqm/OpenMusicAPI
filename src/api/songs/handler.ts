@@ -36,8 +36,9 @@ export default class SongsHandler {
       .code(201);
   };
 
-  getSongs: Lifecycle.Method = async () => {
-    const songs = await this.service.getSongs();
+  getSongs: Lifecycle.Method = async (request) => {
+    const { title, performer } = request.query;
+    const songs = await this.service.getSongs(title, performer);
 
     return {
       status: "success",
