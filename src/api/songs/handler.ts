@@ -6,14 +6,14 @@ import SongsPayloadValidator from "../../validator/songs";
 
 export default class SongsHandler {
   constructor(
-    private readonly service: SongsService,
-    private readonly validator: typeof SongsPayloadValidator
+    private readonly _service: SongsService,
+    private readonly _validator: typeof SongsPayloadValidator
   ) {}
 
   postSong: Lifecycle.Method = async (request, h) => {
-    await this.validator.validateAsync(request.payload);
+    await this._validator.validateAsync(request.payload);
 
-    const songId = await this.service.addSong(<Song>request.payload);
+    const songId = await this._service.addSong(<Song>request.payload);
 
     return h
       .response({
@@ -28,7 +28,7 @@ export default class SongsHandler {
 
   getSongs: Lifecycle.Method = async (request) => {
     const { title, performer } = <Partial<Song>>request.query;
-    const songs = await this.service.getSongs(title, performer);
+    const songs = await this._service.getSongs(title, performer);
 
     return {
       status: "success",
@@ -40,7 +40,7 @@ export default class SongsHandler {
 
   getSongById: Lifecycle.Method = async (request) => {
     const { id } = <Song>request.params;
-    const song = await this.service.getSongById(id);
+    const song = await this._service.getSongById(id);
 
     return {
       status: "success",
@@ -51,10 +51,10 @@ export default class SongsHandler {
   };
 
   putSongById: Lifecycle.Method = async (request) => {
-    await this.validator.validateAsync(request.payload);
+    await this._validator.validateAsync(request.payload);
 
     const { id } = <Song>request.params;
-    await this.service.editSongById(id, <Song>request.payload);
+    await this._service.editSongById(id, <Song>request.payload);
 
     return {
       status: "success",
@@ -64,7 +64,7 @@ export default class SongsHandler {
 
   deleteSongById: Lifecycle.Method = async (request) => {
     const { id } = <Song>request.params;
-    await this.service.deleteSongById(id);
+    await this._service.deleteSongById(id);
 
     return {
       status: "success",
