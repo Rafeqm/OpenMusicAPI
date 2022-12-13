@@ -31,3 +31,12 @@ model Song {
 
   @@map("songs")
 }
+
+model User {
+  id       String @id @db.VarChar(50)
+  username String @unique @db.VarChar(50)
+  password String
+  fullname String
+
+  @@map("users")
+}
