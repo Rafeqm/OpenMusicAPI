@@ -9,6 +9,8 @@ import songs from "./api/songs/index.js";
 import SongsService from "./services/database/SongsService.js";
 import SongsPayloadValidator from "./validator/songs/index.js";
 
+import users from "./api/users/index.js";
+
 dotenv.config();
 
 const init = async () => {
@@ -39,6 +41,9 @@ const init = async () => {
         service: songsService,
         validator: SongsPayloadValidator,
       },
+    },
+    {
+      plugin: users,
     },
   ]);
 
