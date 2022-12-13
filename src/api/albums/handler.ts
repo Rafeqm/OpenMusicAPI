@@ -11,7 +11,7 @@ export default class AlbumsHandler {
   ) {}
 
   postAlbum: Lifecycle.Method = async (request, h) => {
-    await this._validator.validateAsync(request.payload);
+    await this._validator.validate(request.payload);
 
     const albumId = await this._service.addAlbum(<Album>request.payload);
 
@@ -39,7 +39,7 @@ export default class AlbumsHandler {
   };
 
   putAlbumById: Lifecycle.Method = async (request) => {
-    await this._validator.validateAsync(request.payload);
+    await this._validator.validate(request.payload);
 
     const { id } = <Album>request.params;
     await this._service.editAlbumById(id, <Album>request.payload);

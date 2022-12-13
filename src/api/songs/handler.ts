@@ -11,7 +11,7 @@ export default class SongsHandler {
   ) {}
 
   postSong: Lifecycle.Method = async (request, h) => {
-    await this._validator.validateAsync(request.payload);
+    await this._validator.validate(request.payload);
 
     const songId = await this._service.addSong(<Song>request.payload);
 
@@ -51,7 +51,7 @@ export default class SongsHandler {
   };
 
   putSongById: Lifecycle.Method = async (request) => {
-    await this._validator.validateAsync(request.payload);
+    await this._validator.validate(request.payload);
 
     const { id } = <Song>request.params;
     await this._service.editSongById(id, <Song>request.payload);
