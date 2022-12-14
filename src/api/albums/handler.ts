@@ -2,12 +2,12 @@ import { Lifecycle } from "@hapi/hapi";
 import { Album } from "@prisma/client";
 
 import AlbumsService from "../../services/database/AlbumsService";
-import AlbumsPayloadValidator from "../../validator/albums";
+import albumsPayloadValidator from "../../validator/albums";
 
 export default class AlbumsHandler {
   constructor(
     private readonly _service: AlbumsService,
-    private readonly _validator: typeof AlbumsPayloadValidator
+    private readonly _validator: typeof albumsPayloadValidator
   ) {}
 
   postAlbum: Lifecycle.Method = async (request, h) => {

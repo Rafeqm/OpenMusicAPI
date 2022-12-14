@@ -1,13 +1,13 @@
 import { Plugin } from "@hapi/hapi";
 
 import SongsService from "../../services/database/SongsService";
-import SongsPayloadValidator from "../../validator/songs";
+import songsPayloadValidator from "../../validator/songs";
 import SongsHandler from "./handler.js";
 import routes from "./routes.js";
 
 type SongsPluginOptions = {
   service: SongsService;
-  validator: typeof SongsPayloadValidator;
+  validator: typeof songsPayloadValidator;
 };
 
 export default <Plugin<SongsPluginOptions>>{

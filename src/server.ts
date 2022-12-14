@@ -3,13 +3,15 @@ import dotenv from "dotenv";
 
 import albums from "./api/albums/index.js";
 import AlbumsService from "./services/database/AlbumsService.js";
-import AlbumsPayloadValidator from "./validator/albums/index.js";
+import albumsPayloadValidator from "./validator/albums/index.js";
 
 import songs from "./api/songs/index.js";
 import SongsService from "./services/database/SongsService.js";
-import SongsPayloadValidator from "./validator/songs/index.js";
+import songsPayloadValidator from "./validator/songs/index.js";
 
 import users from "./api/users/index.js";
+import UsersService from "./services/database/UsersService.js";
+import usersPayloadValidator from "./validator/users/index.js";
 
 dotenv.config();
 
@@ -26,24 +28,29 @@ const init = async () => {
 
   const albumsService = new AlbumsService();
   const songsService = new SongsService();
+  const usersService = new UsersService();
 
   await server.register([
     {
       plugin: albums,
       options: {
         service: albumsService,
-        validator: AlbumsPayloadValidator,
+        validator: albumsPayloadValidator,
       },
     },
     {
       plugin: songs,
       options: {
         service: songsService,
-        validator: SongsPayloadValidator,
+        validator: songsPayloadValidator,
       },
     },
     {
       plugin: users,
+      options: {
+        service: usersService,
+        validator: usersPayloadValidator,
+      },
     },
   ]);
 

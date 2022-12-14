@@ -1,14 +1,21 @@
 import { Plugin } from "@hapi/hapi";
 
+import UsersService from "../../services/database/UsersService";
+import usersPayloadValidator from "../../validator/users";
 import UsersHandler from "./handler.js";
 import routes from "./routes.js";
 
-export default <Plugin<null>>{
+type UsersPluginOptions = {
+  service: UsersService;
+  validator: typeof usersPayloadValidator;
+};
+
+export default <Plugin<UsersPluginOptions>>{
   name: "users",
-  version: "0.0.1",
+  version: "0.0.2",
   // eslint-disable-next-line require-await
-  register: async (server) => {
-    const usersHandler = new UsersHandler();
+  register: async (server, { service, validator }) => {
+    const usersHandler = new UsersHandler(service, validator);
     server.route(routes(usersHandler));
   },
 };

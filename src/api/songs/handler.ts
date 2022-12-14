@@ -2,12 +2,12 @@ import { Lifecycle } from "@hapi/hapi";
 import { Song } from "@prisma/client";
 
 import SongsService from "../../services/database/SongsService";
-import SongsPayloadValidator from "../../validator/songs";
+import songsPayloadValidator from "../../validator/songs";
 
 export default class SongsHandler {
   constructor(
     private readonly _service: SongsService,
-    private readonly _validator: typeof SongsPayloadValidator
+    private readonly _validator: typeof songsPayloadValidator
   ) {}
 
   postSong: Lifecycle.Method = async (request, h) => {
