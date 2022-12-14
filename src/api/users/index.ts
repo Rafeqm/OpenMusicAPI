@@ -12,7 +12,7 @@ type UsersPluginOptions = {
 
 export default <Plugin<UsersPluginOptions>>{
   name: "users",
-  version: "0.0.2",
+  version: "1.0.0",
   // eslint-disable-next-line require-await
   register: async (server, { service, validator }) => {
     const usersHandler = new UsersHandler(service, validator);
