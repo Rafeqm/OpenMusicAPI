@@ -13,6 +13,8 @@ import users from "./api/users/index.js";
 import UsersService from "./services/database/UsersService.js";
 import usersPayloadValidator from "./validator/users/index.js";
 
+import authentications from "./api/authentications/index.js";
+
 dotenv.config();
 
 const init = async () => {
@@ -51,6 +53,9 @@ const init = async () => {
         service: usersService,
         validator: usersPayloadValidator,
       },
+    },
+    {
+      plugin: authentications,
     },
   ]);
 
