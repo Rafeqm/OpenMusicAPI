@@ -4,7 +4,7 @@ import { Request } from "@hapi/hapi";
 import albumPayloadSchema from "./schema.js";
 
 export default {
-  validate: async (payload: Request["payload"]) => {
+  validate: async (payload: Request["payload"]): Promise<void> => {
     try {
       await albumPayloadSchema.validateAsync(payload);
     } catch (error) {

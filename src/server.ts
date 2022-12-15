@@ -14,6 +14,8 @@ import UsersService from "./services/database/UsersService.js";
 import usersPayloadValidator from "./validator/users/index.js";
 
 import authentications from "./api/authentications/index.js";
+import AuthenticationsService from "./services/database/AuthenticationsService.js";
+import authenticationsPayloadValidator from "./validator/authentications/index.js";
 
 dotenv.config();
 
@@ -31,6 +33,7 @@ const init = async () => {
   const albumsService = new AlbumsService();
   const songsService = new SongsService();
   const usersService = new UsersService();
+  const authenticationsService = new AuthenticationsService();
 
   await server.register([
     {
@@ -56,6 +59,10 @@ const init = async () => {
     },
     {
       plugin: authentications,
+      options: {
+        service: authenticationsService,
+        validator: authenticationsPayloadValidator,
+      },
     },
   ]);
 
