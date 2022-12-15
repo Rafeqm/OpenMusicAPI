@@ -1,4 +1,4 @@
-import { badData, badRequest } from "@hapi/boom";
+import { badData, badRequest, unauthorized } from "@hapi/boom";
 import { PrismaClient, User } from "@prisma/client";
 import { PrismaClientValidationError } from "@prisma/client/runtime/index.js";
 import { nanoid } from "nanoid";
@@ -28,6 +28,24 @@ export default class UsersService {
       }
 
       throw badRequest("Username already exists. Failed to add user.");
+    }
+  }
+
+  async verifyUserCredential(
+    username: User["username"],
+    password: User["password"]
+  ): Promise<User["id"]> {
+    try {
+      const user = await this._prisma.user.findUniqueOrThrow({
+        where: {
+          username,
+        },
+      });
+
+      if (password !== user.password) throw "any";
+      return user.id;
+    } catch (error) {
+      throw unauthorized("Incorrect username or password.");
     }
   }
 }
