@@ -15,6 +15,7 @@ import usersPayloadValidator from "./validator/users/index.js";
 
 import authentications from "./api/authentications/index.js";
 import AuthenticationsService from "./services/database/AuthenticationsService.js";
+import { tokenManager } from "./utils/tokenize.js";
 import authenticationsPayloadValidator from "./validator/authentications/index.js";
 
 dotenv.config();
@@ -63,6 +64,7 @@ const init = async () => {
         authenticationsService,
         usersService,
         validator: authenticationsPayloadValidator,
+        tokenManager,
       },
     },
   ]);
