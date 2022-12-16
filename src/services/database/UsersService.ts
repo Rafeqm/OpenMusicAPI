@@ -1,6 +1,7 @@
 import { badData, badRequest, unauthorized } from "@hapi/boom";
 import { PrismaClient, User } from "@prisma/client";
 import { PrismaClientValidationError } from "@prisma/client/runtime/index.js";
+import bcrypt from "bcrypt";
 import { nanoid } from "nanoid";
 
 export default class UsersService {
@@ -18,6 +19,7 @@ export default class UsersService {
         data: {
           ...input,
           id: nanoid(),
+          password: await bcrypt.hash(input.password, 10),
         },
       });
 
@@ -42,7 +44,9 @@ export default class UsersService {
         },
       });
 
-      if (password !== user.password) throw "any";
+      const passwordIsCorrect = await bcrypt.compare(password, user.password);
+      if (!passwordIsCorrect) throw "any";
+
       return user.id;
     } catch (error) {
       throw unauthorized("Incorrect username or password.");
