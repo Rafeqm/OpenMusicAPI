@@ -16,7 +16,7 @@ type AuthenticationsPluginOptions = {
 
 export default <Plugin<AuthenticationsPluginOptions>>{
   name: "authentications",
-  version: "0.0.4",
+  version: "0.1.0",
   // eslint-disable-next-line require-await
   register: async (
     server,
