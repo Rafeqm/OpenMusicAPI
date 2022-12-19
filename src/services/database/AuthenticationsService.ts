@@ -29,4 +29,16 @@ export default class AuthenticationsService {
       throw badRequest("Invalid refresh token.");
     }
   }
+
+  async deleteRefreshToken(token: Authentication["token"]) {
+    try {
+      await this._prisma.authentication.delete({
+        where: {
+          token,
+        },
+      });
+    } catch (error) {
+      throw badRequest("Invalid refresh token.");
+    }
+  }
 }

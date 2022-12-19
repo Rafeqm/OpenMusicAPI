@@ -59,4 +59,18 @@ export default class AuthenticationsHandler {
       },
     };
   };
+
+  deleteAuthentication: Lifecycle.Method = async (request) => {
+    await this._validator.validate("DELETE", request.payload);
+
+    const { refreshToken } = <{ refreshToken: Authentication["token"] }>(
+      request.payload
+    );
+    await this._authenticationsService.deleteRefreshToken(refreshToken);
+
+    return {
+      status: "success",
+      message: "Refresh token deleted successfully.",
+    };
+  };
 }

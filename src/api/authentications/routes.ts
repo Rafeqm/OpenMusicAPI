@@ -15,4 +15,9 @@ export default (
     path: "/authentications",
     handler: handler.putAuthentication,
   },
+  {
+    method: "DELETE",
+    path: "/authentications",
+    handler: handler.deleteAuthentication,
+  },
 ];
