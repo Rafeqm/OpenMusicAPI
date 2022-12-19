@@ -1,5 +1,5 @@
 import { Lifecycle } from "@hapi/hapi";
-import { User } from "@prisma/client";
+import { Authentication, User } from "@prisma/client";
 
 import AuthenticationsService from "../../services/database/AuthenticationsService";
 import UsersService from "../../services/database/UsersService";
@@ -38,5 +38,25 @@ export default class AuthenticationsHandler {
         },
       })
       .code(201);
+  };
+
+  putAuthentication: Lifecycle.Method = async (request) => {
+    await this._validator.validate("PUT", request.payload);
+
+    const { refreshToken } = <{ refreshToken: Authentication["token"] }>(
+      request.payload
+    );
+    await this._authenticationsService.verifyRefreshToken(refreshToken);
+
+    const { id } = this._tokenManager.verifyRefreshToken(refreshToken);
+    const accessToken = this._tokenManager.generateAccessToken({ id });
+
+    return {
+      status: "success",
+      message: "Access token updated successfully.",
+      data: {
+        accessToken,
+      },
+    };
   };
 }
