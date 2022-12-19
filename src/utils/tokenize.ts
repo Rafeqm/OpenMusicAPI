@@ -19,7 +19,7 @@ export const tokenManager = {
       Jwt.token.verifySignature(artifacts, process.env.REFRESH_TOKEN_KEY!);
       return artifacts.decoded.payload;
     } catch (error) {
-      throw badRequest("Invalid refresh token.");
+      throw badRequest("Invalid refresh token");
     }
   },
 };

@@ -18,7 +18,7 @@ export default class UsersHandler {
     return h
       .response({
         status: "success",
-        message: "User added successfully.",
+        message: "User added",
         data: {
           userId,
         },

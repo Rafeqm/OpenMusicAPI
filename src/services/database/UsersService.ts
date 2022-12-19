@@ -26,10 +26,10 @@ export default class UsersService {
       return user.id;
     } catch (error) {
       if (error instanceof PrismaClientValidationError) {
-        throw badData("Data could not be processed. Failed to add user.");
+        throw badData("Data unprocessable");
       }
 
-      throw badRequest("Username already exists. Failed to add user.");
+      throw badRequest("Username already exists");
     }
   }
 
@@ -49,7 +49,7 @@ export default class UsersService {
 
       return user.id;
     } catch (error) {
-      throw unauthorized("Incorrect username or password.");
+      throw unauthorized("Incorrect username or password");
     }
   }
 }

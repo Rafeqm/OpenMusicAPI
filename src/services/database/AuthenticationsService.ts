@@ -26,7 +26,7 @@ export default class AuthenticationsService {
         },
       });
     } catch (error) {
-      throw badRequest("Invalid refresh token.");
+      throw badRequest("Invalid refresh token");
     }
   }
 
@@ -38,7 +38,7 @@ export default class AuthenticationsService {
         },
       });
     } catch (error) {
-      throw badRequest("Invalid refresh token.");
+      throw badRequest("Invalid refresh token");
     }
   }
 }

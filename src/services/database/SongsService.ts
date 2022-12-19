@@ -23,7 +23,7 @@ export default class SongsService {
 
       return song.id;
     } catch (error) {
-      throw badData("Data could not be processed. Failed to add song.");
+      throw badData("Data unprocessable");
     }
   }
 
@@ -58,7 +58,7 @@ export default class SongsService {
         },
       });
     } catch (error) {
-      throw notFound("Song not found.");
+      throw notFound("Song not found");
     }
   }
 
@@ -74,10 +74,10 @@ export default class SongsService {
       });
     } catch (error) {
       if (error instanceof PrismaClientValidationError) {
-        throw badData("Data could not be processed. Failed to update song.");
+        throw badData("Data unprocessable");
       }
 
-      throw notFound("Song not found. Failed to update song.");
+      throw notFound("Song not found");
     }
   }
 
@@ -89,7 +89,7 @@ export default class SongsService {
         },
       });
     } catch (error) {
-      throw notFound("Song not found. Failed to delete song.");
+      throw notFound("Song not found");
     }
   }
 }

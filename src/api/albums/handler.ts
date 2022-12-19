@@ -18,7 +18,7 @@ export default class AlbumsHandler {
     return h
       .response({
         status: "success",
-        message: "Album added successfully.",
+        message: "Album added",
         data: {
           albumId,
         },
@@ -46,7 +46,7 @@ export default class AlbumsHandler {
 
     return {
       status: "success",
-      message: "Album updated successfully.",
+      message: "Album updated",
     };
   };
 
@@ -56,7 +56,7 @@ export default class AlbumsHandler {
 
     return {
       status: "success",
-      message: "Album deleted successfully.",
+      message: "Album deleted",
     };
   };
 }

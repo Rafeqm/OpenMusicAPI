@@ -18,7 +18,7 @@ export default class SongsHandler {
     return h
       .response({
         status: "success",
-        message: "Song added successfully.",
+        message: "Song added",
         data: {
           songId,
         },
@@ -58,7 +58,7 @@ export default class SongsHandler {
 
     return {
       status: "success",
-      message: "Song updated successfully.",
+      message: "Song updated",
     };
   };
 
@@ -68,7 +68,7 @@ export default class SongsHandler {
 
     return {
       status: "success",
-      message: "Song deleted successfully.",
+      message: "Song deleted",
     };
   };
 }

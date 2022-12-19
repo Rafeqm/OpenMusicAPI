@@ -31,7 +31,7 @@ export default class AuthenticationsHandler {
     return h
       .response({
         status: "success",
-        message: "User authenticated.",
+        message: "User authenticated",
         data: {
           accessToken,
           refreshToken,
@@ -53,7 +53,7 @@ export default class AuthenticationsHandler {
 
     return {
       status: "success",
-      message: "Access token updated successfully.",
+      message: "Access token updated",
       data: {
         accessToken,
       },
@@ -70,7 +70,7 @@ export default class AuthenticationsHandler {
 
     return {
       status: "success",
-      message: "Refresh token deleted successfully.",
+      message: "Refresh token deleted",
     };
   };
 }

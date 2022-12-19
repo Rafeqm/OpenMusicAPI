@@ -23,7 +23,7 @@ export default class AlbumsService {
 
       return album.id;
     } catch (error) {
-      throw badData("Data could not be processed. Failed to add album.");
+      throw badData("Data unprocessable");
     }
   }
 
@@ -44,7 +44,7 @@ export default class AlbumsService {
         },
       });
     } catch (error) {
-      throw notFound("Album not found.");
+      throw notFound("Album not found");
     }
   }
 
@@ -60,10 +60,10 @@ export default class AlbumsService {
       });
     } catch (error) {
       if (error instanceof PrismaClientValidationError) {
-        throw badData("Data could not be processed. Failed to update album.");
+        throw badData("Data unprocessable");
       }
 
-      throw notFound("Album not found. Failed to update album.");
+      throw notFound("Album not found");
     }
   }
 
@@ -75,7 +75,7 @@ export default class AlbumsService {
         },
       });
     } catch (error) {
-      throw notFound("Album not found. Failed to delete album.");
+      throw notFound("Album not found");
     }
   }
 }

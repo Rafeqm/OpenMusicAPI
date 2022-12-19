@@ -79,7 +79,7 @@ const init = async () => {
         return h
           .response({
             status: "error",
-            message: "Sorry, there was a failure on our server.",
+            message: "Something went wrong",
           })
           .code(500);
       }
