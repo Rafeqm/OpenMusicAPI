@@ -1,6 +1,5 @@
 import { badData, badRequest, unauthorized } from "@hapi/boom";
-import { PrismaClient, User } from "@prisma/client";
-import { PrismaClientValidationError } from "@prisma/client/runtime/index.js";
+import { Prisma, PrismaClient, User } from "@prisma/client";
 import bcrypt from "bcrypt";
 import { nanoid } from "nanoid";
 
@@ -25,11 +24,17 @@ export default class UsersService {
 
       return user.id;
     } catch (error) {
-      if (error instanceof PrismaClientValidationError) {
+      if (error instanceof Prisma.PrismaClientValidationError) {
         throw badData("Data unprocessable");
       }
 
-      throw badRequest("Username already exists");
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2002") {
+          throw badRequest("Username already exists");
+        }
+      }
+
+      throw error;
     }
   }
 
@@ -45,11 +50,17 @@ export default class UsersService {
       });
 
       const passwordIsCorrect = await bcrypt.compare(password, user.password);
-      if (!passwordIsCorrect) throw "any";
+      if (!passwordIsCorrect) throw unauthorized("Incorrect password");
 
       return user.id;
     } catch (error) {
-      throw unauthorized("Incorrect username or password");
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          throw unauthorized("Incorrect username");
+        }
+      }
+
+      throw error;
     }
   }
 }

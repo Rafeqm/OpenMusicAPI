@@ -1,6 +1,5 @@
 import { badData, notFound } from "@hapi/boom";
-import { Album, PrismaClient } from "@prisma/client";
-import { PrismaClientValidationError } from "@prisma/client/runtime/index.js";
+import { Album, Prisma, PrismaClient } from "@prisma/client";
 import { nanoid } from "nanoid";
 
 export default class AlbumsService {
@@ -23,7 +22,11 @@ export default class AlbumsService {
 
       return album.id;
     } catch (error) {
-      throw badData("Data unprocessable");
+      if (error instanceof Prisma.PrismaClientValidationError) {
+        throw badData("Data unprocessable");
+      }
+
+      throw error;
     }
   }
 
@@ -44,7 +47,13 @@ export default class AlbumsService {
         },
       });
     } catch (error) {
-      throw notFound("Album not found");
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          throw notFound("Album not found");
+        }
+      }
+
+      throw error;
     }
   }
 
@@ -59,11 +68,17 @@ export default class AlbumsService {
         },
       });
     } catch (error) {
-      if (error instanceof PrismaClientValidationError) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          throw notFound("Album not found");
+        }
+      }
+
+      if (error instanceof Prisma.PrismaClientValidationError) {
         throw badData("Data unprocessable");
       }
 
-      throw notFound("Album not found");
+      throw error;
     }
   }
 
@@ -75,7 +90,13 @@ export default class AlbumsService {
         },
       });
     } catch (error) {
-      throw notFound("Album not found");
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          throw notFound("Album not found");
+        }
+      }
+
+      throw error;
     }
   }
 }

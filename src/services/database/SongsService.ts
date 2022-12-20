@@ -1,6 +1,5 @@
 import { badData, notFound } from "@hapi/boom";
-import { PrismaClient, Song } from "@prisma/client";
-import { PrismaClientValidationError } from "@prisma/client/runtime/index.js";
+import { Prisma, PrismaClient, Song } from "@prisma/client";
 import { nanoid } from "nanoid";
 
 export default class SongsService {
@@ -23,7 +22,11 @@ export default class SongsService {
 
       return song.id;
     } catch (error) {
-      throw badData("Data unprocessable");
+      if (error instanceof Prisma.PrismaClientValidationError) {
+        throw badData("Data unprocessable");
+      }
+
+      throw error;
     }
   }
 
@@ -58,7 +61,13 @@ export default class SongsService {
         },
       });
     } catch (error) {
-      throw notFound("Song not found");
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          throw notFound("Song not found");
+        }
+      }
+
+      throw error;
     }
   }
 
@@ -73,11 +82,17 @@ export default class SongsService {
         },
       });
     } catch (error) {
-      if (error instanceof PrismaClientValidationError) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          throw notFound("Song not found");
+        }
+      }
+
+      if (error instanceof Prisma.PrismaClientValidationError) {
         throw badData("Data unprocessable");
       }
 
-      throw notFound("Song not found");
+      throw error;
     }
   }
 
@@ -89,7 +104,13 @@ export default class SongsService {
         },
       });
     } catch (error) {
-      throw notFound("Song not found");
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          throw notFound("Song not found");
+        }
+      }
+
+      throw error;
     }
   }
 }

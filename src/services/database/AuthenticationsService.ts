@@ -1,5 +1,5 @@
 import { badRequest } from "@hapi/boom";
-import { Authentication, PrismaClient } from "@prisma/client";
+import { Authentication, Prisma, PrismaClient } from "@prisma/client";
 
 export default class AuthenticationsService {
   private readonly _prisma: PrismaClient;
@@ -26,7 +26,13 @@ export default class AuthenticationsService {
         },
       });
     } catch (error) {
-      throw badRequest("Invalid refresh token");
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          throw badRequest("Invalid refresh token");
+        }
+      }
+
+      throw error;
     }
   }
 
@@ -38,7 +44,13 @@ export default class AuthenticationsService {
         },
       });
     } catch (error) {
-      throw badRequest("Invalid refresh token");
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          throw badRequest("Invalid refresh token");
+        }
+      }
+
+      throw error;
     }
   }
 }
