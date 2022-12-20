@@ -18,6 +18,8 @@ import AuthenticationsService from "./services/database/AuthenticationsService.j
 import { tokenManager } from "./utils/tokenize.js";
 import authenticationsPayloadValidator from "./validator/authentications/index.js";
 
+import playlists from "./api/playlists/index.js";
+
 dotenv.config();
 
 const init = async () => {
@@ -66,6 +68,9 @@ const init = async () => {
         validator: authenticationsPayloadValidator,
         tokenManager,
       },
+    },
+    {
+      plugin: playlists,
     },
   ]);
 
