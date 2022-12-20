@@ -7,10 +7,10 @@ import { Authentication } from "@prisma/client";
 
 export const tokenManager = {
   generateAccessToken: (payload: any): string =>
-    Jwt.token.generate(payload!, process.env.ACCESS_TOKEN_KEY!),
+    Jwt.token.generate(payload, process.env.ACCESS_TOKEN_KEY!),
 
   generateRefreshToken: (payload: any): string =>
-    Jwt.token.generate(payload!, process.env.REFRESH_TOKEN_KEY!),
+    Jwt.token.generate(payload, process.env.REFRESH_TOKEN_KEY!),
 
   verifyRefreshToken: (refreshToken: Authentication["token"]): any => {
     try {
