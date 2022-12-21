@@ -1,14 +1,21 @@
 import { Plugin } from "@hapi/hapi";
 
+import PlaylistsService from "../../services/database/PlaylistsService";
+import playlistsPayloadValidator from "../../validator/playlists";
 import PlaylistsHandler from "./handler.js";
 import routes from "./routes.js";
 
-export default <Plugin<null>>{
+type PlaylistsPluginOptions = {
+  service: PlaylistsService;
+  validator: typeof playlistsPayloadValidator;
+};
+
+export default <Plugin<PlaylistsPluginOptions>>{
   name: "playlists",
-  version: "0.0.1",
+  version: "0.0.2",
   // eslint-disable-next-line require-await
-  register: async (server) => {
-    const playlistsHandler = new PlaylistsHandler();
+  register: async (server, { service, validator }) => {
+    const playlistsHandler = new PlaylistsHandler(service, validator);
     server.route(routes(playlistsHandler));
   },
 };

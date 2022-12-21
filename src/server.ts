@@ -19,6 +19,8 @@ import { tokenManager } from "./utils/tokenize.js";
 import authenticationsPayloadValidator from "./validator/authentications/index.js";
 
 import playlists from "./api/playlists/index.js";
+import PlaylistsService from "./services/database/PlaylistsService.js";
+import playlistsPayloadValidator from "./validator/playlists/index.js";
 
 dotenv.config();
 
@@ -37,6 +39,7 @@ const init = async () => {
   const songsService = new SongsService();
   const usersService = new UsersService();
   const authenticationsService = new AuthenticationsService();
+  const playlistsService = new PlaylistsService();
 
   await server.register([
     {
@@ -71,6 +74,10 @@ const init = async () => {
     },
     {
       plugin: playlists,
+      options: {
+        service: playlistsService,
+        validator: playlistsPayloadValidator,
+      },
     },
   ]);
 
