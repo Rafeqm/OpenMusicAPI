@@ -1,4 +1,5 @@
 import { Server } from "@hapi/hapi";
+import Jwt from "@hapi/jwt";
 import dotenv from "dotenv";
 
 import albums from "./api/albums/index.js";
@@ -33,6 +34,29 @@ const init = async () => {
         origin: ["*"],
       },
     },
+  });
+
+  await server.register([
+    {
+      ...Jwt,
+    },
+  ]);
+
+  server.auth.strategy("openmusicapi_jwt", "jwt", {
+    keys: process.env.ACCESS_TOKEN_KEY,
+    verify: {
+      aud: false,
+      iss: false,
+      sub: false,
+      maxAgeSec: process.env.ACCESS_TOKEN_AGE,
+    },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    validate: (artifacts: any) => ({
+      isValid: true,
+      credentials: {
+        userId: artifacts.decoded.payload.id,
+      },
+    }),
   });
 
   const albumsService = new AlbumsService();
