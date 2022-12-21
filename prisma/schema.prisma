@@ -20,23 +20,25 @@ model Album {
 }
 
 model Song {
-  id        String  @id @db.VarChar(50)
+  id        String     @id @db.VarChar(50)
   title     String
   year      Int
   performer String
   genre     String
   duration  Int?
-  album     Album?  @relation(fields: [albumId], references: [id])
-  albumId   String? @map("album_id") @db.VarChar(50)
+  album     Album?     @relation(fields: [albumId], references: [id])
+  albumId   String?    @map("album_id") @db.VarChar(50)
+  playlists Playlist[]
 
   @@map("songs")
 }
 
 model User {
-  id       String @id @db.VarChar(50)
-  username String @unique @db.VarChar(50)
-  password String
-  fullname String
+  id        String     @id @db.VarChar(50)
+  username  String     @unique @db.VarChar(50)
+  password  String
+  fullname  String
+  playlists Playlist[]
 
   @@map("users")
 }
@@ -45,4 +47,14 @@ model Authentication {
   token String @unique
 
   @@map("authentications")
+}
+
+model Playlist {
+  id      String @id @db.VarChar(50)
+  name    String
+  owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId String @map("owner") @db.VarChar(50)
+  songs   Song[]
+
+  @@map("playlists")
 }
