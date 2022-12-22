@@ -27,4 +27,12 @@ export default (handler: PlaylistsHandler): Array<ServerRoute> => [
       auth: "openmusicapi_jwt",
     },
   },
+  {
+    method: "POST",
+    path: "/playlists/{id}/songs",
+    handler: handler.postSongToPlaylistById,
+    options: {
+      auth: "openmusicapi_jwt",
+    },
+  },
 ];

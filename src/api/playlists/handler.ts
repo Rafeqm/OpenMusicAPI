@@ -58,4 +58,22 @@ export default class PlaylistsHandler {
       message: "Playlist deleted",
     };
   };
+
+  postSongToPlaylistById: Lifecycle.Method = async (request, h) => {
+    const { id } = <Playlist>request.params;
+    const { userId: ownerId } = <any>request.auth.credentials;
+
+    await this._service.verifyPlaylistOwner(id, ownerId);
+    await this._validator.validate("song", request.payload);
+
+    const { songId } = <any>request.payload;
+    await this._service.addSongToPlaylistById(id, songId);
+
+    return h
+      .response({
+        status: "success",
+        message: `Song added to playlist`,
+      })
+      .code(201);
+  };
 }

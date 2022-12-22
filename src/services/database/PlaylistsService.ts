@@ -1,5 +1,5 @@
 import { badData, forbidden, notFound } from "@hapi/boom";
-import { Playlist, Prisma, PrismaClient, User } from "@prisma/client";
+import { Playlist, Prisma, PrismaClient, Song, User } from "@prisma/client";
 import { nanoid } from "nanoid";
 
 type PlaylistData = Omit<Playlist, "ownerId"> & Pick<User, "username">;
@@ -51,6 +51,38 @@ export default class PlaylistsService {
         if (error.code === "P2025") {
           throw notFound("Playlist not found");
         }
+      }
+
+      throw error;
+    }
+  }
+
+  async addSongToPlaylistById(
+    id: Playlist["id"],
+    song: Song["id"]
+  ): Promise<void> {
+    try {
+      await this._prisma.playlist.update({
+        where: {
+          id,
+        },
+        data: {
+          songs: {
+            connect: {
+              id: song,
+            },
+          },
+        },
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          throw notFound("Playlist or song not found");
+        }
+      }
+
+      if (error instanceof Prisma.PrismaClientValidationError) {
+        throw badData("Data unprocessable");
       }
 
       throw error;
