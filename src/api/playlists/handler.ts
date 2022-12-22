@@ -45,4 +45,17 @@ export default class PlaylistsHandler {
       },
     };
   };
+
+  deletePlaylistById: Lifecycle.Method = async (request) => {
+    const { id } = <Playlist>request.params;
+    const { userId: ownerId } = <any>request.auth.credentials;
+
+    await this._service.verifyPlaylistOwner(id, ownerId);
+    await this._service.deletePlaylistById(id);
+
+    return {
+      status: "success",
+      message: "Playlist deleted",
+    };
+  };
 }

@@ -19,4 +19,12 @@ export default (handler: PlaylistsHandler): Array<ServerRoute> => [
       auth: "openmusicapi_jwt",
     },
   },
+  {
+    method: "DELETE",
+    path: "/playlists/{id}",
+    handler: handler.deletePlaylistById,
+    options: {
+      auth: "openmusicapi_jwt",
+    },
+  },
 ];
