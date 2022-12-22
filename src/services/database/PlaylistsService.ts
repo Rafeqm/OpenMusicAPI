@@ -1,6 +1,8 @@
 import { badData } from "@hapi/boom";
-import { Playlist, Prisma, PrismaClient } from "@prisma/client";
+import { Playlist, Prisma, PrismaClient, User } from "@prisma/client";
 import { nanoid } from "nanoid";
+
+type PlaylistData = Omit<Playlist, "ownerId"> & Pick<User, "username">;
 
 export default class PlaylistsService {
   private readonly _prisma: PrismaClient;
@@ -28,5 +30,12 @@ export default class PlaylistsService {
 
       throw error;
     }
+  }
+
+  async getPlaylists(owner: Playlist["ownerId"]): Promise<Array<PlaylistData>> {
+    return await this._prisma.$queryRaw`
+      SELECT playlists.id, playlists.name, users.username FROM playlists
+      LEFT JOIN users ON playlists.owner = users.id
+      WHERE playlists.owner = ${owner} OR users.id = ${owner}`;
   }
 }

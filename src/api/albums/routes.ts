@@ -2,7 +2,7 @@ import { ServerRoute } from "@hapi/hapi";
 
 import AlbumsHandler from "./handler";
 
-export default (handler: AlbumsHandler): ServerRoute | Array<ServerRoute> => [
+export default (handler: AlbumsHandler): Array<ServerRoute> => [
   {
     method: "POST",
     path: "/albums",

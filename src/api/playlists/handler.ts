@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { Lifecycle } from "@hapi/hapi";
 import { Playlist } from "@prisma/client";
 
@@ -14,7 +16,6 @@ export default class PlaylistsHandler {
     await this._validator.validate("playlist", request.payload);
 
     const { name } = <Playlist>request.payload;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { userId: ownerId } = <any>request.auth.credentials;
 
     const playlistId = await this._service.addPlaylist(<Playlist>{
@@ -31,5 +32,17 @@ export default class PlaylistsHandler {
         },
       })
       .code(201);
+  };
+
+  getPlaylists: Lifecycle.Method = async (request) => {
+    const { userId } = <any>request.auth.credentials;
+    const playlists = await this._service.getPlaylists(userId);
+
+    return {
+      status: "success",
+      data: {
+        playlists,
+      },
+    };
   };
 }

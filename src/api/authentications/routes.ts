@@ -2,9 +2,7 @@ import { ServerRoute } from "@hapi/hapi";
 
 import AuthenticationsHandler from "./handler";
 
-export default (
-  handler: AuthenticationsHandler
-): ServerRoute | Array<ServerRoute> => [
+export default (handler: AuthenticationsHandler): Array<ServerRoute> => [
   {
     method: "POST",
     path: "/authentications",
