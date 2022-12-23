@@ -48,9 +48,9 @@ export default class PlaylistsHandler {
 
   deletePlaylistById: Lifecycle.Method = async (request) => {
     const { id } = <Playlist>request.params;
-    const { userId: ownerId } = <any>request.auth.credentials;
+    const { userId } = <any>request.auth.credentials;
 
-    await this._service.verifyPlaylistOwner(id, ownerId);
+    await this._service.verifyPlaylistOwner(id, userId);
     await this._service.deletePlaylistById(id);
 
     return {
@@ -61,9 +61,9 @@ export default class PlaylistsHandler {
 
   postSongToPlaylistById: Lifecycle.Method = async (request, h) => {
     const { id } = <Playlist>request.params;
-    const { userId: ownerId } = <any>request.auth.credentials;
+    const { userId } = <any>request.auth.credentials;
 
-    await this._service.verifyPlaylistOwner(id, ownerId);
+    await this._service.verifyPlaylistOwner(id, userId);
     await this._validator.validate("song", request.payload);
 
     const { songId } = <any>request.payload;
@@ -72,16 +72,16 @@ export default class PlaylistsHandler {
     return h
       .response({
         status: "success",
-        message: `Song added to playlist`,
+        message: "Song added to playlist",
       })
       .code(201);
   };
 
   getSongsInPlaylistById: Lifecycle.Method = async (request) => {
     const { id } = <Playlist>request.params;
-    const { userId: ownerId } = <any>request.auth.credentials;
+    const { userId } = <any>request.auth.credentials;
 
-    await this._service.verifyPlaylistOwner(id, ownerId);
+    await this._service.verifyPlaylistOwner(id, userId);
     const playlist = await this._service.getSongsInPlaylistById(id);
 
     return {
@@ -89,6 +89,22 @@ export default class PlaylistsHandler {
       data: {
         playlist,
       },
+    };
+  };
+
+  deleteSongFromPlaylistById: Lifecycle.Method = async (request) => {
+    const { id } = <Playlist>request.params;
+    const { userId } = <any>request.auth.credentials;
+
+    await this._service.verifyPlaylistOwner(id, userId);
+    await this._validator.validate("song", request.payload);
+
+    const { songId } = <any>request.payload;
+    await this._service.deleteSongFromPlaylistById(id, songId);
+
+    return {
+      status: "success",
+      message: "Song deleted from playlist",
     };
   };
 }
