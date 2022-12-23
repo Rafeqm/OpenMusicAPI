@@ -76,4 +76,19 @@ export default class PlaylistsHandler {
       })
       .code(201);
   };
+
+  getSongsInPlaylistById: Lifecycle.Method = async (request) => {
+    const { id } = <Playlist>request.params;
+    const { userId: ownerId } = <any>request.auth.credentials;
+
+    await this._service.verifyPlaylistOwner(id, ownerId);
+    const playlist = await this._service.getSongsInPlaylistById(id);
+
+    return {
+      status: "success",
+      data: {
+        playlist,
+      },
+    };
+  };
 }

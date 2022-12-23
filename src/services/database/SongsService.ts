@@ -1,6 +1,8 @@
 import { badData, notFound } from "@hapi/boom";
-import { Prisma, PrismaClient, Song } from "@prisma/client";
+import { Playlist, Prisma, PrismaClient, Song } from "@prisma/client";
 import { nanoid } from "nanoid";
+
+export type SongsData = Array<Pick<Song, "id" | "title" | "performer">>;
 
 export default class SongsService {
   private readonly _prisma: PrismaClient;
@@ -33,7 +35,7 @@ export default class SongsService {
   async getSongs(
     title?: Song["title"],
     performer?: Song["performer"]
-  ): Promise<Array<Pick<Song, "id" | "title" | "performer">>> {
+  ): Promise<SongsData> {
     return await this._prisma.song.findMany({
       where: {
         title: {
@@ -112,5 +114,22 @@ export default class SongsService {
 
       throw error;
     }
+  }
+
+  async getSongsByPlaylistId(id: Playlist["id"]): Promise<SongsData> {
+    return await this._prisma.song.findMany({
+      where: {
+        playlists: {
+          some: {
+            id,
+          },
+        },
+      },
+      select: {
+        id: true,
+        title: true,
+        performer: true,
+      },
+    });
   }
 }

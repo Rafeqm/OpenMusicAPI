@@ -2,12 +2,17 @@ import { badData, forbidden, notFound } from "@hapi/boom";
 import { Playlist, Prisma, PrismaClient, Song, User } from "@prisma/client";
 import { nanoid } from "nanoid";
 
-type PlaylistData = Omit<Playlist, "ownerId"> & Pick<User, "username">;
+import SongsService, { SongsData } from "./SongsService";
+
+type PlaylistData = Omit<Playlist, "ownerId"> &
+  Pick<User, "username"> & {
+    songs?: SongsData;
+  };
 
 export default class PlaylistsService {
   private readonly _prisma: PrismaClient;
 
-  constructor() {
+  constructor(private readonly _songsService: SongsService) {
     this._prisma = new PrismaClient({
       errorFormat: "pretty",
     });
@@ -87,6 +92,22 @@ export default class PlaylistsService {
 
       throw error;
     }
+  }
+
+  async getSongsInPlaylistById(id: Playlist["id"]): Promise<PlaylistData> {
+    const playlist = (
+      await this._prisma.$queryRaw<Array<PlaylistData>>`
+        SELECT playlists.id, playlists.name, users.username FROM playlists
+        LEFT JOIN users ON playlists.owner = users.id
+        WHERE playlists.id = ${id}`
+    )[0];
+
+    if (playlist === undefined) throw notFound("Playlist not found");
+
+    return {
+      ...playlist,
+      songs: await this._songsService.getSongsByPlaylistId(id),
+    };
   }
 
   async verifyPlaylistOwner(
