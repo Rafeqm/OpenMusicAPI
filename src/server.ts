@@ -23,6 +23,8 @@ import playlists from "./api/playlists/index.js";
 import PlaylistsService from "./services/database/PlaylistsService.js";
 import playlistsPayloadValidator from "./validator/playlists/index.js";
 
+import collaborations from "./api/collaborations/index.js";
+
 dotenv.config();
 
 const init = async () => {
@@ -102,6 +104,9 @@ const init = async () => {
         service: playlistsService,
         validator: playlistsPayloadValidator,
       },
+    },
+    {
+      plugin: collaborations,
     },
   ]);
 
