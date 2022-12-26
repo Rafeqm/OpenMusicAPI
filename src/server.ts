@@ -24,6 +24,8 @@ import PlaylistsService from "./services/database/PlaylistsService.js";
 import playlistsPayloadValidator from "./validator/playlists/index.js";
 
 import collaborations from "./api/collaborations/index.js";
+import CollaborationsService from "./services/database/CollaborationsService.js";
+import collaborationsPayloadValidator from "./validator/collaborations/index.js";
 
 dotenv.config();
 
@@ -66,6 +68,7 @@ const init = async () => {
   const usersService = new UsersService();
   const authenticationsService = new AuthenticationsService();
   const playlistsService = new PlaylistsService(songsService);
+  const collaborationsService = new CollaborationsService();
 
   await server.register([
     {
@@ -107,6 +110,10 @@ const init = async () => {
     },
     {
       plugin: collaborations,
+      options: {
+        service: collaborationsService,
+        validator: collaborationsPayloadValidator,
+      },
     },
   ]);
 
