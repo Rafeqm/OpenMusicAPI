@@ -36,6 +36,30 @@ export default class CollaborationsService {
     }
   }
 
+  async verifyCollaborator(
+    playlist: Collaboration["playlistId"],
+    user: Collaboration["userId"]
+  ): Promise<void> {
+    try {
+      await this._prisma.collaboration.findUniqueOrThrow({
+        where: {
+          playlistId_userId: {
+            playlistId: playlist,
+            userId: user,
+          },
+        },
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          throw badRequest("Unverified collaboration");
+        }
+      }
+
+      throw error;
+    }
+  }
+
   async deleteCollaboration(
     playlist: Collaboration["playlistId"],
     user: Collaboration["userId"]

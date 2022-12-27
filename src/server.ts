@@ -67,8 +67,11 @@ const init = async () => {
   const songsService = new SongsService();
   const usersService = new UsersService();
   const authenticationsService = new AuthenticationsService();
-  const playlistsService = new PlaylistsService(songsService);
   const collaborationsService = new CollaborationsService();
+  const playlistsService = new PlaylistsService(
+    songsService,
+    collaborationsService
+  );
 
   await server.register([
     {

@@ -63,7 +63,7 @@ export default class PlaylistsHandler {
     const { id } = <Playlist>request.params;
     const { userId } = <any>request.auth.credentials;
 
-    await this._service.verifyPlaylistOwner(id, userId);
+    await this._service.verifyPlaylistAccess(id, userId);
     await this._validator.validate("song", request.payload);
 
     const { songId } = <any>request.payload;
@@ -81,7 +81,7 @@ export default class PlaylistsHandler {
     const { id } = <Playlist>request.params;
     const { userId } = <any>request.auth.credentials;
 
-    await this._service.verifyPlaylistOwner(id, userId);
+    await this._service.verifyPlaylistAccess(id, userId);
     const playlist = await this._service.getSongsInPlaylistById(id);
 
     return {
@@ -96,7 +96,7 @@ export default class PlaylistsHandler {
     const { id } = <Playlist>request.params;
     const { userId } = <any>request.auth.credentials;
 
-    await this._service.verifyPlaylistOwner(id, userId);
+    await this._service.verifyPlaylistAccess(id, userId);
     await this._validator.validate("song", request.payload);
 
     const { songId } = <any>request.payload;

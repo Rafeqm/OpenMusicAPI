@@ -1,7 +1,8 @@
-import { badData, forbidden, notFound } from "@hapi/boom";
+import { badData, forbidden, isBoom, notFound } from "@hapi/boom";
 import { Playlist, Prisma, PrismaClient, Song, User } from "@prisma/client";
 import { nanoid } from "nanoid";
 
+import CollaborationsService from "./CollaborationsService";
 import SongsService, { SongsData } from "./SongsService";
 
 type PlaylistData = Omit<Playlist, "ownerId"> &
@@ -12,7 +13,10 @@ type PlaylistData = Omit<Playlist, "ownerId"> &
 export default class PlaylistsService {
   private readonly _prisma: PrismaClient;
 
-  constructor(private readonly _songsService: SongsService) {
+  constructor(
+    private readonly _songsService: SongsService,
+    private readonly _collaborationsService: CollaborationsService
+  ) {
     this._prisma = new PrismaClient({
       errorFormat: "pretty",
     });
@@ -37,11 +41,12 @@ export default class PlaylistsService {
     }
   }
 
-  async getPlaylists(owner: Playlist["ownerId"]): Promise<Array<PlaylistData>> {
+  async getPlaylists(user: User["id"]): Promise<Array<PlaylistData>> {
     return await this._prisma.$queryRaw`
       SELECT playlists.id, playlists.name, users.username FROM playlists
       LEFT JOIN users ON playlists.owner = users.id
-      WHERE playlists.owner = ${owner} OR users.id = ${owner}`;
+      LEFT JOIN collaborations ON playlists.id = collaborations.playlist_id
+      WHERE playlists.owner = ${user} OR collaborations.user_id = ${user}`;
   }
 
   async deletePlaylistById(id: Playlist["id"]): Promise<void> {
@@ -162,6 +167,25 @@ export default class PlaylistsService {
       }
 
       throw error;
+    }
+  }
+
+  async verifyPlaylistAccess(
+    id: Playlist["id"],
+    user: User["id"]
+  ): Promise<void> {
+    try {
+      await this.verifyPlaylistOwner(id, user);
+    } catch (error) {
+      if (!isBoom(error) || error.output.statusCode === 404) {
+        throw error;
+      }
+
+      try {
+        await this._collaborationsService.verifyCollaborator(id, user);
+      } catch {
+        throw error;
+      }
     }
   }
 }
