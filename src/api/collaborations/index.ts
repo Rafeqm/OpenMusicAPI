@@ -14,7 +14,7 @@ type CollaborationsPluginOptions = {
 
 export default <Plugin<CollaborationsPluginOptions>>{
   name: "collaborations",
-  version: "0.1.0",
+  version: "1.0.0",
   // eslint-disable-next-line require-await
   register: async (
     server,

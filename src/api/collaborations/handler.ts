@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { Lifecycle } from "@hapi/hapi";
 import { Collaboration } from "@prisma/client";
 
@@ -16,7 +18,6 @@ export default class CollaborationsHandler {
     await this._validator.validate(request.payload);
 
     const { playlistId, userId } = <Collaboration>request.payload;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { userId: ownerId } = <any>request.auth.credentials;
 
     await this._playlistsService.verifyPlaylistOwner(playlistId, ownerId);
@@ -36,5 +37,20 @@ export default class CollaborationsHandler {
         },
       })
       .code(201);
+  };
+
+  deleteCollaboration: Lifecycle.Method = async (request) => {
+    await this._validator.validate(request.payload);
+
+    const { playlistId, userId } = <Collaboration>request.payload;
+    const { userId: ownerId } = <any>request.auth.credentials;
+
+    await this._playlistsService.verifyPlaylistOwner(playlistId, ownerId);
+    await this._collaborationsService.deleteCollaboration(playlistId, userId);
+
+    return {
+      status: "success",
+      message: "Collaboration deleted",
+    };
   };
 }
