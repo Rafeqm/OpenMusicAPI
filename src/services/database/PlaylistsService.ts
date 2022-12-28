@@ -1,5 +1,12 @@
 import { badData, forbidden, isBoom, notFound } from "@hapi/boom";
-import { Playlist, Prisma, PrismaClient, Song, User } from "@prisma/client";
+import {
+  ActivityOnPlaylist,
+  Playlist,
+  Prisma,
+  PrismaClient,
+  Song,
+  User,
+} from "@prisma/client";
 import { nanoid } from "nanoid";
 
 import CollaborationsService from "./CollaborationsService";
@@ -9,6 +16,15 @@ type PlaylistData = Omit<Playlist, "ownerId"> &
   Pick<User, "username"> & {
     songs?: SongsData;
   };
+
+type ActionOnPlaylist = "add" | "delete";
+
+type ActivityData = {
+  username: User["username"];
+  title: Song["title"];
+  action: ActionOnPlaylist;
+  time: ActivityOnPlaylist["time"];
+};
 
 export default class PlaylistsService {
   private readonly _prisma: PrismaClient;
@@ -69,7 +85,8 @@ export default class PlaylistsService {
 
   async addSongToPlaylistById(
     id: Playlist["id"],
-    song: Song["id"]
+    song: Song["id"],
+    user: User["id"]
   ): Promise<void> {
     try {
       await this._prisma.playlist.update({
@@ -80,6 +97,13 @@ export default class PlaylistsService {
           songs: {
             connect: {
               id: song,
+            },
+          },
+          activities: {
+            create: {
+              userId: user,
+              songId: song,
+              action: <ActionOnPlaylist>"add",
             },
           },
         },
@@ -117,7 +141,8 @@ export default class PlaylistsService {
 
   async deleteSongFromPlaylistById(
     id: Playlist["id"],
-    song: Song["id"]
+    song: Song["id"],
+    user: User["id"]
   ): Promise<void> {
     try {
       await this._prisma.playlist.update({
@@ -128,6 +153,13 @@ export default class PlaylistsService {
           songs: {
             disconnect: {
               id: song,
+            },
+          },
+          activities: {
+            create: {
+              userId: user,
+              songId: song,
+              action: <ActionOnPlaylist>"delete",
             },
           },
         },
@@ -145,6 +177,21 @@ export default class PlaylistsService {
 
       throw error;
     }
+  }
+
+  async getActivitiesOnPlaylistById(
+    id: Playlist["id"]
+  ): Promise<Array<ActivityData>> {
+    return await this._prisma.$queryRaw`
+        SELECT 
+          users.username,
+          songs.title,
+          activities_on_playlist.action,
+          activities_on_playlist.time
+        FROM activities_on_playlist
+        LEFT JOIN users ON activities_on_playlist.user_id = users.id
+        LEFT JOIN songs ON activities_on_playlist.song_id = songs.id
+        WHERE activities_on_playlist.playlist_id = ${id}`;
   }
 
   async verifyPlaylistOwner(

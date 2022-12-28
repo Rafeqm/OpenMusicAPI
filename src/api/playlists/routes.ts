@@ -51,4 +51,12 @@ export default (handler: PlaylistsHandler): Array<ServerRoute> => [
       auth: "openmusicapi_jwt",
     },
   },
+  {
+    method: "GET",
+    path: "/playlists/{id}/activities",
+    handler: handler.getActivitiesOnPlaylistById,
+    options: {
+      auth: "openmusicapi_jwt",
+    },
+  },
 ];

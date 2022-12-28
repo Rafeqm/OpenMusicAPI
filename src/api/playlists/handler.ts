@@ -67,7 +67,7 @@ export default class PlaylistsHandler {
     await this._validator.validate("song", request.payload);
 
     const { songId } = <any>request.payload;
-    await this._service.addSongToPlaylistById(id, songId);
+    await this._service.addSongToPlaylistById(id, songId, userId);
 
     return h
       .response({
@@ -100,11 +100,27 @@ export default class PlaylistsHandler {
     await this._validator.validate("song", request.payload);
 
     const { songId } = <any>request.payload;
-    await this._service.deleteSongFromPlaylistById(id, songId);
+    await this._service.deleteSongFromPlaylistById(id, songId, userId);
 
     return {
       status: "success",
       message: "Song deleted from playlist",
+    };
+  };
+
+  getActivitiesOnPlaylistById: Lifecycle.Method = async (request) => {
+    const { id } = <Playlist>request.params;
+    const { userId } = <any>request.auth.credentials;
+
+    await this._service.verifyPlaylistAccess(id, userId);
+    const activities = await this._service.getActivitiesOnPlaylistById(id);
+
+    return {
+      status: "success",
+      data: {
+        playlistId: id,
+        activities,
+      },
     };
   };
 }
