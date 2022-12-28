@@ -191,7 +191,8 @@ export default class PlaylistsService {
         FROM activities_on_playlist
         LEFT JOIN users ON activities_on_playlist.user_id = users.id
         LEFT JOIN songs ON activities_on_playlist.song_id = songs.id
-        WHERE activities_on_playlist.playlist_id = ${id}`;
+        WHERE activities_on_playlist.playlist_id = ${id}
+        ORDER BY activities_on_playlist.time`;
   }
 
   async verifyPlaylistOwner(
