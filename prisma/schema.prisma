@@ -20,26 +20,28 @@ model Album {
 }
 
 model Song {
-  id        String     @id @db.VarChar(50)
-  title     String
-  year      Int        @db.SmallInt
-  performer String
-  genre     String
-  duration  Int?
-  album     Album?     @relation(fields: [albumId], references: [id])
-  albumId   String?    @map("album_id") @db.VarChar(50)
-  playlists Playlist[]
+  id                   String               @id @db.VarChar(50)
+  title                String
+  year                 Int                  @db.SmallInt
+  performer            String
+  genre                String
+  duration             Int?
+  album                Album?               @relation(fields: [albumId], references: [id])
+  albumId              String?              @map("album_id") @db.VarChar(50)
+  playlists            Playlist[]
+  activitiesInPlaylist ActivityOnPlaylist[]
 
   @@map("songs")
 }
 
 model User {
-  id             String          @id @db.VarChar(50)
-  username       String          @unique @db.VarChar(25)
-  password       String
-  fullname       String
-  playlists      Playlist[]
-  collaborations Collaboration[]
+  id                   String               @id @db.VarChar(50)
+  username             String               @unique @db.VarChar(25)
+  password             String
+  fullname             String
+  playlists            Playlist[]
+  collaborations       Collaboration[]
+  activitiesOnPlaylist ActivityOnPlaylist[]
 
   @@map("users")
 }
@@ -51,12 +53,13 @@ model Authentication {
 }
 
 model Playlist {
-  id             String          @id @db.VarChar(50)
+  id             String               @id @db.VarChar(50)
   name           String
-  owner          User            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  ownerId        String          @map("owner") @db.VarChar(50)
+  owner          User                 @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId        String               @map("owner") @db.VarChar(50)
   songs          Song[]
   collaborations Collaboration[]
+  activities     ActivityOnPlaylist[]
 
   @@map("playlists")
 }
@@ -70,4 +73,18 @@ model Collaboration {
 
   @@unique(fields: [playlistId, userId])
   @@map("collaborations")
+}
+
+model ActivityOnPlaylist {
+  playlist   Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+  playlistId String   @map("playlist_id") @db.VarChar(50)
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String   @map("user_id") @db.VarChar(50)
+  song       Song     @relation(fields: [songId], references: [id])
+  songId     String   @map("song_id") @db.VarChar(50)
+  action     String   @db.VarChar(10)
+  time       DateTime @default(now())
+
+  @@id([songId, action, time])
+  @@map("activities_on_playlist")
 }
