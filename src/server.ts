@@ -27,6 +27,8 @@ import collaborations from "./api/collaborations/index.js";
 import CollaborationsService from "./services/database/CollaborationsService.js";
 import collaborationsPayloadValidator from "./validator/collaborations/index.js";
 
+import _exports from "./api/exports/index.js";
+
 dotenv.config();
 
 const init = async () => {
@@ -118,6 +120,9 @@ const init = async () => {
         playlistsService,
         validator: collaborationsPayloadValidator,
       },
+    },
+    {
+      plugin: _exports,
     },
   ]);
 

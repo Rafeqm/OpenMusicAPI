@@ -1,0 +1,14 @@
+import { Plugin } from "@hapi/hapi";
+
+import ExportsHandler from "./handler.js";
+import routes from "./routes.js";
+
+export default <Plugin<null>>{
+  name: "exports",
+  version: "0.0.1",
+  // eslint-disable-next-line require-await
+  register: async (server) => {
+    const exportsHandler = new ExportsHandler();
+    server.route(routes(exportsHandler));
+  },
+};
