@@ -127,7 +127,7 @@ const init = async () => {
     if (response instanceof Error) {
       // Internal server error handling
       if (response.isServer) {
-        console.error(response);
+        console.error(`${response.name}\n${response.stack}\n`);
         return h
           .response({
             status: "error",
