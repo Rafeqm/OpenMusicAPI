@@ -27,7 +27,7 @@ export default class SongsHandler {
   };
 
   getSongs: Lifecycle.Method = async (request) => {
-    const { title, performer } = <Partial<Song>>request.query;
+    const { title, performer } = <Song>request.query;
     const songs = await this._service.getSongs(title, performer);
 
     return {

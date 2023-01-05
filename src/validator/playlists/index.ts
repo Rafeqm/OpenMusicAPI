@@ -5,11 +5,11 @@ import { playlistPayloadSchema, playlistSongPayloadSchema } from "./schema.js";
 
 export default {
   validate: async (
-    target: "playlist" | "song",
-    payload: Request["payload"]
+    payload: Request["payload"],
+    entity: "playlist" | "song"
   ): Promise<void> => {
     try {
-      await (target === "playlist"
+      await (entity === "playlist"
         ? playlistPayloadSchema
         : playlistSongPayloadSchema
       ).validateAsync(payload);

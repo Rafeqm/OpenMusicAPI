@@ -54,11 +54,11 @@ const init = async () => {
       sub: false,
       maxAgeSec: process.env.ACCESS_TOKEN_AGE,
     },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     validate: (artifacts: any) => ({
       isValid: true,
       credentials: {
-        userId: artifacts.decoded.payload.id,
+        userId: artifacts.decoded.payload.userId,
       },
     }),
   });

@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { Lifecycle } from "@hapi/hapi";
 import { Collaboration } from "@prisma/client";
 
@@ -17,16 +15,13 @@ export default class CollaborationsHandler {
   postCollaboration: Lifecycle.Method = async (request, h) => {
     await this._validator.validate(request.payload);
 
-    const { playlistId, userId } = <Collaboration>request.payload;
-    const { userId: ownerId } = <any>request.auth.credentials;
+    const { playlistId } = <Collaboration>request.payload;
+    const { userId } = <any>request.auth.credentials;
 
-    await this._playlistsService.verifyPlaylistOwner(playlistId, ownerId);
-    const collaborationId = await this._collaborationsService.addCollaboration(<
-      Collaboration
-    >{
-      playlistId,
-      userId,
-    });
+    await this._playlistsService.verifyPlaylistOwner(playlistId, userId);
+    const collaborationId = await this._collaborationsService.addCollaboration(
+      <Collaboration>request.payload
+    );
 
     return h
       .response({
@@ -42,11 +37,13 @@ export default class CollaborationsHandler {
   deleteCollaboration: Lifecycle.Method = async (request) => {
     await this._validator.validate(request.payload);
 
-    const { playlistId, userId } = <Collaboration>request.payload;
-    const { userId: ownerId } = <any>request.auth.credentials;
+    const { playlistId } = <Collaboration>request.payload;
+    const { userId } = <any>request.auth.credentials;
 
-    await this._playlistsService.verifyPlaylistOwner(playlistId, ownerId);
-    await this._collaborationsService.deleteCollaboration(playlistId, userId);
+    await this._playlistsService.verifyPlaylistOwner(playlistId, userId);
+    await this._collaborationsService.deleteCollaboration(
+      <Collaboration>request.payload
+    );
 
     return {
       status: "success",

@@ -12,13 +12,13 @@ export default class UsersService {
     });
   }
 
-  async addUser(input: User): Promise<User["id"]> {
+  async addUser(data: User): Promise<User["id"]> {
     try {
       const user = await this._prisma.user.create({
         data: {
-          ...input,
+          ...data,
           id: nanoid(),
-          password: await bcrypt.hash(input.password, 10),
+          password: await bcrypt.hash(data.password, 10),
         },
       });
 

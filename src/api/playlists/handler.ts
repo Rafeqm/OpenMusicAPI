@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { Lifecycle } from "@hapi/hapi";
 import { Playlist } from "@prisma/client";
 
@@ -13,7 +11,7 @@ export default class PlaylistsHandler {
   ) {}
 
   postPlaylist: Lifecycle.Method = async (request, h) => {
-    await this._validator.validate("playlist", request.payload);
+    await this._validator.validate(request.payload, "playlist");
 
     const { name } = <Playlist>request.payload;
     const { userId: ownerId } = <any>request.auth.credentials;
@@ -64,7 +62,7 @@ export default class PlaylistsHandler {
     const { userId } = <any>request.auth.credentials;
 
     await this._service.verifyPlaylistAccess(id, userId);
-    await this._validator.validate("song", request.payload);
+    await this._validator.validate(request.payload, "song");
 
     const { songId } = <any>request.payload;
     await this._service.addSongToPlaylistById(id, songId, userId);
@@ -97,7 +95,7 @@ export default class PlaylistsHandler {
     const { userId } = <any>request.auth.credentials;
 
     await this._service.verifyPlaylistAccess(id, userId);
-    await this._validator.validate("song", request.payload);
+    await this._validator.validate(request.payload, "song");
 
     const { songId } = <any>request.payload;
     await this._service.deleteSongFromPlaylistById(id, songId, userId);

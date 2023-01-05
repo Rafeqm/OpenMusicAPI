@@ -11,11 +11,11 @@ export default class AlbumsService {
     });
   }
 
-  async addAlbum(input: Album): Promise<Album["id"]> {
+  async addAlbum(data: Album): Promise<Album["id"]> {
     try {
       const album = await this._prisma.album.create({
         data: {
-          ...input,
+          ...data,
           id: nanoid(),
         },
       });
@@ -57,15 +57,13 @@ export default class AlbumsService {
     }
   }
 
-  async editAlbumById(id: Album["id"], input: Album): Promise<void> {
+  async editAlbumById(id: Album["id"], data: Album): Promise<void> {
     try {
       await this._prisma.album.update({
         where: {
           id,
         },
-        data: {
-          ...input,
-        },
+        data,
       });
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {

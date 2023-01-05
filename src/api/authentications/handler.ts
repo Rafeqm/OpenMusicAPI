@@ -1,5 +1,5 @@
 import { Lifecycle } from "@hapi/hapi";
-import { Authentication, User } from "@prisma/client";
+import { User } from "@prisma/client";
 
 import AuthenticationsService from "../../services/database/AuthenticationsService";
 import UsersService from "../../services/database/UsersService";
@@ -15,16 +15,16 @@ export default class AuthenticationsHandler {
   ) {}
 
   postAuthentication: Lifecycle.Method = async (request, h) => {
-    await this._validator.validate("POST", request.payload);
+    await this._validator.validate(request.payload, "POST");
 
     const { username, password } = <User>request.payload;
-    const id = await this._usersService.verifyUserCredential(
+    const userId = await this._usersService.verifyUserCredential(
       username,
       password
     );
 
-    const accessToken = this._tokenManager.generateAccessToken({ id });
-    const refreshToken = this._tokenManager.generateRefreshToken({ id });
+    const accessToken = this._tokenManager.generateAccessToken({ userId });
+    const refreshToken = this._tokenManager.generateRefreshToken({ userId });
 
     await this._authenticationsService.addRefreshToken(refreshToken);
 
@@ -41,15 +41,13 @@ export default class AuthenticationsHandler {
   };
 
   putAuthentication: Lifecycle.Method = async (request) => {
-    await this._validator.validate("PUT", request.payload);
+    await this._validator.validate(request.payload, "PUT");
 
-    const { refreshToken } = <{ refreshToken: Authentication["token"] }>(
-      request.payload
-    );
+    const { refreshToken } = <any>request.payload;
     await this._authenticationsService.verifyRefreshToken(refreshToken);
 
-    const { id } = this._tokenManager.verifyRefreshToken(refreshToken);
-    const accessToken = this._tokenManager.generateAccessToken({ id });
+    const { userId } = this._tokenManager.verifyRefreshToken(refreshToken);
+    const accessToken = this._tokenManager.generateAccessToken({ userId });
 
     return {
       status: "success",
@@ -61,11 +59,9 @@ export default class AuthenticationsHandler {
   };
 
   deleteAuthentication: Lifecycle.Method = async (request) => {
-    await this._validator.validate("DELETE", request.payload);
+    await this._validator.validate(request.payload, "DELETE");
 
-    const { refreshToken } = <{ refreshToken: Authentication["token"] }>(
-      request.payload
-    );
+    const { refreshToken } = <any>request.payload;
     await this._authenticationsService.deleteRefreshToken(refreshToken);
 
     return {

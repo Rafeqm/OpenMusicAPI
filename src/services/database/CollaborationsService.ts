@@ -11,11 +11,11 @@ export default class CollaborationsService {
     });
   }
 
-  async addCollaboration(input: Collaboration): Promise<Collaboration["id"]> {
+  async addCollaboration(data: Collaboration): Promise<Collaboration["id"]> {
     try {
       const collaboration = await this._prisma.collaboration.create({
         data: {
-          ...input,
+          ...data,
           id: nanoid(),
         },
       });
@@ -36,17 +36,11 @@ export default class CollaborationsService {
     }
   }
 
-  async verifyCollaborator(
-    playlist: Collaboration["playlistId"],
-    user: Collaboration["userId"]
-  ): Promise<void> {
+  async verifyCollaborator(data: Omit<Collaboration, "id">): Promise<void> {
     try {
       await this._prisma.collaboration.findUniqueOrThrow({
         where: {
-          playlistId_userId: {
-            playlistId: playlist,
-            userId: user,
-          },
+          playlistId_userId: data,
         },
       });
     } catch (error) {
@@ -60,17 +54,11 @@ export default class CollaborationsService {
     }
   }
 
-  async deleteCollaboration(
-    playlist: Collaboration["playlistId"],
-    user: Collaboration["userId"]
-  ): Promise<void> {
+  async deleteCollaboration(data: Collaboration): Promise<void> {
     try {
       await this._prisma.collaboration.delete({
         where: {
-          playlistId_userId: {
-            playlistId: playlist,
-            userId: user,
-          },
+          playlistId_userId: data,
         },
       });
     } catch (error) {

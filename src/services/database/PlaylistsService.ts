@@ -38,11 +38,11 @@ export default class PlaylistsService {
     });
   }
 
-  async addPlaylist(input: Playlist): Promise<Playlist["id"]> {
+  async addPlaylist(data: Playlist): Promise<Playlist["id"]> {
     try {
       const playlist = await this._prisma.playlist.create({
         data: {
-          ...input,
+          ...data,
           id: nanoid(),
         },
       });
@@ -196,17 +196,17 @@ export default class PlaylistsService {
   }
 
   async verifyPlaylistOwner(
-    id: Playlist["id"],
-    owner: Playlist["ownerId"]
+    playlistId: Playlist["id"],
+    userId: Playlist["ownerId"]
   ): Promise<void> {
     try {
       const playlist = await this._prisma.playlist.findUniqueOrThrow({
         where: {
-          id,
+          id: playlistId,
         },
       });
 
-      if (owner !== playlist.ownerId) throw forbidden("Access not granted");
+      if (userId !== playlist.ownerId) throw forbidden("Access not granted");
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2025") {
@@ -219,18 +219,21 @@ export default class PlaylistsService {
   }
 
   async verifyPlaylistAccess(
-    id: Playlist["id"],
-    user: User["id"]
+    playlistId: Playlist["id"],
+    userId: Playlist["ownerId"]
   ): Promise<void> {
     try {
-      await this.verifyPlaylistOwner(id, user);
+      await this.verifyPlaylistOwner(playlistId, userId);
     } catch (error) {
       if (!isBoom(error) || error.output.statusCode === 404) {
         throw error;
       }
 
       try {
-        await this._collaborationsService.verifyCollaborator(id, user);
+        await this._collaborationsService.verifyCollaborator({
+          playlistId,
+          userId,
+        });
       } catch {
         throw error;
       }

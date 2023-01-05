@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
 import { badRequest } from "@hapi/boom";
@@ -12,9 +11,9 @@ export const tokenManager = {
   generateRefreshToken: (payload: any): string =>
     Jwt.token.generate(payload, process.env.REFRESH_TOKEN_KEY!),
 
-  verifyRefreshToken: (refreshToken: Authentication["token"]): any => {
+  verifyRefreshToken: (token: Authentication["token"]): any => {
     try {
-      const artifacts = Jwt.token.decode(refreshToken);
+      const artifacts = Jwt.token.decode(token);
 
       Jwt.token.verifySignature(artifacts, process.env.REFRESH_TOKEN_KEY!);
       return artifacts.decoded.payload;

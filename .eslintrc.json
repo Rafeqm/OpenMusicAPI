@@ -15,6 +15,7 @@
   },
   "plugins": ["@typescript-eslint"],
   "rules": {
-    "@hapi/scope-start": "off"
+    "@hapi/scope-start": "off",
+    "@typescript-eslint/no-explicit-any": "off"
   }
 }

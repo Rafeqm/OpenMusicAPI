@@ -13,11 +13,11 @@ export default class SongsService {
     });
   }
 
-  async addSong(input: Song): Promise<Song["id"]> {
+  async addSong(data: Song): Promise<Song["id"]> {
     try {
       const song = await this._prisma.song.create({
         data: {
-          ...input,
+          ...data,
           id: nanoid(),
         },
       });
@@ -33,17 +33,17 @@ export default class SongsService {
   }
 
   async getSongs(
-    title?: Song["title"],
-    performer?: Song["performer"]
+    title: Song["title"] = "",
+    performer: Song["performer"] = ""
   ): Promise<SongsData> {
     return await this._prisma.song.findMany({
       where: {
         title: {
-          contains: title ?? "",
+          contains: title,
           mode: "insensitive",
         },
         performer: {
-          contains: performer ?? "",
+          contains: performer,
           mode: "insensitive",
         },
       },
@@ -73,15 +73,13 @@ export default class SongsService {
     }
   }
 
-  async editSongById(id: Song["id"], input: Song): Promise<void> {
+  async editSongById(id: Song["id"], data: Song): Promise<void> {
     try {
       await this._prisma.song.update({
         where: {
           id,
         },
-        data: {
-          ...input,
-        },
+        data,
       });
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {

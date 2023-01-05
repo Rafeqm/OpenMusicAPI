@@ -5,11 +5,11 @@ import authenticationPayloadSchema from "./schema.js";
 
 export default {
   validate: async (
-    method: "POST" | "PUT" | "DELETE",
-    payload: Request["payload"]
+    payload: Request["payload"],
+    httpMethod: "POST" | "PUT" | "DELETE"
   ): Promise<void> => {
     try {
-      await authenticationPayloadSchema[method].validateAsync(payload);
+      await authenticationPayloadSchema[httpMethod].validateAsync(payload);
     } catch (error) {
       throw badRequest((<Error>error).message);
     }
