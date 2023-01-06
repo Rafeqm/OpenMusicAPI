@@ -28,6 +28,8 @@ import CollaborationsService from "./services/database/CollaborationsService.js"
 import collaborationsPayloadValidator from "./validator/collaborations/index.js";
 
 import _exports from "./api/exports/index.js";
+import exportsService from "./services/message_queue/exportsService.js";
+import exportsPayloadValidator from "./validator/exports/index.js";
 
 dotenv.config();
 
@@ -123,6 +125,10 @@ const init = async () => {
     },
     {
       plugin: _exports,
+      options: {
+        service: exportsService,
+        validator: exportsPayloadValidator,
+      },
     },
   ]);
 

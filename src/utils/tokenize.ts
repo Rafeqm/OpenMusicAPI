@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-
 import { badRequest } from "@hapi/boom";
 import Jwt from "@hapi/jwt";
 import { Authentication } from "@prisma/client";
