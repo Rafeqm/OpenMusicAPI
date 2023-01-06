@@ -4,7 +4,7 @@ import { Request } from "@hapi/hapi";
 import userPayloadSchema from "./schema.js";
 
 export default {
-  validate: async (payload: Request["payload"]): Promise<void> => {
+  validate: async (payload: Request["payload"]) => {
     try {
       await userPayloadSchema.validateAsync(payload);
     } catch (error) {

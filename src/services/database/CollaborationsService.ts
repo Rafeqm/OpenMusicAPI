@@ -36,7 +36,7 @@ export default class CollaborationsService {
     }
   }
 
-  async verifyCollaborator(data: Omit<Collaboration, "id">): Promise<void> {
+  async verifyCollaborator(data: Omit<Collaboration, "id">) {
     try {
       await this._prisma.collaboration.findUniqueOrThrow({
         where: {
@@ -54,7 +54,7 @@ export default class CollaborationsService {
     }
   }
 
-  async deleteCollaboration(data: Collaboration): Promise<void> {
+  async deleteCollaboration(data: Collaboration) {
     try {
       await this._prisma.collaboration.delete({
         where: {

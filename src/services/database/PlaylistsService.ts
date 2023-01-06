@@ -65,7 +65,7 @@ export default class PlaylistsService {
       WHERE playlists.owner = ${user} OR collaborations.user_id = ${user}`;
   }
 
-  async deletePlaylistById(id: Playlist["id"]): Promise<void> {
+  async deletePlaylistById(id: Playlist["id"]) {
     try {
       await this._prisma.playlist.delete({
         where: {
@@ -87,7 +87,7 @@ export default class PlaylistsService {
     id: Playlist["id"],
     song: Song["id"],
     user: User["id"]
-  ): Promise<void> {
+  ) {
     try {
       await this._prisma.playlist.update({
         where: {
@@ -143,7 +143,7 @@ export default class PlaylistsService {
     id: Playlist["id"],
     song: Song["id"],
     user: User["id"]
-  ): Promise<void> {
+  ) {
     try {
       await this._prisma.playlist.update({
         where: {
@@ -198,7 +198,7 @@ export default class PlaylistsService {
   async verifyPlaylistOwner(
     playlistId: Playlist["id"],
     userId: Playlist["ownerId"]
-  ): Promise<void> {
+  ) {
     try {
       const playlist = await this._prisma.playlist.findUniqueOrThrow({
         where: {
@@ -221,7 +221,7 @@ export default class PlaylistsService {
   async verifyPlaylistAccess(
     playlistId: Playlist["id"],
     userId: Playlist["ownerId"]
-  ): Promise<void> {
+  ) {
     try {
       await this.verifyPlaylistOwner(playlistId, userId);
     } catch (error) {

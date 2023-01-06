@@ -10,7 +10,7 @@ export default class AuthenticationsService {
     });
   }
 
-  async addRefreshToken(token: Authentication["token"]): Promise<void> {
+  async addRefreshToken(token: Authentication["token"]) {
     await this._prisma.authentication.create({
       data: {
         token,
@@ -18,7 +18,7 @@ export default class AuthenticationsService {
     });
   }
 
-  async verifyRefreshToken(token: Authentication["token"]): Promise<void> {
+  async verifyRefreshToken(token: Authentication["token"]) {
     try {
       await this._prisma.authentication.findUniqueOrThrow({
         where: {

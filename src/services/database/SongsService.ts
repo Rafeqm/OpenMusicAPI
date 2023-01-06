@@ -73,7 +73,7 @@ export default class SongsService {
     }
   }
 
-  async editSongById(id: Song["id"], data: Song): Promise<void> {
+  async editSongById(id: Song["id"], data: Song) {
     try {
       await this._prisma.song.update({
         where: {
@@ -96,7 +96,7 @@ export default class SongsService {
     }
   }
 
-  async deleteSongById(id: Song["id"]): Promise<void> {
+  async deleteSongById(id: Song["id"]) {
     try {
       await this._prisma.song.delete({
         where: {

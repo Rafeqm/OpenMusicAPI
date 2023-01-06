@@ -2,7 +2,7 @@ import { Playlist } from "@prisma/client";
 import { connect } from "amqplib";
 
 const exportsService = {
-  async _sendMessage(queue: string, message: string): Promise<void> {
+  async _sendMessage(queue: string, message: string) {
     const connection = await connect(process.env.RABBITMQ_SERVER!);
     const channel = await connection.createChannel();
 
@@ -12,10 +12,7 @@ const exportsService = {
     setTimeout(() => connection.close(), 1000);
   },
 
-  async exportPlaylistById(
-    id: Playlist["id"],
-    targetEmail: string
-  ): Promise<void> {
+  async exportPlaylistById(id: Playlist["id"], targetEmail: string) {
     const message = { playlistId: id, targetEmail };
     await this._sendMessage("export:playlist", JSON.stringify(message));
   },

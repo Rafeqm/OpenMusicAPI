@@ -7,7 +7,7 @@ export default {
   validate: async (
     payload: Request["payload"],
     entity: "playlist" | "song"
-  ): Promise<void> => {
+  ) => {
     try {
       await (entity === "playlist"
         ? playlistPayloadSchema

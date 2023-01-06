@@ -57,7 +57,7 @@ export default class AlbumsService {
     }
   }
 
-  async editAlbumById(id: Album["id"], data: Album): Promise<void> {
+  async editAlbumById(id: Album["id"], data: Album) {
     try {
       await this._prisma.album.update({
         where: {
@@ -80,7 +80,7 @@ export default class AlbumsService {
     }
   }
 
-  async deleteAlbumById(id: Album["id"]): Promise<void> {
+  async deleteAlbumById(id: Album["id"]) {
     try {
       await this._prisma.album.delete({
         where: {
