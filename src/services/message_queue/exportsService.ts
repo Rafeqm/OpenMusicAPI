@@ -1,3 +1,4 @@
+import { Playlist } from "@prisma/client";
 import { connect } from "amqplib";
 
 const exportsService = {
@@ -9,6 +10,14 @@ const exportsService = {
     channel.sendToQueue(queue, Buffer.from(message));
 
     setTimeout(() => connection.close(), 1000);
+  },
+
+  async exportPlaylistById(
+    id: Playlist["id"],
+    targetEmail: string
+  ): Promise<void> {
+    const message = { playlistId: id, targetEmail };
+    await this._sendMessage("export:playlist", JSON.stringify(message));
   },
 };
 
