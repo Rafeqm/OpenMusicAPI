@@ -121,7 +121,9 @@ export default class PlaylistsService {
     }
   }
 
-  async getSongsInPlaylistById(id: Playlist["id"]): Promise<PlaylistData> {
+  async getSongsInPlaylistByPlaylistId(
+    id: Playlist["id"]
+  ): Promise<PlaylistData> {
     const playlist = (
       await this._prisma.$queryRaw<Array<PlaylistData>>`
         SELECT playlists.id, playlists.name, users.username FROM playlists

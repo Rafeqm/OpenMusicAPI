@@ -80,7 +80,7 @@ export default class PlaylistsHandler {
     const { userId } = <any>request.auth.credentials;
 
     await this._service.verifyPlaylistAccess(id, userId);
-    const playlist = await this._service.getSongsInPlaylistById(id);
+    const playlist = await this._service.getSongsInPlaylistByPlaylistId(id);
 
     return {
       status: "success",
