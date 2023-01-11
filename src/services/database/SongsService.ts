@@ -73,6 +73,23 @@ export default class SongsService {
     }
   }
 
+  async getSongsByPlaylistId(id: Playlist["id"]): Promise<SongsData> {
+    return await this._prisma.song.findMany({
+      where: {
+        playlists: {
+          some: {
+            id,
+          },
+        },
+      },
+      select: {
+        id: true,
+        title: true,
+        performer: true,
+      },
+    });
+  }
+
   async editSongById(id: Song["id"], data: Song) {
     try {
       await this._prisma.song.update({
@@ -112,22 +129,5 @@ export default class SongsService {
 
       throw error;
     }
-  }
-
-  async getSongsByPlaylistId(id: Playlist["id"]): Promise<SongsData> {
-    return await this._prisma.song.findMany({
-      where: {
-        playlists: {
-          some: {
-            id,
-          },
-        },
-      },
-      select: {
-        id: true,
-        title: true,
-        performer: true,
-      },
-    });
   }
 }

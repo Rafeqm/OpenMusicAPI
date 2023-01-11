@@ -13,9 +13,7 @@ import CollaborationsService from "./CollaborationsService";
 import SongsService, { SongsData } from "./SongsService";
 
 type PlaylistData = Omit<Playlist, "ownerId"> &
-  Pick<User, "username"> & {
-    songs?: SongsData;
-  };
+  Pick<User, "username"> & { songs?: SongsData };
 
 type ActionOnPlaylist = "add" | "delete";
 
@@ -133,10 +131,9 @@ export default class PlaylistsService {
 
     if (playlist === undefined) throw notFound("Playlist not found");
 
-    return {
-      ...playlist,
-      songs: await this._songsService.getSongsByPlaylistId(id),
-    };
+    playlist.songs = await this._songsService.getSongsByPlaylistId(id);
+
+    return playlist;
   }
 
   async deleteSongFromPlaylistById(
@@ -183,16 +180,16 @@ export default class PlaylistsService {
     id: Playlist["id"]
   ): Promise<Array<ActivityData>> {
     return await this._prisma.$queryRaw`
-        SELECT 
-          users.username,
-          songs.title,
-          activities_on_playlist.action,
-          activities_on_playlist.time
-        FROM activities_on_playlist
-        LEFT JOIN users ON activities_on_playlist.user_id = users.id
-        LEFT JOIN songs ON activities_on_playlist.song_id = songs.id
-        WHERE activities_on_playlist.playlist_id = ${id}
-        ORDER BY activities_on_playlist.time`;
+      SELECT
+        users.username,
+        songs.title,
+        activities_on_playlist.action,
+        activities_on_playlist.time
+      FROM activities_on_playlist
+      LEFT JOIN users ON activities_on_playlist.user_id = users.id
+      LEFT JOIN songs ON activities_on_playlist.song_id = songs.id
+      WHERE activities_on_playlist.playlist_id = ${id}
+      ORDER BY activities_on_playlist.time`;
   }
 
   async verifyPlaylistOwner(
