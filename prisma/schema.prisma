@@ -11,10 +11,12 @@ datasource db {
 }
 
 model Album {
-  id    String @id @db.VarChar(50)
-  name  String
-  year  Int    @db.SmallInt
-  songs Song[]
+  id           String  @id @db.VarChar(50)
+  name         String
+  year         Int     @db.SmallInt
+  coverUrl     String? @map("cover_url")
+  coverFileExt String? @map("cover_file_ext") @db.VarChar(10)
+  songs        Song[]
 
   @@map("albums")
 }
