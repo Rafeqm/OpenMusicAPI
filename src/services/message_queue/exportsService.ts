@@ -1,7 +1,7 @@
 import { Playlist } from "@prisma/client";
 import { connect } from "amqplib";
 
-const exportsService = {
+export default {
   async _sendMessage(queue: string, message: string) {
     const connection = await connect(process.env.RABBITMQ_SERVER!);
     const channel = await connection.createChannel();
@@ -17,5 +17,3 @@ const exportsService = {
     await this._sendMessage("export:playlist", JSON.stringify(message));
   },
 };
-
-export default exportsService;

@@ -31,6 +31,8 @@ import _exports from "./api/exports/index.js";
 import exportsService from "./services/message_queue/exportsService.js";
 import exportsPayloadValidator from "./validator/exports/index.js";
 
+import storageService from "./services/storage/storageService.js";
+
 dotenv.config();
 
 const init = async () => {
@@ -81,7 +83,8 @@ const init = async () => {
     {
       plugin: albums,
       options: {
-        service: albumsService,
+        albumsService,
+        storageService,
         validator: albumsPayloadValidator,
       },
     },
