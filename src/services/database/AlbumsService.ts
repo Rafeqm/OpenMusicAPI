@@ -30,13 +30,17 @@ export default class AlbumsService {
     }
   }
 
-  async getAlbumById(id: Album["id"]): Promise<Album> {
+  async getAlbumById(id: Album["id"]): Promise<Omit<Album, "coverFileExt">> {
     try {
       return await this._prisma.album.findUniqueOrThrow({
         where: {
           id,
         },
-        include: {
+        select: {
+          id: true,
+          name: true,
+          year: true,
+          coverUrl: true,
           songs: {
             select: {
               id: true,
@@ -92,6 +96,36 @@ export default class AlbumsService {
         if (error.code === "P2025") {
           throw notFound("Album not found");
         }
+      }
+
+      throw error;
+    }
+  }
+
+  async updateAlbumCoverById(
+    id: Album["id"],
+    coverUrl: Album["coverUrl"] = null,
+    fileExt: Album["coverFileExt"] = null
+  ) {
+    try {
+      await this._prisma.album.update({
+        where: {
+          id,
+        },
+        data: {
+          coverUrl,
+          coverFileExt: fileExt,
+        },
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          throw notFound("Album not found");
+        }
+      }
+
+      if (error instanceof Prisma.PrismaClientValidationError) {
+        throw badData("Data unprocessable");
       }
 
       throw error;

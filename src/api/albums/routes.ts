@@ -23,4 +23,18 @@ export default (handler: AlbumsHandler): Array<ServerRoute> => [
     path: "/albums/{id}",
     handler: handler.deleteAlbumById,
   },
+  {
+    method: "POST",
+    path: "/albums/{id}/covers",
+    handler: handler.postAlbumCoverImageById,
+    options: {
+      payload: {
+        allow: "multipart/form-data",
+        multipart: {
+          output: "stream",
+        },
+        maxBytes: 512000,
+      },
+    },
+  },
 ];

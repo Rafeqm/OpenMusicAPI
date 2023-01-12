@@ -1,5 +1,7 @@
 import { Lifecycle } from "@hapi/hapi";
 import { Album } from "@prisma/client";
+import path from "path";
+import { fileURLToPath } from "url";
 
 import AlbumsService from "../../services/database/AlbumsService";
 import storageService from "../../services/storage/storageService";
@@ -60,5 +62,29 @@ export default class AlbumsHandler {
       status: "success",
       message: "Album deleted",
     };
+  };
+
+  postAlbumCoverImageById: Lifecycle.Method = async (request, h) => {
+    const { cover } = <any>request.payload;
+    await this._validator.validate(cover.hapi.headers, "coverImage");
+
+    const { id } = <Album>request.params;
+    const fileExtension = path.extname(cover.hapi.filename);
+    const fileName = id + fileExtension;
+    const directory = path.resolve(
+      path.dirname(fileURLToPath(import.meta.url)),
+      "covers"
+    );
+    const coverUrl = `${request.url.origin}/albums/${id}/cover`;
+
+    await this._storageService.upload(cover, fileName, directory);
+    await this._albumsService.updateAlbumCoverById(id, coverUrl, fileExtension);
+
+    return h
+      .response({
+        status: "success",
+        message: "Cover image uploaded",
+      })
+      .code(201);
   };
 }
