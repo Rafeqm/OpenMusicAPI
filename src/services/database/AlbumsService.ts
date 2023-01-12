@@ -131,4 +131,32 @@ export default class AlbumsService {
       throw error;
     }
   }
+
+  async getAlbumCoverById(id: Album["id"]): Promise<string> {
+    try {
+      const album = await this._prisma.album.findUniqueOrThrow({
+        where: {
+          id,
+        },
+        select: {
+          coverUrl: true,
+          coverFileExt: true,
+        },
+      });
+
+      if (album.coverUrl === null || album.coverFileExt === null) {
+        throw notFound("Album cover not found");
+      }
+
+      return id + album.coverFileExt;
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          throw notFound("Album not found");
+        }
+      }
+
+      throw error;
+    }
+  }
 }

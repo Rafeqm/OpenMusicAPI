@@ -37,4 +37,9 @@ export default (handler: AlbumsHandler): Array<ServerRoute> => [
       },
     },
   },
+  {
+    method: "GET",
+    path: "/albums/{id}/cover",
+    handler: handler.getAlbumCoverImageById,
+  },
 ];

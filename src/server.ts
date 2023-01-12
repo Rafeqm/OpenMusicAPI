@@ -1,4 +1,5 @@
 import { Server } from "@hapi/hapi";
+import Inert from "@hapi/inert";
 import Jwt from "@hapi/jwt";
 import dotenv from "dotenv";
 
@@ -48,7 +49,10 @@ const init = async () => {
 
   await server.register([
     {
-      ...Jwt,
+      plugin: Jwt,
+    },
+    {
+      plugin: Inert,
     },
   ]);
 

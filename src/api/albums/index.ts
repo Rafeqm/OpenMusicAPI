@@ -14,7 +14,7 @@ type AlbumsPluginOptions = {
 
 export default <Plugin<AlbumsPluginOptions>>{
   name: "albums",
-  version: "1.2.0",
+  version: "1.3.0",
   // eslint-disable-next-line require-await, no-shadow
   register: async (server, { albumsService, storageService, validator }) => {
     const albumsHandler = new AlbumsHandler(

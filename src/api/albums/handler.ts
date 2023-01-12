@@ -1,5 +1,7 @@
+import { notFound } from "@hapi/boom";
 import { Lifecycle } from "@hapi/hapi";
 import { Album } from "@prisma/client";
+import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -86,5 +88,18 @@ export default class AlbumsHandler {
         message: "Cover image uploaded",
       })
       .code(201);
+  };
+
+  getAlbumCoverImageById: Lifecycle.Method = async (request, h) => {
+    const { id } = <Album>request.params;
+    const fileName = await this._albumsService.getAlbumCoverById(id);
+    const filePath = path.resolve(
+      path.dirname(fileURLToPath(import.meta.url)),
+      "covers",
+      fileName
+    );
+
+    if (!fs.existsSync(filePath)) throw notFound("Album cover not found");
+    return h.file(filePath);
   };
 }
