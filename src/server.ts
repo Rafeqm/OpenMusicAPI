@@ -33,6 +33,7 @@ import exportsService from "./services/message_queue/exportsService.js";
 import exportsPayloadValidator from "./validator/exports/index.js";
 
 import StorageService from "./services/storage/StorageService.js";
+import uploadFileHeadersValidator from "./validator/uploads/index.js";
 
 dotenv.config();
 
@@ -90,7 +91,8 @@ const init = async () => {
       options: {
         albumsService,
         storageService: albumsStorageService,
-        validator: albumsPayloadValidator,
+        albumsValidator: albumsPayloadValidator,
+        uploadsValidator: uploadFileHeadersValidator,
       },
     },
     {

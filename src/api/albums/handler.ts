@@ -8,12 +8,14 @@ import { fileURLToPath } from "url";
 import AlbumsService from "../../services/database/AlbumsService";
 import StorageService from "../../services/storage/StorageService";
 import albumsPayloadValidator from "../../validator/albums";
+import uploadFileHeadersValidator from "../../validator/uploads";
 
 export default class AlbumsHandler {
   constructor(
     private readonly _albumsService: AlbumsService,
     private readonly _storageService: StorageService,
-    private readonly _validator: typeof albumsPayloadValidator
+    private readonly _albumsValidator: typeof albumsPayloadValidator,
+    private readonly _uploadsValidator: typeof uploadFileHeadersValidator
   ) {
     this._storageService.directory = path.resolve(
       path.dirname(fileURLToPath(import.meta.url))
@@ -21,7 +23,7 @@ export default class AlbumsHandler {
   }
 
   postAlbum: Lifecycle.Method = async (request, h) => {
-    await this._validator.validate(request.payload);
+    await this._albumsValidator.validate(request.payload);
 
     const albumId = await this._albumsService.addAlbum(<Album>request.payload);
 
@@ -49,7 +51,7 @@ export default class AlbumsHandler {
   };
 
   putAlbumById: Lifecycle.Method = async (request) => {
-    await this._validator.validate(request.payload);
+    await this._albumsValidator.validate(request.payload);
 
     const { id } = <Album>request.params;
     await this._albumsService.editAlbumById(id, <Album>request.payload);
@@ -72,7 +74,7 @@ export default class AlbumsHandler {
 
   postAlbumCoverImageById: Lifecycle.Method = async (request, h) => {
     const { cover } = <any>request.payload;
-    await this._validator.validate(cover.hapi.headers, "coverImage");
+    await this._uploadsValidator.validate(cover.hapi.headers, "image");
 
     const { id } = <Album>request.params;
     const fileExtension = path.extname(cover.hapi.filename);

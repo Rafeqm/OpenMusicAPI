@@ -1,7 +1,7 @@
 import { badRequest } from "@hapi/boom";
 import { Request } from "@hapi/hapi";
 
-import { playlistPayloadSchema, playlistSongPayloadSchema } from "./schema.js";
+import { playlistPayloadSchema, playlistSongsPayloadSchema } from "./schema.js";
 
 export default {
   validate: async (
@@ -11,7 +11,7 @@ export default {
     try {
       await (entity === "playlist"
         ? playlistPayloadSchema
-        : playlistSongPayloadSchema
+        : playlistSongsPayloadSchema
       ).validateAsync(payload);
     } catch (error) {
       throw badRequest((<Error>error).message);

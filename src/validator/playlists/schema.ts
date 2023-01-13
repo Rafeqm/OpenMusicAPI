@@ -4,6 +4,6 @@ export const playlistPayloadSchema = Joi.object({
   name: Joi.string().required(),
 });
 
-export const playlistSongPayloadSchema = Joi.object({
+export const playlistSongsPayloadSchema = Joi.object({
   songId: Joi.string().required(),
 });
