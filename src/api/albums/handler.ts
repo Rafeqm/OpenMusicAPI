@@ -6,15 +6,19 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 import AlbumsService from "../../services/database/AlbumsService";
-import storageService from "../../services/storage/storageService";
+import StorageService from "../../services/storage/StorageService";
 import albumsPayloadValidator from "../../validator/albums";
 
 export default class AlbumsHandler {
   constructor(
     private readonly _albumsService: AlbumsService,
-    private readonly _storageService: typeof storageService,
+    private readonly _storageService: StorageService,
     private readonly _validator: typeof albumsPayloadValidator
-  ) {}
+  ) {
+    this._storageService.directory = path.resolve(
+      path.dirname(fileURLToPath(import.meta.url))
+    );
+  }
 
   postAlbum: Lifecycle.Method = async (request, h) => {
     await this._validator.validate(request.payload);
@@ -73,13 +77,9 @@ export default class AlbumsHandler {
     const { id } = <Album>request.params;
     const fileExtension = path.extname(cover.hapi.filename);
     const fileName = id + fileExtension;
-    const directory = path.resolve(
-      path.dirname(fileURLToPath(import.meta.url)),
-      "covers"
-    );
     const coverUrl = `${request.url.origin}/albums/${id}/cover`;
 
-    await this._storageService.upload(cover, fileName, directory);
+    await this._storageService.upload(cover, `covers/${fileName}`);
     await this._albumsService.updateAlbumCoverById(id, coverUrl, fileExtension);
 
     return h
@@ -93,11 +93,7 @@ export default class AlbumsHandler {
   getAlbumCoverImageById: Lifecycle.Method = async (request, h) => {
     const { id } = <Album>request.params;
     const fileName = await this._albumsService.getAlbumCoverById(id);
-    const filePath = path.resolve(
-      path.dirname(fileURLToPath(import.meta.url)),
-      "covers",
-      fileName
-    );
+    const filePath = this._storageService.getFile(`covers/${fileName}`);
 
     if (!fs.existsSync(filePath)) throw notFound("Album cover not found");
     return h.file(filePath);

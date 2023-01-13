@@ -1,14 +1,14 @@
 import { Plugin } from "@hapi/hapi";
 
 import AlbumsService from "../../services/database/AlbumsService";
-import storageService from "../../services/storage/storageService";
+import StorageService from "../../services/storage/StorageService";
 import albumsPayloadValidator from "../../validator/albums";
 import AlbumsHandler from "./handler.js";
 import routes from "./routes.js";
 
 type AlbumsPluginOptions = {
   albumsService: AlbumsService;
-  storageService: typeof storageService;
+  storageService: StorageService;
   validator: typeof albumsPayloadValidator;
 };
 
