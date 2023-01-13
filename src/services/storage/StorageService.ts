@@ -1,9 +1,15 @@
+import AWS from "aws-sdk";
 import fs from "fs";
 import path from "path";
 import { Readable } from "stream";
 
 export default class StorageService {
   private _directory: string | undefined;
+  private readonly _s3: AWS.S3;
+
+  constructor() {
+    this._s3 = new AWS.S3();
+  }
 
   public get directory(): string | undefined {
     return this._directory;
@@ -17,7 +23,7 @@ export default class StorageService {
     this._directory = value;
   }
 
-  upload(content: Readable, relativePath: string): Promise<string> {
+  uploadToLocal(content: Readable, relativePath: string): Promise<string> {
     if (this._directory === undefined) {
       throw new Error("Upload directory is not set");
     }
@@ -32,7 +38,23 @@ export default class StorageService {
     });
   }
 
-  getFile(relativePath: string) {
+  async uploadToRemote(
+    content: Buffer,
+    filename: string,
+    contentType: string
+  ): Promise<string> {
+    const parameter: AWS.S3.PutObjectRequest = {
+      Bucket: process.env.AWS_BUCKET_NAME!,
+      ContentType: contentType,
+      Key: filename,
+      Body: content,
+    };
+    const data = await this._s3.upload(parameter).promise();
+
+    return data.Location;
+  }
+
+  getLocalFile(relativePath: string) {
     if (this._directory === undefined) {
       throw new Error("Upload directory is not set");
     }

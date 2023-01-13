@@ -77,10 +77,26 @@ export default class AlbumsHandler {
     const { id } = <Album>request.params;
     const fileExtension = path.extname(cover.hapi.filename);
     const fileName = id + fileExtension;
-    const coverUrl = `${request.url.origin}/albums/${id}/cover`;
+    let coverUrl: string;
 
-    await this._storageService.upload(cover, `covers/${fileName}`);
-    await this._albumsService.updateAlbumCoverById(id, coverUrl, fileExtension);
+    if (process.env.NODE_ENV === "production") {
+      coverUrl = await this._storageService.uploadToRemote(
+        cover._data,
+        fileName,
+        cover.hapi.headers["content-type"]
+      );
+
+      await this._albumsService.updateAlbumCoverById(id, coverUrl);
+    } else {
+      coverUrl = `${request.url.origin}/albums/${id}/cover`;
+
+      await this._storageService.uploadToLocal(cover, `covers/${fileName}`);
+      await this._albumsService.updateAlbumCoverById(
+        id,
+        coverUrl,
+        fileExtension
+      );
+    }
 
     return h
       .response({
@@ -93,7 +109,7 @@ export default class AlbumsHandler {
   getAlbumCoverImageById: Lifecycle.Method = async (request, h) => {
     const { id } = <Album>request.params;
     const fileName = await this._albumsService.getAlbumCoverById(id);
-    const filePath = this._storageService.getFile(`covers/${fileName}`);
+    const filePath = this._storageService.getLocalFile(`covers/${fileName}`);
 
     if (!fs.existsSync(filePath)) throw notFound("Album cover not found");
     return h.file(filePath);
