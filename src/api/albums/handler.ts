@@ -3,7 +3,6 @@ import { Lifecycle } from "@hapi/hapi";
 import { Album } from "@prisma/client";
 import fs from "fs";
 import path from "path";
-import { fileURLToPath } from "url";
 
 import AlbumsService from "../../services/database/AlbumsService";
 import StorageService from "../../services/storage/StorageService";
@@ -16,11 +15,7 @@ export default class AlbumsHandler {
     private readonly _storageService: StorageService,
     private readonly _albumsValidator: typeof albumsValidator,
     private readonly _uploadsValidator: typeof uploadsValidator
-  ) {
-    this._storageService.directory = path.resolve(
-      path.dirname(fileURLToPath(import.meta.url))
-    );
-  }
+  ) {}
 
   postAlbum: Lifecycle.Method = async (request, h) => {
     await this._albumsValidator.validateAlbumPayload(request.payload);
@@ -77,8 +72,8 @@ export default class AlbumsHandler {
     await this._uploadsValidator.validateImageHeaders(cover.hapi.headers);
 
     const { id } = <Album>request.params;
-    const fileExtension = path.extname(cover.hapi.filename);
-    const fileName = id + fileExtension;
+    const fileExt = path.extname(cover.hapi.filename);
+    const fileName = id + fileExt;
     let coverUrl: string;
 
     if (process.env.NODE_ENV === "production") {
@@ -92,12 +87,8 @@ export default class AlbumsHandler {
     } else {
       coverUrl = `${request.url.origin}/albums/${id}/cover`;
 
-      await this._storageService.uploadToLocal(cover, `covers/${fileName}`);
-      await this._albumsService.updateAlbumCoverById(
-        id,
-        coverUrl,
-        fileExtension
-      );
+      await this._storageService.uploadToLocal(cover, "covers", fileName);
+      await this._albumsService.updateAlbumCoverById(id, coverUrl, fileExt);
     }
 
     return h
@@ -111,7 +102,7 @@ export default class AlbumsHandler {
   getAlbumCoverImageById: Lifecycle.Method = async (request, h) => {
     const { id } = <Album>request.params;
     const fileName = await this._albumsService.getAlbumCoverById(id);
-    const filePath = this._storageService.getLocalFile(`covers/${fileName}`);
+    const filePath = this._storageService.getLocalFile("covers", fileName);
 
     if (!fs.existsSync(filePath)) throw notFound("Album cover not found");
     return h.file(filePath);

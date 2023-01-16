@@ -4,37 +4,36 @@ import path from "path";
 import { Readable } from "stream";
 
 export default class StorageService {
-  private _directory: string | undefined;
+  private readonly _directory: string;
   private readonly _s3: AWS.S3;
 
-  constructor() {
+  constructor(...relativePaths: Array<string>) {
+    this._directory = path.resolve(process.cwd(), ...relativePaths);
     this._s3 = new AWS.S3();
   }
 
-  public get directory(): string | undefined {
-    return this._directory;
+  private _mkdir(
+    relativePath: fs.PathLike,
+    options?: fs.MakeDirectoryOptions
+  ): string | void {
+    if (!fs.existsSync(relativePath)) {
+      return fs.mkdirSync(relativePath, options);
+    }
   }
 
-  public set directory(value: string | undefined) {
-    if (value !== undefined) {
-      fs.existsSync(value) || fs.mkdirSync(value, { recursive: true });
-    }
-
-    this._directory = value;
-  }
-
-  uploadToLocal(content: Readable, relativePath: string): Promise<string> {
-    if (this._directory === undefined) {
-      throw new Error("Upload directory is not set");
-    }
-
-    const filePath = path.resolve(this._directory, relativePath);
+  uploadToLocal(
+    content: Readable,
+    ...relativePaths: Array<string>
+  ): Promise<string> {
+    const filePath = path.resolve(this._directory, ...relativePaths);
     const fileStream = fs.createWriteStream(filePath);
 
     return new Promise((resolve, reject) => {
       fileStream.on("error", (error) => reject(error));
-      content.pipe(fileStream);
       content.on("end", () => resolve(filePath));
+
+      this._mkdir(path.dirname(filePath), { recursive: true });
+      content.pipe(fileStream);
     });
   }
 
@@ -54,11 +53,7 @@ export default class StorageService {
     return data.Location;
   }
 
-  getLocalFile(relativePath: string) {
-    if (this._directory === undefined) {
-      throw new Error("Upload directory is not set");
-    }
-
-    return path.resolve(this._directory, relativePath);
+  getLocalFile(...relativePaths: Array<string>): string {
+    return path.resolve(this._directory, ...relativePaths);
   }
 }

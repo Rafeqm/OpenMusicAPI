@@ -74,7 +74,7 @@ const init = async () => {
   });
 
   const albumsService = new AlbumsService();
-  const albumsStorageService = new StorageService();
+  const albumsStorageService = new StorageService("uploads", "albums");
   const songsService = new SongsService();
   const usersService = new UsersService();
   const authenticationsService = new AuthenticationsService();
