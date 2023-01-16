@@ -2,16 +2,16 @@ import { Lifecycle } from "@hapi/hapi";
 import { Song } from "@prisma/client";
 
 import SongsService from "../../services/database/SongsService";
-import songsPayloadValidator from "../../validator/songs";
+import songsValidator from "../../validator/songs";
 
 export default class SongsHandler {
   constructor(
     private readonly _service: SongsService,
-    private readonly _validator: typeof songsPayloadValidator
+    private readonly _validator: typeof songsValidator
   ) {}
 
   postSong: Lifecycle.Method = async (request, h) => {
-    await this._validator.validate(request.payload);
+    await this._validator.validateSongPayload(request.payload);
 
     const songId = await this._service.addSong(<Song>request.payload);
 
@@ -51,7 +51,7 @@ export default class SongsHandler {
   };
 
   putSongById: Lifecycle.Method = async (request) => {
-    await this._validator.validate(request.payload);
+    await this._validator.validateSongPayload(request.payload);
 
     const { id } = <Song>request.params;
     await this._service.editSongById(id, <Song>request.payload);

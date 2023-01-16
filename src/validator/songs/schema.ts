@@ -2,7 +2,7 @@ import Joi from "joi";
 
 const currentYear = new Date().getFullYear();
 
-export default Joi.object({
+export const songPayloadSchema = Joi.object({
   title: Joi.string().required(),
   year: Joi.number().max(currentYear).required(),
   performer: Joi.string().required(),

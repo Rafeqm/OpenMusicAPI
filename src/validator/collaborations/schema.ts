@@ -1,6 +1,6 @@
 import Joi from "joi";
 
-export default Joi.object({
+export const collaborationPayloadSchema= Joi.object({
   playlistId: Joi.string().required(),
   userId: Joi.string().required(),
 });

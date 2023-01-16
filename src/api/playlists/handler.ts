@@ -2,16 +2,16 @@ import { Lifecycle } from "@hapi/hapi";
 import { Playlist } from "@prisma/client";
 
 import PlaylistsService from "../../services/database/PlaylistsService";
-import playlistsPayloadValidator from "../../validator/playlists";
+import playlistsValidator from "../../validator/playlists";
 
 export default class PlaylistsHandler {
   constructor(
     private readonly _service: PlaylistsService,
-    private readonly _validator: typeof playlistsPayloadValidator
+    private readonly _validator: typeof playlistsValidator
   ) {}
 
   postPlaylist: Lifecycle.Method = async (request, h) => {
-    await this._validator.validate(request.payload, "playlist");
+    await this._validator.validatePlaylistPayload(request.payload);
 
     const { name } = <Playlist>request.payload;
     const { userId: ownerId } = <any>request.auth.credentials;
@@ -62,7 +62,7 @@ export default class PlaylistsHandler {
     const { userId } = <any>request.auth.credentials;
 
     await this._service.verifyPlaylistAccess(id, userId);
-    await this._validator.validate(request.payload, "song");
+    await this._validator.validateSongPayload(request.payload);
 
     const { songId } = <any>request.payload;
     await this._service.addSongToPlaylistById(id, songId, userId);
@@ -95,7 +95,7 @@ export default class PlaylistsHandler {
     const { userId } = <any>request.auth.credentials;
 
     await this._service.verifyPlaylistAccess(id, userId);
-    await this._validator.validate(request.payload, "song");
+    await this._validator.validateSongPayload(request.payload);
 
     const { songId } = <any>request.payload;
     await this._service.deleteSongFromPlaylistById(id, songId, userId);

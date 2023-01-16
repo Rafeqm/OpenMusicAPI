@@ -5,35 +5,35 @@ import dotenv from "dotenv";
 
 import albums from "./api/albums/index.js";
 import AlbumsService from "./services/database/AlbumsService.js";
-import albumsPayloadValidator from "./validator/albums/index.js";
+import albumsValidator from "./validator/albums/index.js";
 
 import songs from "./api/songs/index.js";
 import SongsService from "./services/database/SongsService.js";
-import songsPayloadValidator from "./validator/songs/index.js";
+import songsValidator from "./validator/songs/index.js";
 
 import users from "./api/users/index.js";
 import UsersService from "./services/database/UsersService.js";
-import usersPayloadValidator from "./validator/users/index.js";
+import usersValidator from "./validator/users/index.js";
 
 import authentications from "./api/authentications/index.js";
 import AuthenticationsService from "./services/database/AuthenticationsService.js";
 import { tokenManager } from "./utils/tokenize.js";
-import authenticationsPayloadValidator from "./validator/authentications/index.js";
+import authenticationsValidator from "./validator/authentications/index.js";
 
 import playlists from "./api/playlists/index.js";
 import PlaylistsService from "./services/database/PlaylistsService.js";
-import playlistsPayloadValidator from "./validator/playlists/index.js";
+import playlistsValidator from "./validator/playlists/index.js";
 
 import collaborations from "./api/collaborations/index.js";
 import CollaborationsService from "./services/database/CollaborationsService.js";
-import collaborationsPayloadValidator from "./validator/collaborations/index.js";
+import collaborationsValidator from "./validator/collaborations/index.js";
 
 import _exports from "./api/exports/index.js";
 import exportsService from "./services/message_queue/exportsService.js";
-import exportsPayloadValidator from "./validator/exports/index.js";
+import exportsValidator from "./validator/exports/index.js";
 
 import StorageService from "./services/storage/StorageService.js";
-import uploadFileHeadersValidator from "./validator/uploads/index.js";
+import uploadsValidator from "./validator/uploads/index.js";
 
 dotenv.config();
 
@@ -65,7 +65,6 @@ const init = async () => {
       sub: false,
       maxAgeSec: process.env.ACCESS_TOKEN_AGE,
     },
-
     validate: (artifacts: any) => ({
       isValid: true,
       credentials: {
@@ -91,22 +90,22 @@ const init = async () => {
       options: {
         albumsService,
         storageService: albumsStorageService,
-        albumsValidator: albumsPayloadValidator,
-        uploadsValidator: uploadFileHeadersValidator,
+        albumsValidator,
+        uploadsValidator,
       },
     },
     {
       plugin: songs,
       options: {
         service: songsService,
-        validator: songsPayloadValidator,
+        validator: songsValidator,
       },
     },
     {
       plugin: users,
       options: {
         service: usersService,
-        validator: usersPayloadValidator,
+        validator: usersValidator,
       },
     },
     {
@@ -114,7 +113,7 @@ const init = async () => {
       options: {
         authenticationsService,
         usersService,
-        validator: authenticationsPayloadValidator,
+        validator: authenticationsValidator,
         tokenManager,
       },
     },
@@ -122,7 +121,7 @@ const init = async () => {
       plugin: playlists,
       options: {
         service: playlistsService,
-        validator: playlistsPayloadValidator,
+        validator: playlistsValidator,
       },
     },
     {
@@ -130,7 +129,7 @@ const init = async () => {
       options: {
         collaborationsService,
         playlistsService,
-        validator: collaborationsPayloadValidator,
+        validator: collaborationsValidator,
       },
     },
     {
@@ -138,7 +137,7 @@ const init = async () => {
       options: {
         exportsService,
         playlistsService,
-        validator: exportsPayloadValidator,
+        validator: exportsValidator,
       },
     },
   ]);

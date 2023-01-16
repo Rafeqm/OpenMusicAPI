@@ -1,12 +1,12 @@
 import { badRequest } from "@hapi/boom";
 import { Request } from "@hapi/hapi";
 
-import exportSchema from "./schema.js";
+import { exportPayloadSchema } from "./schema.js";
 
 export default {
-  validate: async (payload: Request["payload"]) => {
+  validateExportPayload: async (payload: Request["payload"]) => {
     try {
-      await exportSchema.validateAsync(payload);
+      await exportPayloadSchema.validateAsync(payload);
     } catch (error) {
       throw badRequest((<Error>error).message);
     }

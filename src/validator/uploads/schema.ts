@@ -1,7 +1,6 @@
 import Joi from "joi";
 
-export default {
-  image: Joi.object({
+export const imageHeadersSchema =  Joi.object({
     "content-type": Joi.string()
       .valid(
         "image/apng",
@@ -13,5 +12,4 @@ export default {
         "image/webp"
       )
       .required(),
-  }).unknown(),
-};
+  }).unknown()

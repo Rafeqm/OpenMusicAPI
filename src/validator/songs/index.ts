@@ -1,10 +1,10 @@
 import { badRequest } from "@hapi/boom";
 import { Request } from "@hapi/hapi";
 
-import songPayloadSchema from "./schema.js";
+import { songPayloadSchema } from "./schema.js";
 
 export default {
-  validate: async (payload: Request["payload"]) => {
+  validateSongPayload: async (payload: Request["payload"]) => {
     try {
       await songPayloadSchema.validateAsync(payload);
     } catch (error) {

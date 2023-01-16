@@ -3,17 +3,17 @@ import { Collaboration } from "@prisma/client";
 
 import CollaborationsService from "../../services/database/CollaborationsService";
 import PlaylistsService from "../../services/database/PlaylistsService";
-import collaborationsPayloadValidator from "../../validator/collaborations";
+import collaborationsValidator from "../../validator/collaborations";
 
 export default class CollaborationsHandler {
   constructor(
     private readonly _collaborationsService: CollaborationsService,
     private readonly _playlistsService: PlaylistsService,
-    private readonly _validator: typeof collaborationsPayloadValidator
+    private readonly _validator: typeof collaborationsValidator
   ) {}
 
   postCollaboration: Lifecycle.Method = async (request, h) => {
-    await this._validator.validate(request.payload);
+    await this._validator.validateCollaborationPayload(request.payload);
 
     const { playlistId } = <Collaboration>request.payload;
     const { userId } = <any>request.auth.credentials;
@@ -35,7 +35,7 @@ export default class CollaborationsHandler {
   };
 
   deleteCollaboration: Lifecycle.Method = async (request) => {
-    await this._validator.validate(request.payload);
+    await this._validator.validateCollaborationPayload(request.payload);
 
     const { playlistId } = <Collaboration>request.payload;
     const { userId } = <any>request.auth.credentials;

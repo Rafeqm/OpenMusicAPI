@@ -1,18 +1,20 @@
 import { badRequest } from "@hapi/boom";
 import { Request } from "@hapi/hapi";
 
-import { playlistPayloadSchema, playlistSongsPayloadSchema } from "./schema.js";
+import { playlistPayloadSchema, songPayloadSchema } from "./schema.js";
 
 export default {
-  validate: async (
-    payload: Request["payload"],
-    entity: "playlist" | "song"
-  ) => {
+  validatePlaylistPayload: async (payload: Request["payload"]) => {
     try {
-      await (entity === "playlist"
-        ? playlistPayloadSchema
-        : playlistSongsPayloadSchema
-      ).validateAsync(payload);
+      await playlistPayloadSchema.validateAsync(payload);
+    } catch (error) {
+      throw badRequest((<Error>error).message);
+    }
+  },
+
+  validateSongPayload: async (payload: Request["payload"]) => {
+    try {
+      await songPayloadSchema.validateAsync(payload);
     } catch (error) {
       throw badRequest((<Error>error).message);
     }

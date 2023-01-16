@@ -2,16 +2,16 @@ import { Lifecycle } from "@hapi/hapi";
 import { User } from "@prisma/client";
 
 import UsersService from "../../services/database/UsersService";
-import usersPayloadValidator from "../../validator/users";
+import usersValidator from "../../validator/users";
 
 export default class UsersHandler {
   constructor(
     private readonly _service: UsersService,
-    private readonly _validator: typeof usersPayloadValidator
+    private readonly _validator: typeof usersValidator
   ) {}
 
   postUser: Lifecycle.Method = async (request, h) => {
-    await this._validator.validate(request.payload);
+    await this._validator.validateUserPayload(request.payload);
 
     const userId = await this._service.addUser(<User>request.payload);
 
