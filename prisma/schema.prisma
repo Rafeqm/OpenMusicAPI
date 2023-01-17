@@ -30,6 +30,8 @@ model Song {
   duration             Int?
   album                Album?               @relation(fields: [albumId], references: [id])
   albumId              String?              @map("album_id") @db.VarChar(50)
+  audioUrl             String?              @map("audio_url")
+  audioFileExt         String?              @map("audio_file_ext") @db.VarChar(10)
   playlists            Playlist[]
   activitiesInPlaylist ActivityOnPlaylist[]
 
