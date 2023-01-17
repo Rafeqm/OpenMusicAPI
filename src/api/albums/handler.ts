@@ -10,12 +10,16 @@ import albumsValidator from "../../validator/albums";
 import uploadsValidator from "../../validator/uploads";
 
 export default class AlbumsHandler {
+  private readonly _albumCoverDir: string;
+
   constructor(
     private readonly _albumsService: AlbumsService,
     private readonly _storageService: StorageService,
     private readonly _albumsValidator: typeof albumsValidator,
     private readonly _uploadsValidator: typeof uploadsValidator
-  ) {}
+  ) {
+    this._albumCoverDir = "covers";
+  }
 
   postAlbum: Lifecycle.Method = async (request, h) => {
     await this._albumsValidator.validateAlbumPayload(request.payload);
@@ -59,6 +63,9 @@ export default class AlbumsHandler {
 
   deleteAlbumById: Lifecycle.Method = async (request) => {
     const { id } = <Album>request.params;
+    const coverFilename = await this._albumsService.getAlbumCoverById(id);
+
+    this._storageService.removeLocalFile(this._albumCoverDir, coverFilename);
     await this._albumsService.deleteAlbumById(id);
 
     return {
@@ -72,29 +79,35 @@ export default class AlbumsHandler {
     await this._uploadsValidator.validateImageHeaders(cover.hapi.headers);
 
     const { id } = <Album>request.params;
-    const fileExt = path.extname(cover.hapi.filename);
-    const fileName = id + fileExt;
+    const extname = path.extname(cover.hapi.filename);
+    const filename = id + extname;
     let coverUrl: string;
 
     if (process.env.NODE_ENV === "production") {
       coverUrl = await this._storageService.uploadToRemote(
         cover._data,
-        fileName,
+        filename,
         cover.hapi.headers["content-type"]
       );
 
       await this._albumsService.updateAlbumCoverById(id, coverUrl);
     } else {
-      coverUrl = `${request.url.origin}/albums/${id}/cover`;
+      const oldFilename = await this._albumsService.getAlbumCoverById(id);
+      this._storageService.removeLocalFile(this._albumCoverDir, oldFilename);
 
-      await this._storageService.uploadToLocal(cover, "covers", fileName);
-      await this._albumsService.updateAlbumCoverById(id, coverUrl, fileExt);
+      coverUrl = `${request.url.origin}/albums/${id}/cover`;
+      await this._storageService.uploadToLocal(
+        cover,
+        this._albumCoverDir,
+        filename
+      );
+      await this._albumsService.updateAlbumCoverById(id, coverUrl, extname);
     }
 
     return h
       .response({
         status: "success",
-        message: "Cover image uploaded",
+        message: "Album cover image uploaded",
       })
       .code(201);
   };
@@ -102,7 +115,10 @@ export default class AlbumsHandler {
   getAlbumCoverImageById: Lifecycle.Method = async (request, h) => {
     const { id } = <Album>request.params;
     const fileName = await this._albumsService.getAlbumCoverById(id);
-    const filePath = this._storageService.getLocalFile("covers", fileName);
+    const filePath = this._storageService.getLocalFile(
+      this._albumCoverDir,
+      fileName
+    );
 
     if (!fs.existsSync(filePath)) throw notFound("Album cover not found");
     return h.file(filePath);

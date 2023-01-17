@@ -139,14 +139,9 @@ export default class AlbumsService {
           id,
         },
         select: {
-          coverUrl: true,
           coverFileExt: true,
         },
       });
-
-      if (album.coverUrl === null || album.coverFileExt === null) {
-        throw notFound("Album cover not found");
-      }
 
       return id + album.coverFileExt;
     } catch (error) {

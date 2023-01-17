@@ -56,4 +56,9 @@ export default class StorageService {
   getLocalFile(...relativePaths: Array<string>): string {
     return path.resolve(this._directory, ...relativePaths);
   }
+
+  removeLocalFile(...relativePaths: Array<string>) {
+    const filePath = this.getLocalFile(...relativePaths);
+    fs.rmSync(filePath, { force: true });
+  }
 }
