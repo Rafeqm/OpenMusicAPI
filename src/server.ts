@@ -76,6 +76,7 @@ const init = async () => {
   const albumsService = new AlbumsService();
   const albumsStorageService = new StorageService("uploads", "albums");
   const songsService = new SongsService();
+  const songsStorageService = new StorageService("uploads", "songs");
   const usersService = new UsersService();
   const authenticationsService = new AuthenticationsService();
   const collaborationsService = new CollaborationsService();
@@ -97,8 +98,10 @@ const init = async () => {
     {
       plugin: songs,
       options: {
-        service: songsService,
-        validator: songsValidator,
+        songsService,
+        storageService: songsStorageService,
+        songsValidator,
+        uploadsValidator,
       },
     },
     {

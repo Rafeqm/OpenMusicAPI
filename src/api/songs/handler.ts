@@ -2,18 +2,22 @@ import { Lifecycle } from "@hapi/hapi";
 import { Song } from "@prisma/client";
 
 import SongsService from "../../services/database/SongsService";
+import StorageService from "../../services/storage/StorageService";
 import songsValidator from "../../validator/songs";
+import uploadsValidator from "../../validator/uploads";
 
 export default class SongsHandler {
   constructor(
-    private readonly _service: SongsService,
-    private readonly _validator: typeof songsValidator
+    private readonly _songsService: SongsService,
+    private readonly _storageService: StorageService,
+    private readonly _songsValidator: typeof songsValidator,
+    private readonly _uploadsValidator: typeof uploadsValidator
   ) {}
 
   postSong: Lifecycle.Method = async (request, h) => {
-    await this._validator.validateSongPayload(request.payload);
+    await this._songsValidator.validateSongPayload(request.payload);
 
-    const songId = await this._service.addSong(<Song>request.payload);
+    const songId = await this._songsService.addSong(<Song>request.payload);
 
     return h
       .response({
@@ -28,7 +32,7 @@ export default class SongsHandler {
 
   getSongs: Lifecycle.Method = async (request) => {
     const { title, performer } = <Song>request.query;
-    const songs = await this._service.getSongs(title, performer);
+    const songs = await this._songsService.getSongs(title, performer);
 
     return {
       status: "success",
@@ -40,7 +44,7 @@ export default class SongsHandler {
 
   getSongById: Lifecycle.Method = async (request) => {
     const { id } = <Song>request.params;
-    const song = await this._service.getSongById(id);
+    const song = await this._songsService.getSongById(id);
 
     return {
       status: "success",
@@ -51,10 +55,10 @@ export default class SongsHandler {
   };
 
   putSongById: Lifecycle.Method = async (request) => {
-    await this._validator.validateSongPayload(request.payload);
+    await this._songsValidator.validateSongPayload(request.payload);
 
     const { id } = <Song>request.params;
-    await this._service.editSongById(id, <Song>request.payload);
+    await this._songsService.editSongById(id, <Song>request.payload);
 
     return {
       status: "success",
@@ -64,7 +68,7 @@ export default class SongsHandler {
 
   deleteSongById: Lifecycle.Method = async (request) => {
     const { id } = <Song>request.params;
-    await this._service.deleteSongById(id);
+    await this._songsService.deleteSongById(id);
 
     return {
       status: "success",
