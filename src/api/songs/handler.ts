@@ -75,6 +75,9 @@ export default class SongsHandler {
 
   deleteSongById: Lifecycle.Method = async (request) => {
     const { id } = <Song>request.params;
+    const audioFilename = await this._songsService.getSongAudioById(id);
+
+    this._storageService.removeLocalFile(this._songAudioDir, audioFilename);
     await this._songsService.deleteSongById(id);
 
     return {
@@ -101,8 +104,10 @@ export default class SongsHandler {
 
       await this._songsService.updateSongAudioById(id, audioUrl);
     } else {
-      audioUrl = `${request.url.origin}/songs/${id}/audio`;
+      const oldFilename = await this._songsService.getSongAudioById(id);
+      this._storageService.removeLocalFile(this._songAudioDir, oldFilename);
 
+      audioUrl = `${request.url.origin}/songs/${id}/audio`;
       await this._storageService.uploadToLocal(
         audio,
         this._songAudioDir,
