@@ -55,11 +55,21 @@ export default class SongsService {
     });
   }
 
-  async getSongById(id: Song["id"]): Promise<Song> {
+  async getSongById(id: Song["id"]): Promise<Omit<Song, "audioFileExt">> {
     try {
       return await this._prisma.song.findUniqueOrThrow({
         where: {
           id,
+        },
+        select: {
+          id: true,
+          title: true,
+          year: true,
+          performer: true,
+          genre: true,
+          duration: true,
+          albumId: true,
+          audioUrl: true,
         },
       });
     } catch (error) {
@@ -125,6 +135,36 @@ export default class SongsService {
         if (error.code === "P2025") {
           throw notFound("Song not found");
         }
+      }
+
+      throw error;
+    }
+  }
+
+  async updateSongAudioById(
+    id: Song["id"],
+    audioUrl: Song["audioUrl"] = null,
+    fileExt: Song["audioFileExt"] = null
+  ) {
+    try {
+      await this._prisma.song.update({
+        where: {
+          id,
+        },
+        data: {
+          audioUrl,
+          audioFileExt: fileExt,
+        },
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          throw notFound("Song not found");
+        }
+      }
+
+      if (error instanceof Prisma.PrismaClientValidationError) {
+        throw badData("Data unprocessable");
       }
 
       throw error;

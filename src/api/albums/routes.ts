@@ -33,7 +33,7 @@ export default (handler: AlbumsHandler): Array<ServerRoute> => [
         multipart: {
           output: "stream",
         },
-        maxBytes: 512000,
+        maxBytes: 524_288,
       },
     },
   },

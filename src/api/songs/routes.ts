@@ -28,4 +28,18 @@ export default (handler: SongsHandler): Array<ServerRoute> => [
     path: "/songs/{id}",
     handler: handler.deleteSongById,
   },
+  {
+    method: "POST",
+    path: "/songs/{id}/audio",
+    handler: handler.postSongAudioById,
+    options: {
+      payload: {
+        allow: "multipart/form-data",
+        multipart: {
+          output: "stream",
+        },
+        maxBytes: 15_728_640,
+      },
+    },
+  },
 ];

@@ -1,5 +1,6 @@
 import { Lifecycle } from "@hapi/hapi";
 import { Song } from "@prisma/client";
+import path from "path";
 
 import SongsService from "../../services/database/SongsService";
 import StorageService from "../../services/storage/StorageService";
@@ -7,12 +8,16 @@ import songsValidator from "../../validator/songs";
 import uploadsValidator from "../../validator/uploads";
 
 export default class SongsHandler {
+  private readonly _songAudioDir: string;
+
   constructor(
     private readonly _songsService: SongsService,
     private readonly _storageService: StorageService,
     private readonly _songsValidator: typeof songsValidator,
     private readonly _uploadsValidator: typeof uploadsValidator
-  ) {}
+  ) {
+    this._songAudioDir = "audio";
+  }
 
   postSong: Lifecycle.Method = async (request, h) => {
     await this._songsValidator.validateSongPayload(request.payload);
@@ -74,5 +79,41 @@ export default class SongsHandler {
       status: "success",
       message: "Song deleted",
     };
+  };
+
+  postSongAudioById: Lifecycle.Method = async (request, h) => {
+    const { audio } = <any>request.payload;
+    await this._uploadsValidator.validateAudioHeaders(audio.hapi.headers);
+
+    const { id } = <Song>request.params;
+    const extname = path.extname(audio.hapi.filename);
+    const filename = id + extname;
+    let audioUrl: string;
+
+    if (process.env.NODE_ENV === "production") {
+      audioUrl = await this._storageService.uploadToRemote(
+        audio._data,
+        filename,
+        audio.hapi.headers["content-type"]
+      );
+
+      await this._songsService.updateSongAudioById(id, audioUrl);
+    } else {
+      audioUrl = `${request.url.origin}/songs/${id}/audio`;
+
+      await this._storageService.uploadToLocal(
+        audio,
+        this._songAudioDir,
+        filename
+      );
+      await this._songsService.updateSongAudioById(id, audioUrl, extname);
+    }
+
+    return h
+      .response({
+        status: "success",
+        message: "Song audio uploaded",
+      })
+      .code(201);
   };
 }
