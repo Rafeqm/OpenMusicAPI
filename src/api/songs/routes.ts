@@ -42,4 +42,9 @@ export default (handler: SongsHandler): Array<ServerRoute> => [
       },
     },
   },
+  {
+    method: "GET",
+    path: "/songs/{id}/audio",
+    handler: handler.getSongAudioById,
+  },
 ];

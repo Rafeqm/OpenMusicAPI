@@ -170,4 +170,27 @@ export default class SongsService {
       throw error;
     }
   }
+
+  async getSongAudioById(id: Song["id"]): Promise<string> {
+    try {
+      const song = await this._prisma.song.findUniqueOrThrow({
+        where: {
+          id,
+        },
+        select: {
+          audioFileExt: true,
+        },
+      });
+
+      return id + song.audioFileExt;
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          throw notFound("Song not found");
+        }
+      }
+
+      throw error;
+    }
+  }
 }

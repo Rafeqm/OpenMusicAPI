@@ -1,5 +1,7 @@
+import { notFound } from "@hapi/boom";
 import { Lifecycle } from "@hapi/hapi";
 import { Song } from "@prisma/client";
+import fs from "fs";
 import path from "path";
 
 import SongsService from "../../services/database/SongsService";
@@ -115,5 +117,17 @@ export default class SongsHandler {
         message: "Song audio uploaded",
       })
       .code(201);
+  };
+
+  getSongAudioById: Lifecycle.Method = async (request, h) => {
+    const { id } = <Song>request.params;
+    const fileName = await this._songsService.getSongAudioById(id);
+    const filePath = this._storageService.getLocalFile(
+      this._songAudioDir,
+      fileName
+    );
+
+    if (!fs.existsSync(filePath)) throw notFound("Song audio not found");
+    return h.file(filePath);
   };
 }
