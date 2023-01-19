@@ -65,12 +65,10 @@ export default class AlbumsHandler {
     const { id } = <Album>request.params;
     const coverFilename = await this._albumsService.getAlbumCoverById(id);
 
-    if (process.env.NODE_ENV === "production") {
-      await this._storageService.removeRemoteFile(coverFilename);
-    } else {
-      this._storageService.removeLocalFile(this._albumCoverDir, coverFilename);
-    }
-
+    await this._storageService.remove({
+      relativePaths: [this._albumCoverDir, coverFilename],
+      storage: process.env.NODE_ENV === "production" ? "remote" : "local",
+    });
     await this._albumsService.deleteAlbumById(id);
 
     return {
@@ -85,26 +83,24 @@ export default class AlbumsHandler {
 
     const { id } = <Album>request.params;
     const oldFilename = await this._albumsService.getAlbumCoverById(id);
+    const storage = process.env.NODE_ENV === "production" ? "remote" : "local";
+    await this._storageService.remove({
+      relativePaths: [this._albumCoverDir, oldFilename],
+      storage,
+    });
+
     const extname = path.extname(cover.hapi.filename);
-    const newFilename = id + extname;
+    const fileLocation = await this._storageService.upload({
+      content: cover,
+      contentType: cover.hapi.headers["content-type"],
+      relativePaths: [this._albumCoverDir, id + extname],
+      storage,
+    });
+
     let coverUrl: string;
-
-    if (process.env.NODE_ENV === "production") {
-      await this._storageService.removeRemoteFile(oldFilename);
-
-      coverUrl = await this._storageService.uploadToRemote(
-        cover._data,
-        newFilename,
-        cover.hapi.headers["content-type"]
-      );
-    } else {
-      this._storageService.removeLocalFile(this._albumCoverDir, oldFilename);
-      await this._storageService.uploadToLocal(
-        cover,
-        this._albumCoverDir,
-        newFilename
-      );
-
+    try {
+      coverUrl = new URL(fileLocation).toString();
+    } catch {
       coverUrl = `${request.url.origin}/albums/${id}/cover`;
     }
 

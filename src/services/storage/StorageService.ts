@@ -3,6 +3,16 @@ import fs from "fs";
 import path from "path";
 import { Readable } from "stream";
 
+export type FileParams = {
+  relativePaths: Array<string>;
+  storage?: "local" | "remote";
+};
+
+export type UploadFileParams = FileParams & {
+  content: Readable;
+  contentType: string;
+};
+
 export default class StorageService {
   private readonly _directory: string;
   private readonly _s3: AWS.S3;
@@ -21,7 +31,7 @@ export default class StorageService {
     }
   }
 
-  uploadToLocal(
+  private _uploadToLocal(
     content: Readable,
     ...relativePaths: Array<string>
   ): Promise<string> {
@@ -37,37 +47,61 @@ export default class StorageService {
     });
   }
 
-  async uploadToRemote(
-    content: Buffer,
-    filename: string,
+  private async _uploadToRemote(
+    key: string,
+    body: AWS.S3.Body,
     contentType: string
   ): Promise<string> {
     const parameter: AWS.S3.PutObjectRequest = {
       Bucket: process.env.AWS_BUCKET_NAME!,
+      Key: key,
+      Body: body,
       ContentType: contentType,
-      Key: filename,
-      Body: content,
     };
-    const data = await this._s3.upload(parameter).promise();
 
+    const data = await this._s3.upload(parameter).promise();
     return data.Location;
+  }
+
+  async upload(params: UploadFileParams): Promise<string> {
+    const { content, contentType, relativePaths, storage = "local" } = params;
+
+    if (storage === "remote") {
+      return await this._uploadToRemote(
+        path.join(...relativePaths),
+        content,
+        contentType
+      );
+    }
+
+    return await this._uploadToLocal(content, ...relativePaths);
   }
 
   getLocalFile(...relativePaths: Array<string>): string {
     return path.resolve(this._directory, ...relativePaths);
   }
 
-  removeLocalFile(...relativePaths: Array<string>) {
+  private _removeLocalFile(...relativePaths: Array<string>) {
     const filePath = this.getLocalFile(...relativePaths);
     fs.rmSync(filePath, { force: true });
   }
 
-  async removeRemoteFile(filename: string) {
+  private async _removeRemoteFile(key: string) {
     const parameter: AWS.S3.DeleteObjectRequest = {
       Bucket: process.env.AWS_BUCKET_NAME!,
-      Key: filename,
+      Key: key,
     };
 
     await this._s3.deleteObject(parameter).promise();
+  }
+
+  async remove(params: FileParams) {
+    const { relativePaths, storage = "local" } = params;
+
+    if (storage === "remote") {
+      await this._removeRemoteFile(path.join(...relativePaths));
+    }
+
+    this._removeLocalFile(...relativePaths);
   }
 }

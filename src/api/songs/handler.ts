@@ -77,12 +77,10 @@ export default class SongsHandler {
     const { id } = <Song>request.params;
     const audioFilename = await this._songsService.getSongAudioById(id);
 
-    if (process.env.NODE_ENV === "production") {
-      await this._storageService.removeRemoteFile(audioFilename);
-    } else {
-      this._storageService.removeLocalFile(this._songAudioDir, audioFilename);
-    }
-
+    await this._storageService.remove({
+      relativePaths: [this._songAudioDir, audioFilename],
+      storage: process.env.NODE_ENV === "production" ? "remote" : "local",
+    });
     await this._songsService.deleteSongById(id);
 
     return {
@@ -97,26 +95,24 @@ export default class SongsHandler {
 
     const { id } = <Song>request.params;
     const oldFilename = await this._songsService.getSongAudioById(id);
+    const storage = process.env.NODE_ENV === "production" ? "remote" : "local";
+    await this._storageService.remove({
+      relativePaths: [this._songAudioDir, oldFilename],
+      storage,
+    });
+
     const extname = path.extname(audio.hapi.filename);
-    const newFilename = id + extname;
+    const fileLocation = await this._storageService.upload({
+      content: audio,
+      contentType: audio.hapi.headers["content-type"],
+      relativePaths: [this._songAudioDir, id + extname],
+      storage,
+    });
+
     let audioUrl: string;
-
-    if (process.env.NODE_ENV === "production") {
-      await this._storageService.removeRemoteFile(oldFilename);
-
-      audioUrl = await this._storageService.uploadToRemote(
-        audio._data,
-        newFilename,
-        audio.hapi.headers["content-type"]
-      );
-    } else {
-      this._storageService.removeLocalFile(this._songAudioDir, oldFilename);
-      await this._storageService.uploadToLocal(
-        audio,
-        this._songAudioDir,
-        newFilename
-      );
-
+    try {
+      audioUrl = new URL(fileLocation).toString();
+    } catch {
       audioUrl = `${request.url.origin}/songs/${id}/audio`;
     }
 
