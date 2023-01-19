@@ -5,7 +5,7 @@ import routes from "./routes.js";
 
 export default <Plugin<Record<string, any>>>{
   name: "songs",
-  version: "1.3.1",
+  version: "1.3.2",
   // eslint-disable-next-line require-await
   register: async (
     server,
@@ -17,6 +17,7 @@ export default <Plugin<Record<string, any>>>{
       songsValidator,
       uploadsValidator
     );
+
     server.route(routes(songsHandler));
   },
 };

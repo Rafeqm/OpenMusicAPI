@@ -61,4 +61,13 @@ export default class StorageService {
     const filePath = this.getLocalFile(...relativePaths);
     fs.rmSync(filePath, { force: true });
   }
+
+  async removeRemoteFile(filename: string) {
+    const parameter: AWS.S3.DeleteObjectRequest = {
+      Bucket: process.env.AWS_BUCKET_NAME!,
+      Key: filename,
+    };
+
+    await this._s3.deleteObject(parameter).promise();
+  }
 }

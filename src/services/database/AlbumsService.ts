@@ -102,7 +102,7 @@ export default class AlbumsService {
     }
   }
 
-  async updateAlbumCoverById(
+  async updateAlbumCoverImageById(
     id: Album["id"],
     coverUrl: Album["coverUrl"] = null,
     fileExt: Album["coverFileExt"] = null
