@@ -1,4 +1,4 @@
-import AWS from "aws-sdk";
+import S3 from "aws-sdk/clients/s3.js";
 import fs from "fs";
 import path from "path";
 import { Readable } from "stream";
@@ -15,11 +15,11 @@ export type UploadFileParams = FileParams & {
 
 export default class StorageService {
   private readonly _directory: string;
-  private readonly _s3: AWS.S3;
+  private readonly _s3: S3;
 
   constructor(...relativePaths: Array<string>) {
     this._directory = path.resolve(process.cwd(), ...relativePaths);
-    this._s3 = new AWS.S3();
+    this._s3 = new S3();
   }
 
   private _mkdir(
@@ -48,11 +48,11 @@ export default class StorageService {
   }
 
   private async _uploadToRemote(
-    key: string,
-    body: AWS.S3.Body,
-    contentType: string
+    key: S3.ObjectKey,
+    body: S3.Body,
+    contentType: S3.ContentType
   ): Promise<string> {
-    const parameter: AWS.S3.PutObjectRequest = {
+    const parameter: S3.PutObjectRequest = {
       Bucket: process.env.AWS_BUCKET_NAME!,
       Key: key,
       Body: body,
@@ -86,8 +86,8 @@ export default class StorageService {
     fs.rmSync(filePath, { force: true });
   }
 
-  private async _removeRemoteFile(key: string) {
-    const parameter: AWS.S3.DeleteObjectRequest = {
+  private async _removeRemoteFile(key: S3.ObjectKey) {
+    const parameter: S3.DeleteObjectRequest = {
       Bucket: process.env.AWS_BUCKET_NAME!,
       Key: key,
     };
