@@ -11,12 +11,13 @@ datasource db {
 }
 
 model Album {
-  id           String  @id @db.VarChar(50)
+  id           String          @id @db.VarChar(50)
   name         String
-  year         Int     @db.SmallInt
-  coverUrl     String? @map("cover_url")
-  coverFileExt String? @map("cover_file_ext") @db.VarChar(10)
+  year         Int             @db.SmallInt
+  coverUrl     String?         @map("cover_url")
+  coverFileExt String?         @map("cover_file_ext") @db.VarChar(10)
   songs        Song[]
+  likes        FavoriteAlbum[]
 
   @@map("albums")
 }
@@ -46,6 +47,7 @@ model User {
   playlists            Playlist[]
   collaborations       Collaboration[]
   activitiesOnPlaylist ActivityOnPlaylist[]
+  favoriteAlbums       FavoriteAlbum[]
 
   @@map("users")
 }
@@ -91,4 +93,14 @@ model ActivityOnPlaylist {
 
   @@id([songId, action, time])
   @@map("activities_on_playlist")
+}
+
+model FavoriteAlbum {
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId  String @map("user_id") @db.VarChar(50)
+  album   Album  @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  albumId String @map("album_id") @db.VarChar(50)
+
+  @@id([userId, albumId])
+  @@map("favorite_albums")
 }
