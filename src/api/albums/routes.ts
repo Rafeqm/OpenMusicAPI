@@ -50,4 +50,9 @@ export default (handler: AlbumsHandler): Array<ServerRoute> => [
       auth: "openmusicapi_jwt",
     },
   },
+  {
+    method: "GET",
+    path: "/albums/{id}/likes",
+    handler: handler.getAlbumLikeById,
+  },
 ];

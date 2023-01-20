@@ -142,4 +142,16 @@ export default class AlbumsHandler {
       })
       .code(201);
   };
+
+  getAlbumLikeById: Lifecycle.Method = async (request) => {
+    const { id } = <Album>request.params;
+    const likes = await this._albumsService.getAlbumLikesById(id);
+
+    return {
+      status: "success",
+      data: {
+        likes,
+      },
+    };
+  };
 }

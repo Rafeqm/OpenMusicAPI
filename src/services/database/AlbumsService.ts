@@ -178,4 +178,22 @@ export default class AlbumsService {
       throw error;
     }
   }
+
+  async getAlbumLikesById(id: FavoriteAlbum["albumId"]): Promise<number> {
+    try {
+      return await this._prisma.favoriteAlbum.count({
+        where: {
+          albumId: id,
+        },
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2003") {
+          throw notFound("Album not found");
+        }
+      }
+
+      throw error;
+    }
+  }
 }
