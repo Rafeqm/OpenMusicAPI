@@ -125,4 +125,21 @@ export default class AlbumsHandler {
     if (!fs.existsSync(filePath)) throw notFound("Album cover not found");
     return h.file(filePath);
   };
+
+  postAlbumLikeById: Lifecycle.Method = async (request, h) => {
+    const { id } = <Album>request.params;
+    const { userId } = <any>request.auth.credentials;
+
+    await this._albumsService.updateAlbumLikesById({
+      albumId: id,
+      userId,
+    });
+
+    return h
+      .response({
+        status: "success",
+        message: "Favorite albums updated",
+      })
+      .code(201);
+  };
 }

@@ -42,4 +42,12 @@ export default (handler: AlbumsHandler): Array<ServerRoute> => [
     path: "/albums/{id}/cover",
     handler: handler.getAlbumCoverImageById,
   },
+  {
+    method: "POST",
+    path: "/albums/{id}/likes",
+    handler: handler.postAlbumLikeById,
+    options: {
+      auth: "openmusicapi_jwt",
+    },
+  },
 ];

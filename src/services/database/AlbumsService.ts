@@ -1,5 +1,5 @@
 import { badData, notFound } from "@hapi/boom";
-import { Album, Prisma, PrismaClient } from "@prisma/client";
+import { Album, FavoriteAlbum, Prisma, PrismaClient } from "@prisma/client";
 import { nanoid } from "nanoid";
 
 export default class AlbumsService {
@@ -147,6 +147,30 @@ export default class AlbumsService {
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2025") {
+          throw notFound("Album not found");
+        }
+      }
+
+      throw error;
+    }
+  }
+
+  async updateAlbumLikesById(data: FavoriteAlbum) {
+    try {
+      await this._prisma.favoriteAlbum.create({ data });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2002") {
+          await this._prisma.favoriteAlbum.delete({
+            where: {
+              userId_albumId: data,
+            },
+          });
+
+          return;
+        }
+
+        if (error.code === "P2003") {
           throw notFound("Album not found");
         }
       }
