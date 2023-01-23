@@ -137,4 +137,21 @@ export default class SongsHandler {
     if (!fs.existsSync(filePath)) throw notFound("Song audio not found");
     return h.file(filePath);
   };
+
+  postSongLikeById: Lifecycle.Method = async (request, h) => {
+    const { id } = <Song>request.params;
+    const { userId } = <any>request.auth.credentials;
+
+    await this._songsService.updateSongLikesById({
+      songId: id,
+      userId,
+    });
+
+    return h
+      .response({
+        status: "success",
+        message: "Favorite songs updated",
+      })
+      .code(201);
+  };
 }

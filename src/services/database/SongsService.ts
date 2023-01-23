@@ -1,5 +1,11 @@
 import { badData, notFound } from "@hapi/boom";
-import { Playlist, Prisma, PrismaClient, Song } from "@prisma/client";
+import {
+  FavoriteSong,
+  Playlist,
+  Prisma,
+  PrismaClient,
+  Song,
+} from "@prisma/client";
 import { nanoid } from "nanoid";
 
 export type SongsData = Array<Pick<Song, "id" | "title" | "performer">>;
@@ -186,6 +192,30 @@ export default class SongsService {
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2025") {
+          throw notFound("Song not found");
+        }
+      }
+
+      throw error;
+    }
+  }
+
+  async updateSongLikesById(data: FavoriteSong) {
+    try {
+      await this._prisma.favoriteSong.create({ data });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2002") {
+          await this._prisma.favoriteSong.delete({
+            where: {
+              userId_songId: data,
+            },
+          });
+
+          return;
+        }
+
+        if (error.code === "P2003") {
           throw notFound("Song not found");
         }
       }

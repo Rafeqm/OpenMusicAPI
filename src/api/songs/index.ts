@@ -5,7 +5,7 @@ import routes from "./routes.js";
 
 export default <Plugin<Record<string, any>>>{
   name: "songs",
-  version: "1.3.2",
+  version: "1.4.0",
   // eslint-disable-next-line require-await
   register: async (
     server,

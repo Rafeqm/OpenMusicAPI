@@ -47,4 +47,12 @@ export default (handler: SongsHandler): Array<ServerRoute> => [
     path: "/songs/{id}/audio",
     handler: handler.getSongAudioById,
   },
+  {
+    method: "POST",
+    path: "/songs/{id}/likes",
+    handler: handler.postSongLikeById,
+    options: {
+      auth: "openmusicapi_jwt",
+    },
+  },
 ];
