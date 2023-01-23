@@ -223,4 +223,22 @@ export default class SongsService {
       throw error;
     }
   }
+
+  async getSongLikesById(id: FavoriteSong["songId"]): Promise<number> {
+    try {
+      return await this._prisma.favoriteSong.count({
+        where: {
+          songId: id,
+        },
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2003") {
+          throw notFound("Song not found");
+        }
+      }
+
+      throw error;
+    }
+  }
 }
