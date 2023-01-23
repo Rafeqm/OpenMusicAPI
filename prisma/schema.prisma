@@ -35,6 +35,7 @@ model Song {
   audioFileExt         String?              @map("audio_file_ext") @db.VarChar(10)
   playlists            Playlist[]
   activitiesInPlaylist ActivityOnPlaylist[]
+  likes                FavoriteSong[]
 
   @@map("songs")
 }
@@ -48,6 +49,7 @@ model User {
   collaborations       Collaboration[]
   activitiesOnPlaylist ActivityOnPlaylist[]
   favoriteAlbums       FavoriteAlbum[]
+  favoriteSongs        FavoriteSong[]
 
   @@map("users")
 }
@@ -103,4 +105,14 @@ model FavoriteAlbum {
 
   @@id([userId, albumId])
   @@map("favorite_albums")
+}
+
+model FavoriteSong {
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @map("user_id") @db.VarChar(50)
+  song   Song   @relation(fields: [songId], references: [id], onDelete: Cascade)
+  songId String @map("song_id") @db.VarChar(50)
+
+  @@id([userId, songId])
+  @@map("favorite_songs")
 }
