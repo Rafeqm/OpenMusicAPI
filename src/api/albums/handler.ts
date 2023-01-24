@@ -37,16 +37,18 @@ export default class AlbumsHandler {
       .code(201);
   };
 
-  getAlbumById: Lifecycle.Method = async (request) => {
+  getAlbumById: Lifecycle.Method = async (request, h) => {
     const { id } = <Album>request.params;
-    const album = await this._albumsService.getAlbumById(id);
+    const { album, source } = await this._albumsService.getAlbumById(id);
 
-    return {
-      status: "success",
-      data: {
-        album,
-      },
-    };
+    return h
+      .response({
+        status: "success",
+        data: {
+          album,
+        },
+      })
+      .header("X-Data-Source", source);
   };
 
   putAlbumById: Lifecycle.Method = async (request) => {
@@ -104,7 +106,7 @@ export default class AlbumsHandler {
       coverUrl = `${request.url.origin}/albums/${id}/cover`;
     }
 
-    await this._albumsService.updateAlbumCoverImageById(id, coverUrl, extname);
+    await this._albumsService.updateAlbumCoverById(id, coverUrl, extname);
 
     return h
       .response({

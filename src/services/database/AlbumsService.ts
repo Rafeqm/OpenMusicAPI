@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+
 import { badData, notFound } from "@hapi/boom";
 import { Album, FavoriteAlbum, Prisma, PrismaClient } from "@prisma/client";
 import { nanoid } from "nanoid";
@@ -32,9 +34,20 @@ export default class AlbumsService {
     }
   }
 
-  async getAlbumById(id: Album["id"]): Promise<Omit<Album, "coverFileExt">> {
+  async getAlbumById(
+    id: Album["id"]
+  ): Promise<DataSource<Omit<Album, "coverFileExt">>> {
+    const cachedAlbum = await this._cacheService.get(`albums:${id}`);
+
+    if (cachedAlbum !== null) {
+      return {
+        album: JSON.parse(cachedAlbum),
+        source: "cache",
+      };
+    }
+
     try {
-      return await this._prisma.album.findUniqueOrThrow({
+      const album = await this._prisma.album.findUniqueOrThrow({
         where: {
           id,
         },
@@ -52,6 +65,13 @@ export default class AlbumsService {
           },
         },
       });
+
+      await this._cacheService.set(`albums:${id}`, JSON.stringify(album));
+
+      return {
+        album,
+        source: "database",
+      };
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2025") {
@@ -71,6 +91,8 @@ export default class AlbumsService {
         },
         data,
       });
+
+      await this._cacheService.delete(`albums:${id}`);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2025") {
@@ -93,6 +115,8 @@ export default class AlbumsService {
           id,
         },
       });
+
+      await this._cacheService.delete(`albums:${id}`);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2025") {
@@ -104,7 +128,7 @@ export default class AlbumsService {
     }
   }
 
-  async updateAlbumCoverImageById(
+  async updateAlbumCoverById(
     id: Album["id"],
     coverUrl: Album["coverUrl"] = null,
     fileExt: Album["coverFileExt"] = null
@@ -119,6 +143,8 @@ export default class AlbumsService {
           coverFileExt: fileExt,
         },
       });
+
+      await this._cacheService.delete(`albums:${id}`);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2025") {
