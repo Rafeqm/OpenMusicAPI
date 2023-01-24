@@ -1,6 +1,6 @@
 {
   "name": "open-music-api",
-  "version": "3.0.0-beta.21",
+  "version": "3.0.0-beta.22",
   "description": "",
   "private": true,
   "main": "src/server.ts",

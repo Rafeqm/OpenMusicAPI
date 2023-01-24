@@ -65,10 +65,10 @@ export default class AlbumsHandler {
 
   deleteAlbumById: Lifecycle.Method = async (request) => {
     const { id } = <Album>request.params;
-    const coverFilename = await this._albumsService.getAlbumCoverById(id);
+    const { filename } = await this._albumsService.getAlbumCoverById(id);
 
     await this._storageService.remove({
-      relativePaths: [this._albumCoverDir, coverFilename],
+      relativePaths: [this._albumCoverDir, filename],
       storage: process.env.NODE_ENV === "production" ? "remote" : "local",
     });
     await this._albumsService.deleteAlbumById(id);
@@ -84,10 +84,10 @@ export default class AlbumsHandler {
     await this._uploadsValidator.validateImageHeaders(cover.hapi.headers);
 
     const { id } = <Album>request.params;
-    const oldFilename = await this._albumsService.getAlbumCoverById(id);
+    const { filename } = await this._albumsService.getAlbumCoverById(id);
     const storage = process.env.NODE_ENV === "production" ? "remote" : "local";
     await this._storageService.remove({
-      relativePaths: [this._albumCoverDir, oldFilename],
+      relativePaths: [this._albumCoverDir, filename],
       storage,
     });
 
@@ -118,14 +118,16 @@ export default class AlbumsHandler {
 
   getAlbumCoverImageById: Lifecycle.Method = async (request, h) => {
     const { id } = <Album>request.params;
-    const fileName = await this._albumsService.getAlbumCoverById(id);
+    const { filename, source } = await this._albumsService.getAlbumCoverById(
+      id
+    );
     const filePath = this._storageService.getLocalFile(
       this._albumCoverDir,
-      fileName
+      filename
     );
 
     if (!fs.existsSync(filePath)) throw notFound("Album cover not found");
-    return h.file(filePath);
+    return h.file(filePath).header("X-Data-Source", source);
   };
 
   postAlbumLikeById: Lifecycle.Method = async (request, h) => {

@@ -117,6 +117,7 @@ export default class AlbumsService {
       });
 
       await this._cacheService.delete(`albums:${id}`);
+      await this._cacheService.delete(`albums:${id}:cover`);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2025") {
@@ -145,6 +146,7 @@ export default class AlbumsService {
       });
 
       await this._cacheService.delete(`albums:${id}`);
+      await this._cacheService.delete(`albums:${id}:cover`);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2025") {
@@ -160,7 +162,16 @@ export default class AlbumsService {
     }
   }
 
-  async getAlbumCoverById(id: Album["id"]): Promise<string> {
+  async getAlbumCoverById(id: Album["id"]): Promise<DataSource<string>> {
+    const cachedFilename = await this._cacheService.get(`albums:${id}:cover`);
+
+    if (cachedFilename !== null) {
+      return {
+        filename: cachedFilename,
+        source: "cache",
+      };
+    }
+
     try {
       const album = await this._prisma.album.findUniqueOrThrow({
         where: {
@@ -171,7 +182,13 @@ export default class AlbumsService {
         },
       });
 
-      return id + album.coverFileExt;
+      const filename = id + album.coverFileExt;
+      await this._cacheService.set(`albums:${id}:cover`, filename);
+
+      return {
+        filename,
+        source: "database",
+      };
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2025") {
