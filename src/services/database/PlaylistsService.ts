@@ -9,6 +9,7 @@ import {
 } from "@prisma/client";
 import { nanoid } from "nanoid";
 
+import CacheService from "../cache/CacheService";
 import CollaborationsService from "./CollaborationsService";
 import SongsService, { SongsData } from "./SongsService";
 
@@ -29,7 +30,8 @@ export default class PlaylistsService {
 
   constructor(
     private readonly _songsService: SongsService,
-    private readonly _collaborationsService: CollaborationsService
+    private readonly _collaborationsService: CollaborationsService,
+    private readonly _cacheService: CacheService
   ) {
     this._prisma = new PrismaClient({
       errorFormat: "pretty",

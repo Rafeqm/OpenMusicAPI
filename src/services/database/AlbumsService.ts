@@ -2,10 +2,12 @@ import { badData, notFound } from "@hapi/boom";
 import { Album, FavoriteAlbum, Prisma, PrismaClient } from "@prisma/client";
 import { nanoid } from "nanoid";
 
+import CacheService from "../cache/CacheService";
+
 export default class AlbumsService {
   private readonly _prisma: PrismaClient;
 
-  constructor() {
+  constructor(private readonly _cacheService: CacheService) {
     this._prisma = new PrismaClient({
       errorFormat: "pretty",
     });

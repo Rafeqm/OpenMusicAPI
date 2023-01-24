@@ -35,6 +35,8 @@ import exportsValidator from "./validator/exports/index.js";
 import StorageService from "./services/storage/StorageService.js";
 import uploadsValidator from "./validator/uploads/index.js";
 
+import CacheService from "./services/cache/CacheService.js";
+
 dotenv.config();
 
 const init = async () => {
@@ -73,16 +75,18 @@ const init = async () => {
     }),
   });
 
-  const albumsService = new AlbumsService();
+  const cacheService = new CacheService();
+  const albumsService = new AlbumsService(cacheService);
   const albumsStorageService = new StorageService("uploads", "albums");
-  const songsService = new SongsService();
+  const songsService = new SongsService(cacheService);
   const songsStorageService = new StorageService("uploads", "songs");
   const usersService = new UsersService();
   const authenticationsService = new AuthenticationsService();
-  const collaborationsService = new CollaborationsService();
+  const collaborationsService = new CollaborationsService(cacheService);
   const playlistsService = new PlaylistsService(
     songsService,
-    collaborationsService
+    collaborationsService,
+    cacheService
   );
 
   await server.register([

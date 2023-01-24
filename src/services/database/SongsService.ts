@@ -8,12 +8,14 @@ import {
 } from "@prisma/client";
 import { nanoid } from "nanoid";
 
+import CacheService from "../cache/CacheService";
+
 export type SongsData = Array<Pick<Song, "id" | "title" | "performer">>;
 
 export default class SongsService {
   private readonly _prisma: PrismaClient;
 
-  constructor() {
+  constructor(private readonly _cacheService: CacheService) {
     this._prisma = new PrismaClient({
       errorFormat: "pretty",
     });
