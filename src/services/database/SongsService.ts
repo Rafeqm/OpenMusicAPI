@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+
 import { badData, notFound } from "@hapi/boom";
 import {
   FavoriteSong,
@@ -30,6 +32,8 @@ export default class SongsService {
         },
       });
 
+      await this._cacheService.delete("songs");
+
       return song.id;
     } catch (error) {
       if (error instanceof Prisma.PrismaClientValidationError) {
@@ -43,24 +47,44 @@ export default class SongsService {
   async getSongs(
     title: Song["title"] = "",
     performer: Song["performer"] = ""
-  ): Promise<SongsData> {
-    return await this._prisma.song.findMany({
-      where: {
-        title: {
-          contains: title,
-          mode: "insensitive",
-        },
-        performer: {
-          contains: performer,
-          mode: "insensitive",
-        },
-      },
+  ): Promise<DataSource<SongsData>> {
+    const cachedSongs = await this._cacheService.get("songs");
+
+    if (cachedSongs !== null) {
+      return {
+        songs: this._filterSongs(JSON.parse(cachedSongs), { title, performer }),
+        source: "cache",
+      };
+    }
+
+    const songs = await this._prisma.song.findMany({
       select: {
         id: true,
         title: true,
         performer: true,
       },
     });
+
+    await this._cacheService.set("songs", JSON.stringify(songs));
+
+    return {
+      songs: this._filterSongs(songs, { title, performer }),
+      source: "database",
+    };
+  }
+
+  private _filterSongs(
+    songs: SongsData,
+    filter: {
+      title: Song["title"];
+      performer: Song["performer"];
+    }
+  ): any {
+    return songs.filter(
+      (song) =>
+        song.title.toLowerCase().includes(filter.title.toLowerCase()) &&
+        song.performer.toLowerCase().includes(filter.performer.toLowerCase())
+    );
   }
 
   async getSongById(id: Song["id"]): Promise<Omit<Song, "audioFileExt">> {
@@ -116,6 +140,8 @@ export default class SongsService {
         },
         data,
       });
+
+      await this._cacheService.delete("songs");
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2025") {
@@ -138,6 +164,8 @@ export default class SongsService {
           id,
         },
       });
+
+      await this._cacheService.delete("songs");
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2025") {
