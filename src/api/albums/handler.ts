@@ -147,15 +147,17 @@ export default class AlbumsHandler {
       .code(201);
   };
 
-  getAlbumLikeById: Lifecycle.Method = async (request) => {
+  getAlbumLikeById: Lifecycle.Method = async (request, h) => {
     const { id } = <Album>request.params;
-    const likes = await this._albumsService.getAlbumLikesById(id);
+    const { likes, source } = await this._albumsService.getAlbumLikesById(id);
 
-    return {
-      status: "success",
-      data: {
-        likes,
-      },
-    };
+    return h
+      .response({
+        status: "success",
+        data: {
+          likes,
+        },
+      })
+      .header("X-Data-Source", source);
   };
 }

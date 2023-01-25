@@ -118,6 +118,7 @@ export default class AlbumsService {
 
       await this._cacheService.delete(`albums:${id}`);
       await this._cacheService.delete(`albums:${id}:cover`);
+      await this._cacheService.delete(`albums:${id}:likes`);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2025") {
@@ -203,6 +204,7 @@ export default class AlbumsService {
   async updateAlbumLikesById(data: FavoriteAlbum) {
     try {
       await this._prisma.favoriteAlbum.create({ data });
+      await this._cacheService.delete(`albums:${data.albumId}:likes`);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2002") {
@@ -211,6 +213,7 @@ export default class AlbumsService {
               userId_albumId: data,
             },
           });
+          await this._cacheService.delete(`albums:${data.albumId}:likes`);
 
           return;
         }
@@ -224,13 +227,31 @@ export default class AlbumsService {
     }
   }
 
-  async getAlbumLikesById(id: FavoriteAlbum["albumId"]): Promise<number> {
+  async getAlbumLikesById(
+    id: FavoriteAlbum["albumId"]
+  ): Promise<DataSource<number>> {
+    const cachedLikeCount = await this._cacheService.get(`albums:${id}:likes`);
+
+    if (cachedLikeCount !== null) {
+      return {
+        likes: Number(cachedLikeCount),
+        source: "cache",
+      };
+    }
+
     try {
-      return await this._prisma.favoriteAlbum.count({
+      const likeCount = await this._prisma.favoriteAlbum.count({
         where: {
           albumId: id,
         },
       });
+
+      await this._cacheService.set(`albums:${id}:likes`, likeCount);
+
+      return {
+        likes: likeCount,
+        source: "database",
+      };
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2003") {
