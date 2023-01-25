@@ -87,9 +87,20 @@ export default class SongsService {
     );
   }
 
-  async getSongById(id: Song["id"]): Promise<Omit<Song, "audioFileExt">> {
+  async getSongById(
+    id: Song["id"]
+  ): Promise<DataSource<Omit<Song, "audioFileExt">>> {
+    const cachedSong = await this._cacheService.get(`songs:${id}`);
+
+    if (cachedSong !== null) {
+      return {
+        song: JSON.parse(cachedSong),
+        source: "cache",
+      };
+    }
+
     try {
-      return await this._prisma.song.findUniqueOrThrow({
+      const song = await this._prisma.song.findUniqueOrThrow({
         where: {
           id,
         },
@@ -104,6 +115,13 @@ export default class SongsService {
           audioUrl: true,
         },
       });
+
+      await this._cacheService.set(`songs:${id}`, JSON.stringify(song));
+
+      return {
+        song,
+        source: "database",
+      };
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2025") {
@@ -142,6 +160,7 @@ export default class SongsService {
       });
 
       await this._cacheService.delete("songs");
+      await this._cacheService.delete(`songs:${id}`);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2025") {
@@ -166,6 +185,7 @@ export default class SongsService {
       });
 
       await this._cacheService.delete("songs");
+      await this._cacheService.delete(`songs:${id}`);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2025") {
@@ -192,6 +212,8 @@ export default class SongsService {
           audioFileExt: fileExt,
         },
       });
+
+      await this._cacheService.delete(`songs:${id}`);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2025") {

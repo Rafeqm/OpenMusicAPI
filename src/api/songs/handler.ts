@@ -54,16 +54,18 @@ export default class SongsHandler {
       .header("X-Data-Source", source);
   };
 
-  getSongById: Lifecycle.Method = async (request) => {
+  getSongById: Lifecycle.Method = async (request, h) => {
     const { id } = <Song>request.params;
-    const song = await this._songsService.getSongById(id);
+    const { song, source } = await this._songsService.getSongById(id);
 
-    return {
-      status: "success",
-      data: {
-        song,
-      },
-    };
+    return h
+      .response({
+        status: "success",
+        data: {
+          song,
+        },
+      })
+      .header("X-Data-Source", source);
   };
 
   putSongById: Lifecycle.Method = async (request) => {
