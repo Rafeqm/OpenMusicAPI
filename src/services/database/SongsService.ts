@@ -187,6 +187,7 @@ export default class SongsService {
       await this._cacheService.delete("songs");
       await this._cacheService.delete(`songs:${id}`);
       await this._cacheService.delete(`songs:${id}:audio`);
+      await this._cacheService.delete(`songs:${id}:likes`);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2025") {
@@ -272,6 +273,7 @@ export default class SongsService {
   async updateSongLikesById(data: FavoriteSong) {
     try {
       await this._prisma.favoriteSong.create({ data });
+      await this._cacheService.delete(`songs:${data.songId}:likes`);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2002") {
@@ -280,6 +282,7 @@ export default class SongsService {
               userId_songId: data,
             },
           });
+          await this._cacheService.delete(`songs:${data.songId}:likes`);
 
           return;
         }
@@ -293,13 +296,31 @@ export default class SongsService {
     }
   }
 
-  async getSongLikesById(id: FavoriteSong["songId"]): Promise<number> {
+  async getSongLikesById(
+    id: FavoriteSong["songId"]
+  ): Promise<DataSource<number>> {
+    const cachedLikeCount = await this._cacheService.get(`songs:${id}:likes`);
+
+    if (cachedLikeCount !== null) {
+      return {
+        likes: Number(cachedLikeCount),
+        source: "cache",
+      };
+    }
+
     try {
-      return await this._prisma.favoriteSong.count({
+      const likeCount = await this._prisma.favoriteSong.count({
         where: {
           songId: id,
         },
       });
+
+      await this._cacheService.set(`songs:${id}:likes`, likeCount);
+
+      return {
+        likes: likeCount,
+        source: "database",
+      };
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2003") {
