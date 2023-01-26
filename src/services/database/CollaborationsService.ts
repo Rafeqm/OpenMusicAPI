@@ -22,6 +22,10 @@ export default class CollaborationsService {
         },
       });
 
+      await this._cacheService.delete(
+        `users:${collaboration.userId}:playlists`
+      );
+
       return collaboration.id;
     } catch (error) {
       if (error instanceof Prisma.PrismaClientValidationError) {
@@ -38,13 +42,17 @@ export default class CollaborationsService {
     }
   }
 
-  async verifyCollaborator(data: Omit<Collaboration, "id">) {
+  async deleteCollaboration(data: Collaboration) {
     try {
-      await this._prisma.collaboration.findUniqueOrThrow({
+      const collaboration = await this._prisma.collaboration.delete({
         where: {
           playlistId_userId: data,
         },
       });
+
+      await this._cacheService.delete(
+        `users:${collaboration.userId}:playlists`
+      );
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2025") {
@@ -56,9 +64,9 @@ export default class CollaborationsService {
     }
   }
 
-  async deleteCollaboration(data: Collaboration) {
+  async verifyCollaborator(data: Omit<Collaboration, "id">) {
     try {
-      await this._prisma.collaboration.delete({
+      await this._prisma.collaboration.findUniqueOrThrow({
         where: {
           playlistId_userId: data,
         },

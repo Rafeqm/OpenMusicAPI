@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+
 import { badData, forbidden, isBoom, notFound } from "@hapi/boom";
 import {
   ActivityOnPlaylist,
@@ -47,6 +49,8 @@ export default class PlaylistsService {
         },
       });
 
+      await this._cacheService.delete(`users:${playlist.ownerId}:playlists`);
+
       return playlist.id;
     } catch (error) {
       if (error instanceof Prisma.PrismaClientValidationError) {
@@ -57,21 +61,44 @@ export default class PlaylistsService {
     }
   }
 
-  async getPlaylists(user: User["id"]): Promise<Array<PlaylistData>> {
-    return await this._prisma.$queryRaw`
+  async getPlaylists(userId: User["id"]): Promise<DataSource<PlaylistData[]>> {
+    const cachedPlaylists = await this._cacheService.get(
+      `users:${userId}:playlists`
+    );
+
+    if (cachedPlaylists !== null) {
+      return {
+        playlists: JSON.parse(cachedPlaylists),
+        source: "cache",
+      };
+    }
+
+    const playlists = await this._prisma.$queryRaw<PlaylistData[]>`
       SELECT playlists.id, playlists.name, users.username FROM playlists
       LEFT JOIN users ON playlists.owner = users.id
       LEFT JOIN collaborations ON playlists.id = collaborations.playlist_id
-      WHERE playlists.owner = ${user} OR collaborations.user_id = ${user}`;
+      WHERE playlists.owner = ${userId} OR collaborations.user_id = ${userId}`;
+
+    await this._cacheService.set(
+      `users:${userId}:playlists`,
+      JSON.stringify(playlists)
+    );
+
+    return {
+      playlists,
+      source: "database",
+    };
   }
 
   async deletePlaylistById(id: Playlist["id"]) {
     try {
-      await this._prisma.playlist.delete({
+      const playlist = await this._prisma.playlist.delete({
         where: {
           id,
         },
       });
+
+      await this._cacheService.delete(`users:${playlist.ownerId}:playlists`);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2025") {

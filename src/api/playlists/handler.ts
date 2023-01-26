@@ -32,16 +32,18 @@ export default class PlaylistsHandler {
       .code(201);
   };
 
-  getPlaylists: Lifecycle.Method = async (request) => {
+  getPlaylists: Lifecycle.Method = async (request, h) => {
     const { userId } = <any>request.auth.credentials;
-    const playlists = await this._service.getPlaylists(userId);
+    const { playlists, source } = await this._service.getPlaylists(userId);
 
-    return {
-      status: "success",
-      data: {
-        playlists,
-      },
-    };
+    return h
+      .response({
+        status: "success",
+        data: {
+          playlists,
+        },
+      })
+      .header("X-Data-Source", source);
   };
 
   deletePlaylistById: Lifecycle.Method = async (request) => {
