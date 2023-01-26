@@ -82,10 +82,10 @@ export default class SongsHandler {
 
   deleteSongById: Lifecycle.Method = async (request) => {
     const { id } = <Song>request.params;
-    const audioFilename = await this._songsService.getSongAudioById(id);
+    const { filename } = await this._songsService.getSongAudioById(id);
 
     await this._storageService.remove({
-      relativePaths: [this._songAudioDir, audioFilename],
+      relativePaths: [this._songAudioDir, filename],
       storage: process.env.NODE_ENV === "production" ? "remote" : "local",
     });
     await this._songsService.deleteSongById(id);
@@ -101,10 +101,10 @@ export default class SongsHandler {
     await this._uploadsValidator.validateAudioHeaders(audio.hapi.headers);
 
     const { id } = <Song>request.params;
-    const oldFilename = await this._songsService.getSongAudioById(id);
+    const { filename } = await this._songsService.getSongAudioById(id);
     const storage = process.env.NODE_ENV === "production" ? "remote" : "local";
     await this._storageService.remove({
-      relativePaths: [this._songAudioDir, oldFilename],
+      relativePaths: [this._songAudioDir, filename],
       storage,
     });
 
@@ -135,14 +135,14 @@ export default class SongsHandler {
 
   getSongAudioById: Lifecycle.Method = async (request, h) => {
     const { id } = <Song>request.params;
-    const fileName = await this._songsService.getSongAudioById(id);
+    const { filename, source } = await this._songsService.getSongAudioById(id);
     const filePath = this._storageService.getLocalFile(
       this._songAudioDir,
-      fileName
+      filename
     );
 
     if (!fs.existsSync(filePath)) throw notFound("Song audio not found");
-    return h.file(filePath);
+    return h.file(filePath).header("X-Data-Source", source);
   };
 
   postSongLikeById: Lifecycle.Method = async (request, h) => {
