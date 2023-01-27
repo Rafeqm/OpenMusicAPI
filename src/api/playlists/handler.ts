@@ -77,19 +77,22 @@ export default class PlaylistsHandler {
       .code(201);
   };
 
-  getSongsInPlaylistById: Lifecycle.Method = async (request) => {
+  getSongsInPlaylistById: Lifecycle.Method = async (request, h) => {
     const { id } = <Playlist>request.params;
     const { userId } = <any>request.auth.credentials;
 
     await this._service.verifyPlaylistAccess(id, userId);
-    const playlist = await this._service.getSongsInPlaylistByPlaylistId(id);
+    const { playlist, source } =
+      await this._service.getSongsInPlaylistByPlaylistId(id);
 
-    return {
-      status: "success",
-      data: {
-        playlist,
-      },
-    };
+    return h
+      .response({
+        status: "success",
+        data: {
+          playlist,
+        },
+      })
+      .header("X-Data-Source", source);
   };
 
   deleteSongFromPlaylistById: Lifecycle.Method = async (request) => {

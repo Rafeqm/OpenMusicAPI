@@ -99,6 +99,7 @@ export default class PlaylistsService {
       });
 
       await this._cacheService.delete(`users:${playlist.ownerId}:playlists`);
+      await this._cacheService.delete(`playlists:${id}`);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2025") {
@@ -111,30 +112,32 @@ export default class PlaylistsService {
   }
 
   async addSongToPlaylistById(
-    id: Playlist["id"],
-    song: Song["id"],
-    user: User["id"]
+    playlistId: Playlist["id"],
+    songId: Song["id"],
+    userId: User["id"]
   ) {
     try {
       await this._prisma.playlist.update({
         where: {
-          id,
+          id: playlistId,
         },
         data: {
           songs: {
             connect: {
-              id: song,
+              id: songId,
             },
           },
           activities: {
             create: {
-              userId: user,
-              songId: song,
+              userId,
+              songId,
               action: <ActionOnPlaylist>"add",
             },
           },
         },
       });
+
+      await this._cacheService.delete(`playlists:${playlistId}`);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2025") {
@@ -152,7 +155,19 @@ export default class PlaylistsService {
 
   async getSongsInPlaylistByPlaylistId(
     id: Playlist["id"]
-  ): Promise<PlaylistData> {
+  ): Promise<DataSource<PlaylistData>> {
+    const cachedPlaylist = await this._cacheService.get(`playlists:${id}`);
+
+    if (cachedPlaylist !== null) {
+      const playlist = JSON.parse(cachedPlaylist);
+      playlist.songs = await this._songsService.getSongsByPlaylistId(id);
+
+      return {
+        playlist,
+        source: "cache",
+      };
+    }
+
     const playlist = (
       await this._prisma.$queryRaw<Array<PlaylistData>>`
         SELECT playlists.id, playlists.name, users.username FROM playlists
@@ -162,36 +177,43 @@ export default class PlaylistsService {
 
     if (playlist === undefined) throw notFound("Playlist not found");
 
+    await this._cacheService.set(`playlists:${id}`, JSON.stringify(playlist));
+
     playlist.songs = await this._songsService.getSongsByPlaylistId(id);
 
-    return playlist;
+    return {
+      playlist,
+      source: "database",
+    };
   }
 
   async deleteSongFromPlaylistById(
-    id: Playlist["id"],
-    song: Song["id"],
-    user: User["id"]
+    playlistId: Playlist["id"],
+    songId: Song["id"],
+    userId: User["id"]
   ) {
     try {
       await this._prisma.playlist.update({
         where: {
-          id,
+          id: playlistId,
         },
         data: {
           songs: {
             disconnect: {
-              id: song,
+              id: songId,
             },
           },
           activities: {
             create: {
-              userId: user,
-              songId: song,
+              userId,
+              songId,
               action: <ActionOnPlaylist>"delete",
             },
           },
         },
       });
+
+      await this._cacheService.delete(`playlists:${playlistId}`);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2025") {
