@@ -14,6 +14,8 @@ import CacheService from "../cache/CacheService";
 
 export type SongsData = Array<Pick<Song, "id" | "title" | "performer">>;
 
+type SongsFilter = Pick<Song, "title" | "performer">;
+
 export default class SongsService {
   private readonly _prisma: PrismaClient;
 
@@ -73,13 +75,7 @@ export default class SongsService {
     };
   }
 
-  private _filterSongs(
-    songs: SongsData,
-    filter: {
-      title: Song["title"];
-      performer: Song["performer"];
-    }
-  ): any {
+  private _filterSongs(songs: SongsData, filter: SongsFilter): SongsData {
     return songs.filter(
       (song) =>
         song.title.toLowerCase().includes(filter.title.toLowerCase()) &&
