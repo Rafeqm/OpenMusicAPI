@@ -111,19 +111,22 @@ export default class PlaylistsHandler {
     };
   };
 
-  getActivitiesOnPlaylistById: Lifecycle.Method = async (request) => {
+  getActivitiesOnPlaylistById: Lifecycle.Method = async (request, h) => {
     const { id } = <Playlist>request.params;
     const { userId } = <any>request.auth.credentials;
 
     await this._service.verifyPlaylistAccess(id, userId);
-    const activities = await this._service.getActivitiesOnPlaylistById(id);
+    const { activities, source } =
+      await this._service.getActivitiesOnPlaylistById(id);
 
-    return {
-      status: "success",
-      data: {
-        playlistId: id,
-        activities,
-      },
-    };
+    return h
+      .response({
+        status: "success",
+        data: {
+          playlistId: id,
+          activities,
+        },
+      })
+      .header("X-Data-Source", source);
   };
 }

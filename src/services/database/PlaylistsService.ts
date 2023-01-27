@@ -20,12 +20,12 @@ type PlaylistData = Omit<Playlist, "ownerId"> &
 
 type ActionOnPlaylist = "add" | "delete";
 
-type ActivityData = {
+type ActivitiesOnPlaylist = Array<{
   username: User["username"];
   title: Song["title"];
   action: ActionOnPlaylist;
   time: ActivityOnPlaylist["time"];
-};
+}>;
 
 export default class PlaylistsService {
   private readonly _prisma: PrismaClient;
@@ -100,6 +100,7 @@ export default class PlaylistsService {
 
       await this._cacheService.delete(`users:${playlist.ownerId}:playlists`);
       await this._cacheService.delete(`playlists:${id}`);
+      await this._cacheService.delete(`playlists:${id}:activities`);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2025") {
@@ -138,6 +139,7 @@ export default class PlaylistsService {
       });
 
       await this._cacheService.delete(`playlists:${playlistId}`);
+      await this._cacheService.delete(`playlists:${playlistId}:activities`);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2025") {
@@ -214,6 +216,7 @@ export default class PlaylistsService {
       });
 
       await this._cacheService.delete(`playlists:${playlistId}`);
+      await this._cacheService.delete(`playlists:${playlistId}:activities`);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2025") {
@@ -231,8 +234,19 @@ export default class PlaylistsService {
 
   async getActivitiesOnPlaylistById(
     id: Playlist["id"]
-  ): Promise<Array<ActivityData>> {
-    return await this._prisma.$queryRaw`
+  ): Promise<DataSource<ActivitiesOnPlaylist>> {
+    const cachedActivities = await this._cacheService.get(
+      `playlists:${id}:activities`
+    );
+
+    if (cachedActivities !== null) {
+      return {
+        activities: JSON.parse(cachedActivities),
+        source: "cache",
+      };
+    }
+
+    const activities = await this._prisma.$queryRaw<ActivitiesOnPlaylist>`
       SELECT
         users.username,
         songs.title,
@@ -243,6 +257,16 @@ export default class PlaylistsService {
       LEFT JOIN songs ON activities_on_playlist.song_id = songs.id
       WHERE activities_on_playlist.playlist_id = ${id}
       ORDER BY activities_on_playlist.time`;
+
+    await this._cacheService.set(
+      `playlists:${id}:activities`,
+      JSON.stringify(activities)
+    );
+
+    return {
+      activities,
+      source: "database",
+    };
   }
 
   async verifyPlaylistOwner(
