@@ -48,6 +48,9 @@ const init = async () => {
         origin: ["*"],
       },
     },
+    router: {
+      stripTrailingSlash: true,
+    },
   });
 
   await server.register([
