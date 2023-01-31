@@ -8,7 +8,6 @@ import {
   PrismaClient,
   Song,
 } from "@prisma/client";
-import { nanoid } from "nanoid";
 
 import CacheService from "../cache/CacheService";
 
@@ -28,10 +27,7 @@ export default class SongsService {
   async addSong(data: Song): Promise<Song["id"]> {
     try {
       const song = await this._prisma.song.create({
-        data: {
-          ...data,
-          id: nanoid(),
-        },
+        data,
       });
 
       await this._cacheService.delete("songs");

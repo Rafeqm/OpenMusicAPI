@@ -2,7 +2,6 @@
 
 import { badData, notFound } from "@hapi/boom";
 import { Album, FavoriteAlbum, Prisma, PrismaClient } from "@prisma/client";
-import { nanoid } from "nanoid";
 
 import CacheService from "../cache/CacheService";
 
@@ -18,10 +17,7 @@ export default class AlbumsService {
   async addAlbum(data: Album): Promise<Album["id"]> {
     try {
       const album = await this._prisma.album.create({
-        data: {
-          ...data,
-          id: nanoid(),
-        },
+        data,
       });
 
       return album.id;

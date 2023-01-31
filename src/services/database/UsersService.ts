@@ -1,7 +1,6 @@
 import { badData, badRequest, unauthorized } from "@hapi/boom";
 import { Prisma, PrismaClient, User } from "@prisma/client";
 import bcrypt from "bcrypt";
-import { nanoid } from "nanoid";
 
 export default class UsersService {
   private readonly _prisma: PrismaClient;
@@ -17,7 +16,6 @@ export default class UsersService {
       const user = await this._prisma.user.create({
         data: {
           ...data,
-          id: nanoid(),
           password: await bcrypt.hash(data.password, 10),
         },
       });

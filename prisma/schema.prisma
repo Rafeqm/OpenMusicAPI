@@ -11,7 +11,7 @@ datasource db {
 }
 
 model Album {
-  id           String          @id @db.VarChar(50)
+  id           String          @id @default(nanoid()) @db.VarChar(50)
   name         String
   year         Int             @db.SmallInt
   coverUrl     String?         @map("cover_url")
@@ -23,7 +23,7 @@ model Album {
 }
 
 model Song {
-  id                   String               @id @db.VarChar(50)
+  id                   String               @id @default(nanoid()) @db.VarChar(50)
   title                String
   year                 Int                  @db.SmallInt
   performer            String
@@ -41,7 +41,7 @@ model Song {
 }
 
 model User {
-  id                   String               @id @db.VarChar(50)
+  id                   String               @id @default(nanoid()) @db.VarChar(50)
   username             String               @unique @db.VarChar(25)
   password             String
   fullname             String
@@ -61,7 +61,7 @@ model Authentication {
 }
 
 model Playlist {
-  id             String               @id @db.VarChar(50)
+  id             String               @id @default(nanoid()) @db.VarChar(50)
   name           String
   owner          User                 @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   ownerId        String               @map("owner") @db.VarChar(50)

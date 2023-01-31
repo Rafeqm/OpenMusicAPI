@@ -9,7 +9,6 @@ import {
   Song,
   User,
 } from "@prisma/client";
-import { nanoid } from "nanoid";
 
 import CacheService from "../cache/CacheService";
 import CollaborationsService from "./CollaborationsService";
@@ -43,10 +42,7 @@ export default class PlaylistsService {
   async addPlaylist(data: Playlist): Promise<Playlist["id"]> {
     try {
       const playlist = await this._prisma.playlist.create({
-        data: {
-          ...data,
-          id: nanoid(),
-        },
+        data,
       });
 
       await this._cacheService.delete(`users:${playlist.ownerId}:playlists`);
