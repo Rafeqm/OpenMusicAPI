@@ -19,7 +19,7 @@ export default class CollaborationsHandler {
     const { userId } = <any>request.auth.credentials;
 
     await this._playlistsService.verifyPlaylistOwner(playlistId, userId);
-    const collaborationId = await this._collaborationsService.addCollaboration(
+    await this._collaborationsService.addCollaboration(
       <Collaboration>request.payload
     );
 
@@ -27,9 +27,6 @@ export default class CollaborationsHandler {
       .response({
         status: "success",
         message: "Collaboration added",
-        data: {
-          collaborationId,
-        },
       })
       .code(201);
   };

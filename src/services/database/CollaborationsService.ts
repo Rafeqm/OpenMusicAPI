@@ -1,6 +1,5 @@
 import { badData, badRequest, notFound } from "@hapi/boom";
 import { Collaboration, Prisma, PrismaClient } from "@prisma/client";
-import { nanoid } from "nanoid";
 
 import CacheService from "../cache/CacheService";
 
@@ -13,26 +12,23 @@ export default class CollaborationsService {
     });
   }
 
-  async addCollaboration(data: Collaboration): Promise<Collaboration["id"]> {
+  async addCollaboration(data: Collaboration) {
     try {
-      const collaboration = await this._prisma.collaboration.create({
-        data: {
-          ...data,
-          id: nanoid(),
-        },
-      });
+      const collaboration = await this._prisma.collaboration.create({ data });
 
       await this._cacheService.delete(
         `users:${collaboration.userId}:playlists`
       );
-
-      return collaboration.id;
     } catch (error) {
       if (error instanceof Prisma.PrismaClientValidationError) {
         throw badData("Data unprocessable");
       }
 
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2002") {
+          throw badRequest("Collaboration already exists");
+        }
+
         if (error.code === "P2003") {
           throw notFound("Playlist or user not found");
         }

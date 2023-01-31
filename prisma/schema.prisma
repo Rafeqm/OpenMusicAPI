@@ -61,25 +61,24 @@ model Authentication {
 }
 
 model Playlist {
-  id             String               @id @default(nanoid()) @db.VarChar(50)
-  name           String
-  owner          User                 @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  ownerId        String               @map("owner") @db.VarChar(50)
-  songs          Song[]
-  collaborations Collaboration[]
-  activities     ActivityOnPlaylist[]
+  id            String               @id @default(nanoid()) @db.VarChar(50)
+  name          String
+  owner         User                 @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId       String               @map("owner") @db.VarChar(50)
+  songs         Song[]
+  collaborators Collaboration[]
+  activities    ActivityOnPlaylist[]
 
   @@map("playlists")
 }
 
 model Collaboration {
-  id         String   @id @db.VarChar(50)
   playlist   Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
   playlistId String   @map("playlist_id") @db.VarChar(50)
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId     String   @map("user_id") @db.VarChar(50)
 
-  @@unique(fields: [playlistId, userId])
+  @@id(fields: [playlistId, userId])
   @@map("collaborations")
 }
 
