@@ -7,6 +7,9 @@ export default (handler: SongsHandler): Array<ServerRoute> => [
     method: "POST",
     path: "/songs",
     handler: handler.postSong,
+    options: {
+      auth: "openmusicapi_jwt",
+    },
   },
   {
     method: "GET",
@@ -22,17 +25,24 @@ export default (handler: SongsHandler): Array<ServerRoute> => [
     method: "PUT",
     path: "/songs/{id}",
     handler: handler.putSongById,
+    options: {
+      auth: "openmusicapi_jwt",
+    },
   },
   {
     method: "DELETE",
     path: "/songs/{id}",
     handler: handler.deleteSongById,
+    options: {
+      auth: "openmusicapi_jwt",
+    },
   },
   {
     method: "POST",
     path: "/songs/{id}/audio",
     handler: handler.postSongAudioById,
     options: {
+      auth: "openmusicapi_jwt",
       payload: {
         allow: "multipart/form-data",
         multipart: {
