@@ -37,8 +37,9 @@ export default class AlbumsHandler {
       .code(201);
   };
 
-  getAlbums: Lifecycle.Method = async () => {
-    const albums = await this._albumsService.getAlbums();
+  getAlbums: Lifecycle.Method = async (request) => {
+    const { name } = <Album>request.query;
+    const albums = await this._albumsService.getAlbums(name);
 
     return {
       status: "success",

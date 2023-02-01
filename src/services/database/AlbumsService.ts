@@ -30,8 +30,16 @@ export default class AlbumsService {
     }
   }
 
-  async getAlbums(): Promise<Array<Omit<Album, "coverUrl" | "coverFileExt">>> {
+  async getAlbums(
+    name: Album["name"] = ""
+  ): Promise<Array<Omit<Album, "coverUrl" | "coverFileExt">>> {
     return await this._prisma.album.findMany({
+      where: {
+        name: {
+          contains: name,
+          mode: "insensitive",
+        },
+      },
       select: {
         id: true,
         name: true,
