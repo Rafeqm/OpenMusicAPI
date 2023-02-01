@@ -30,6 +30,16 @@ export default class AlbumsService {
     }
   }
 
+  async getAlbums(): Promise<Array<Omit<Album, "coverUrl" | "coverFileExt">>> {
+    return await this._prisma.album.findMany({
+      select: {
+        id: true,
+        name: true,
+        year: true,
+      },
+    });
+  }
+
   async getAlbumById(
     id: Album["id"]
   ): Promise<DataSource<Omit<Album, "coverFileExt">>> {

@@ -13,6 +13,11 @@ export default (handler: AlbumsHandler): Array<ServerRoute> => [
   },
   {
     method: "GET",
+    path: "/albums",
+    handler: handler.getAlbums,
+  },
+  {
+    method: "GET",
     path: "/albums/{id}",
     handler: handler.getAlbumById,
   },
