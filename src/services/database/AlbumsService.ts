@@ -5,6 +5,10 @@ import { Album, FavoriteAlbum, Prisma, PrismaClient } from "@prisma/client";
 
 import CacheService from "../cache/CacheService";
 
+export type AlbumsData = Array<Pick<Album, "id" | "name" | "year">>;
+
+type AlbumsFilter = Pick<Album, "name">;
+
 export default class AlbumsService {
   private readonly _prisma: PrismaClient;
 
@@ -20,6 +24,8 @@ export default class AlbumsService {
         data,
       });
 
+      await this._cacheService.delete("albums");
+
       return album.id;
     } catch (error) {
       if (error instanceof Prisma.PrismaClientValidationError) {
@@ -30,22 +36,36 @@ export default class AlbumsService {
     }
   }
 
-  async getAlbums(
-    name: Album["name"] = ""
-  ): Promise<Array<Omit<Album, "coverUrl" | "coverFileExt">>> {
-    return await this._prisma.album.findMany({
-      where: {
-        name: {
-          contains: name,
-          mode: "insensitive",
-        },
-      },
+  async getAlbums(name: Album["name"] = ""): Promise<DataSource<AlbumsData>> {
+    const cachedAlbums = await this._cacheService.get("albums");
+
+    if (cachedAlbums !== null) {
+      return {
+        albums: this._filterAlbums(JSON.parse(cachedAlbums), { name }),
+        source: "cache",
+      };
+    }
+
+    const albums = await this._prisma.album.findMany({
       select: {
         id: true,
         name: true,
         year: true,
       },
     });
+
+    await this._cacheService.set("albums", JSON.stringify(albums));
+
+    return {
+      albums: this._filterAlbums(albums, { name }),
+      source: "database",
+    };
+  }
+
+  private _filterAlbums(albums: AlbumsData, filter: AlbumsFilter): AlbumsData {
+    return albums.filter((album) =>
+      album.name.toLowerCase().includes(filter.name.toLowerCase())
+    );
   }
 
   async getAlbumById(
@@ -106,6 +126,7 @@ export default class AlbumsService {
         data,
       });
 
+      await this._cacheService.delete("albums");
       await this._cacheService.delete(`albums:${id}`);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -130,6 +151,7 @@ export default class AlbumsService {
         },
       });
 
+      await this._cacheService.delete("albums");
       await this._cacheService.delete(`albums:${id}`);
       await this._cacheService.delete(`albums:${id}:cover`);
       await this._cacheService.delete(`albums:${id}:likes`);
