@@ -325,4 +325,25 @@ export default class PlaylistsService {
       }
     }
   }
+
+  async verifyPlaylistPrivacy(
+    playlistId: Playlist["id"],
+    userId: Playlist["ownerId"]
+  ) {
+    try {
+      await this.verifyPlaylistAccess(playlistId, userId);
+    } catch (error) {
+      if (!isBoom(error) || error.output.statusCode === 404) {
+        throw error;
+      }
+
+      const playlist = await this._prisma.playlist.findUniqueOrThrow({
+        where: {
+          id: playlistId,
+        },
+      });
+
+      if (playlist.private) throw error;
+    }
+  }
 }

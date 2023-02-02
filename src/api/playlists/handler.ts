@@ -13,12 +13,10 @@ export default class PlaylistsHandler {
   postPlaylist: Lifecycle.Method = async (request, h) => {
     await this._validator.validatePlaylistPayload(request.payload);
 
-    const { name } = <Playlist>request.payload;
-    const { userId: ownerId } = <any>request.auth.credentials;
-
-    const playlistId = await this._service.addPlaylist(<Playlist>{
-      name,
-      ownerId,
+    const { userId } = <any>request.auth.credentials;
+    const playlistId = await this._service.addPlaylist({
+      ...(<Playlist>request.payload),
+      ownerId: userId,
     });
 
     return h
@@ -85,7 +83,7 @@ export default class PlaylistsHandler {
     const { id } = <Playlist>request.params;
     const { userId } = <any>request.auth.credentials;
 
-    await this._service.verifyPlaylistAccess(id, userId);
+    await this._service.verifyPlaylistPrivacy(id, userId);
     const { playlist, source } =
       await this._service.getSongsInPlaylistByPlaylistId(id);
 
