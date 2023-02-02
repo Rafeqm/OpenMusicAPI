@@ -14,8 +14,12 @@ import CacheService from "../cache/CacheService";
 import CollaborationsService from "./CollaborationsService";
 import SongsService, { SongsData } from "./SongsService";
 
-type PlaylistData = Omit<Playlist, "ownerId"> &
+export type PlaylistData = Omit<Playlist, "ownerId"> &
   Pick<User, "username"> & { songs?: SongsData };
+
+export type PlaylistsData = Array<PlaylistData>;
+
+type PlaylistsFilter = Pick<Playlist, "name">;
 
 type ActionOnPlaylist = "add" | "delete";
 
@@ -57,19 +61,22 @@ export default class PlaylistsService {
     }
   }
 
-  async getPlaylists(userId: User["id"]): Promise<DataSource<PlaylistData[]>> {
+  async getPlaylists(
+    userId: User["id"],
+    name: Playlist["name"] = ""
+  ): Promise<DataSource<PlaylistsData>> {
     const cachedPlaylists = await this._cacheService.get(
       `users:${userId}:playlists`
     );
 
     if (cachedPlaylists !== null) {
       return {
-        playlists: JSON.parse(cachedPlaylists),
+        playlists: this._filterPlaylists(JSON.parse(cachedPlaylists), { name }),
         source: "cache",
       };
     }
 
-    const playlists = await this._prisma.$queryRaw<PlaylistData[]>`
+    const playlists = await this._prisma.$queryRaw<PlaylistsData>`
       SELECT playlists.id, playlists.name, users.username FROM playlists
       LEFT JOIN users ON playlists.owner = users.id
       LEFT JOIN collaborations ON playlists.id = collaborations.playlist_id
@@ -81,9 +88,18 @@ export default class PlaylistsService {
     );
 
     return {
-      playlists,
+      playlists: this._filterPlaylists(playlists, { name }),
       source: "database",
     };
+  }
+
+  private _filterPlaylists(
+    playlists: PlaylistsData,
+    filter: PlaylistsFilter
+  ): PlaylistsData {
+    return playlists.filter((playlist) =>
+      playlist.name.toLowerCase().includes(filter.name.toLowerCase())
+    );
   }
 
   async deletePlaylistById(id: Playlist["id"]) {

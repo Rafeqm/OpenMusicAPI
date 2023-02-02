@@ -34,7 +34,11 @@ export default class PlaylistsHandler {
 
   getPlaylists: Lifecycle.Method = async (request, h) => {
     const { userId } = <any>request.auth.credentials;
-    const { playlists, source } = await this._service.getPlaylists(userId);
+    const { name } = <Playlist>request.query;
+    const { playlists, source } = await this._service.getPlaylists(
+      userId,
+      name
+    );
 
     return h
       .response({
