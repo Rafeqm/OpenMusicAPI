@@ -49,6 +49,7 @@ export default class PlaylistsService {
         data,
       });
 
+      if (!playlist.private) await this._cacheService.delete("playlists");
       await this._cacheService.delete(`users:${playlist.ownerId}:playlists`);
 
       return playlist.id;
@@ -65,32 +66,60 @@ export default class PlaylistsService {
     userId: User["id"],
     name: Playlist["name"] = ""
   ): Promise<DataSource<PlaylistsData>> {
-    const cachedPlaylists = await this._cacheService.get(
+    const cachedUserPlaylists = await this._cacheService.get(
       `users:${userId}:playlists`
     );
+    const cachedPublicPlaylists = await this._cacheService.get("playlists");
 
-    if (cachedPlaylists !== null) {
+    if (cachedUserPlaylists !== null && cachedPublicPlaylists !== null) {
+      const cachedPlaylists =
+        name === ""
+          ? JSON.parse(cachedUserPlaylists)
+          : this._mergePlaylists(
+              ...JSON.parse(cachedUserPlaylists),
+              ...JSON.parse(cachedPublicPlaylists)
+            );
+
       return {
-        playlists: this._filterPlaylists(JSON.parse(cachedPlaylists), { name }),
+        playlists: this._filterPlaylists(cachedPlaylists, { name }),
         source: "cache",
       };
     }
 
-    const playlists = await this._prisma.$queryRaw<PlaylistsData>`
+    const userPlaylists = await this._prisma.$queryRaw<PlaylistsData>`
       SELECT playlists.id, playlists.name, users.username FROM playlists
       LEFT JOIN users ON playlists.owner = users.id
       LEFT JOIN collaborations ON playlists.id = collaborations.playlist_id
       WHERE playlists.owner = ${userId} OR collaborations.user_id = ${userId}`;
 
+    const publicPlaylists = await this._prisma.$queryRaw<PlaylistsData>`
+      SELECT playlists.id, playlists.name, users.username FROM playlists
+      LEFT JOIN users ON playlists.owner = users.id
+      LEFT JOIN collaborations ON playlists.id = collaborations.playlist_id
+      WHERE playlists.private = false`;
+
     await this._cacheService.set(
       `users:${userId}:playlists`,
-      JSON.stringify(playlists)
+      JSON.stringify(userPlaylists)
     );
+    await this._cacheService.set("playlists", JSON.stringify(publicPlaylists));
+
+    const playlists =
+      name === ""
+        ? userPlaylists
+        : this._mergePlaylists(...userPlaylists, ...publicPlaylists);
 
     return {
       playlists: this._filterPlaylists(playlists, { name }),
       source: "database",
     };
+  }
+
+  private _mergePlaylists(...playlists: PlaylistsData): PlaylistsData {
+    return playlists.filter(
+      (playlist, index, self) =>
+        index === self.findIndex(({ id }) => id === playlist.id)
+    );
   }
 
   private _filterPlaylists(
@@ -111,6 +140,7 @@ export default class PlaylistsService {
         data,
       });
 
+      if (!playlist.private) await this._cacheService.delete("playlists");
       await this._cacheService.delete(`users:${playlist.ownerId}:playlists`);
       await this._cacheService.delete(`playlists:${id}`);
     } catch (error) {
@@ -136,6 +166,7 @@ export default class PlaylistsService {
         },
       });
 
+      if (!playlist.private) await this._cacheService.delete("playlists");
       await this._cacheService.delete(`users:${playlist.ownerId}:playlists`);
       await this._cacheService.delete(`playlists:${id}`);
       await this._cacheService.delete(`playlists:${id}:activities`);
