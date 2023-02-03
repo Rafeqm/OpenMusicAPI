@@ -241,7 +241,12 @@ export default class PlaylistsService {
 
     const playlist = (
       await this._prisma.$queryRaw<Array<PlaylistData>>`
-        SELECT playlists.id, playlists.name, users.username FROM playlists
+        SELECT 
+          playlists.id,
+          playlists.name,
+          users.username,
+          playlists.private
+        FROM playlists
         LEFT JOIN users ON playlists.owner = users.id
         WHERE playlists.id = ${id}`
     )[0];
