@@ -102,6 +102,32 @@ export default class PlaylistsService {
     );
   }
 
+  async editPlaylistById(id: Playlist["id"], data: Playlist) {
+    try {
+      const playlist = await this._prisma.playlist.update({
+        where: {
+          id,
+        },
+        data,
+      });
+
+      await this._cacheService.delete(`users:${playlist.ownerId}:playlists`);
+      await this._cacheService.delete(`playlists:${id}`);
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          throw notFound("Playlist not found");
+        }
+      }
+
+      if (error instanceof Prisma.PrismaClientValidationError) {
+        throw badData("Data unprocessable");
+      }
+
+      throw error;
+    }
+  }
+
   async deletePlaylistById(id: Playlist["id"]) {
     try {
       const playlist = await this._prisma.playlist.delete({

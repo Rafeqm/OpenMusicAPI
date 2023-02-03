@@ -48,6 +48,20 @@ export default class PlaylistsHandler {
       .header("X-Data-Source", source);
   };
 
+  putPlaylistById: Lifecycle.Method = async (request) => {
+    const { id } = <Playlist>request.params;
+    const { userId } = <any>request.auth.credentials;
+
+    await this._service.verifyPlaylistOwner(id, userId);
+    await this._validator.validatePlaylistPayload(request.payload);
+    await this._service.editPlaylistById(id, <Playlist>request.payload);
+
+    return {
+      status: "success",
+      message: "Playlist updated",
+    };
+  };
+
   deletePlaylistById: Lifecycle.Method = async (request) => {
     const { id } = <Playlist>request.params;
     const { userId } = <any>request.auth.credentials;
