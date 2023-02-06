@@ -50,6 +50,7 @@ model User {
   activitiesOnPlaylist ActivityOnPlaylist[]
   favoriteAlbums       FavoriteAlbum[]
   favoriteSongs        FavoriteSong[]
+  favoritePlaylist     FavoritePlaylist[]
 
   @@map("users")
 }
@@ -69,6 +70,7 @@ model Playlist {
   songs         Song[]
   collaborators Collaboration[]
   activities    ActivityOnPlaylist[]
+  likes         FavoritePlaylist[]
 
   @@map("playlists")
 }
@@ -115,4 +117,14 @@ model FavoriteSong {
 
   @@id([userId, songId])
   @@map("favorite_songs")
+}
+
+model FavoritePlaylist {
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String   @map("user_id") @db.VarChar(50)
+  playlist   Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+  playlistId String   @map("playlist_id") @db.VarChar(50)
+
+  @@id([userId, playlistId])
+  @@map("favorite_playlists")
 }
