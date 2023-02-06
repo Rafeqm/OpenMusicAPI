@@ -368,6 +368,26 @@ export default class PlaylistsService {
     }
   }
 
+  async getPlaylistLikesById(
+    id: FavoritePlaylist["playlistId"]
+  ): Promise<number> {
+    try {
+      return await this._prisma.favoritePlaylist.count({
+        where: {
+          playlistId: id,
+        },
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2003") {
+          throw notFound("Playlist not found");
+        }
+      }
+
+      throw error;
+    }
+  }
+
   async verifyPlaylistOwner(
     playlistId: Playlist["id"],
     userId: Playlist["ownerId"]
