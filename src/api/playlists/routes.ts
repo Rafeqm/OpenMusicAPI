@@ -68,4 +68,12 @@ export default (handler: PlaylistsHandler): Array<ServerRoute> => [
       auth: "openmusicapi_jwt",
     },
   },
+  {
+    method: "POST",
+    path: "/playlists/{id}/likes",
+    handler: handler.postPlaylistLikeById,
+    options: {
+      auth: "openmusicapi_jwt",
+    },
+  },
 ];

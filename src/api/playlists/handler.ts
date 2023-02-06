@@ -145,4 +145,22 @@ export default class PlaylistsHandler {
       })
       .header("X-Data-Source", source);
   };
+
+  postPlaylistLikeById: Lifecycle.Method = async (request, h) => {
+    const { id } = <Playlist>request.params;
+    const { userId } = <any>request.auth.credentials;
+
+    await this._service.verifyPlaylistPrivacy(id, userId);
+    await this._service.updatePlaylistLikesById({
+      playlistId: id,
+      userId,
+    });
+
+    return h
+      .response({
+        status: "success",
+        message: "Favorite playlists updated",
+      })
+      .code(201);
+  };
 }

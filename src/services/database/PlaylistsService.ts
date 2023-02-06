@@ -3,6 +3,7 @@
 import { badData, forbidden, isBoom, notFound } from "@hapi/boom";
 import {
   ActivityOnPlaylist,
+  FavoritePlaylist,
   Playlist,
   Prisma,
   PrismaClient,
@@ -341,6 +342,30 @@ export default class PlaylistsService {
       activities,
       source: "database",
     };
+  }
+
+  async updatePlaylistLikesById(data: FavoritePlaylist) {
+    try {
+      await this._prisma.favoritePlaylist.create({ data });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2002") {
+          await this._prisma.favoritePlaylist.delete({
+            where: {
+              userId_playlistId: data,
+            },
+          });
+
+          return;
+        }
+
+        if (error.code === "P2003") {
+          throw notFound("Playlist not found");
+        }
+      }
+
+      throw error;
+    }
   }
 
   async verifyPlaylistOwner(
