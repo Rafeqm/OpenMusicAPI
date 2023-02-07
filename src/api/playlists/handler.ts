@@ -164,17 +164,19 @@ export default class PlaylistsHandler {
       .code(201);
   };
 
-  getPlaylistLikesById: Lifecycle.Method = async (request) => {
+  getPlaylistLikesById: Lifecycle.Method = async (request, h) => {
     const { id } = <Playlist>request.params;
 
     await this._service.assertPlaylistIsPublic(id);
-    const likes = await this._service.getPlaylistLikesById(id);
+    const { likes, source } = await this._service.getPlaylistLikesById(id);
 
-    return {
-      status: "success",
-      data: {
-        likes,
-      },
-    };
+    return h
+      .response({
+        status: "success",
+        data: {
+          likes,
+        },
+      })
+      .header("X-Data-Source", source);
   };
 }

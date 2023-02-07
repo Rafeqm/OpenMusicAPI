@@ -266,11 +266,11 @@ export default class AlbumsService {
   async getAlbumLikesById(
     id: FavoriteAlbum["albumId"]
   ): Promise<DataSource<number>> {
-    const cachedLikeCount = await this._cacheService.get(`albums:${id}:likes`);
+    const cachedLikesCount = await this._cacheService.get(`albums:${id}:likes`);
 
-    if (cachedLikeCount !== null) {
+    if (cachedLikesCount !== null) {
       return {
-        likes: Number(cachedLikeCount),
+        likes: Number(cachedLikesCount),
         source: "cache",
       };
     }
