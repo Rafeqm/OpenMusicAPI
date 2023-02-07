@@ -166,9 +166,8 @@ export default class PlaylistsHandler {
 
   getPlaylistLikesById: Lifecycle.Method = async (request) => {
     const { id } = <Playlist>request.params;
-    const { userId } = <any>request.auth.credentials;
 
-    await this._service.verifyPlaylistPrivacy(id, userId);
+    await this._service.assertPlaylistIsPublic(id);
     const likes = await this._service.getPlaylistLikesById(id);
 
     return {

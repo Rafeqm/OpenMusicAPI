@@ -444,13 +444,7 @@ export default class PlaylistsService {
         throw error;
       }
 
-      const playlist = await this._prisma.playlist.findUniqueOrThrow({
-        where: {
-          id: playlistId,
-        },
-      });
-
-      if (playlist.private) throw error;
+      await this.assertPlaylistIsPublic(playlistId);
     }
   }
 
@@ -469,14 +463,28 @@ export default class PlaylistsService {
       try {
         await this.verifyPlaylistAccess(playlistId, userId);
       } catch {
-        const playlist = await this._prisma.playlist.findUniqueOrThrow({
-          where: {
-            id: playlistId,
-          },
-        });
-
-        if (playlist.private) throw error;
+        await this.assertPlaylistIsPublic(playlistId);
       }
+    }
+  }
+
+  async assertPlaylistIsPublic(id: Playlist["id"]) {
+    try {
+      const playlist = await this._prisma.playlist.findUniqueOrThrow({
+        where: {
+          id,
+        },
+      });
+
+      if (playlist.private) throw forbidden("Access not granted");
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          throw notFound("Playlist not found");
+        }
+      }
+
+      throw error;
     }
   }
 }
