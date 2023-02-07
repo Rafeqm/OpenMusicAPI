@@ -150,7 +150,7 @@ export default class PlaylistsHandler {
     const { id } = <Playlist>request.params;
     const { userId } = <any>request.auth.credentials;
 
-    await this._service.verifyPlaylistPrivacy(id, userId);
+    await this._service.assertPlaylistLikable(id, userId);
     await this._service.updatePlaylistLikesById({
       playlistId: id,
       userId,

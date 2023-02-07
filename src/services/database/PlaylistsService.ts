@@ -1,6 +1,6 @@
 /* eslint-disable no-undef */
 
-import { badData, forbidden, isBoom, notFound } from "@hapi/boom";
+import { badData, badRequest, forbidden, isBoom, notFound } from "@hapi/boom";
 import {
   ActivityOnPlaylist,
   FavoritePlaylist,
@@ -451,6 +451,32 @@ export default class PlaylistsService {
       });
 
       if (playlist.private) throw error;
+    }
+  }
+
+  async assertPlaylistLikable(
+    playlistId: Playlist["id"],
+    userId: Playlist["ownerId"]
+  ) {
+    try {
+      await this.verifyPlaylistOwner(playlistId, userId);
+      throw badRequest("Playlist can not be liked by its owner");
+    } catch (error) {
+      if (!isBoom(error) || error.output.statusCode !== 403) {
+        throw error;
+      }
+
+      try {
+        await this.verifyPlaylistAccess(playlistId, userId);
+      } catch {
+        const playlist = await this._prisma.playlist.findUniqueOrThrow({
+          where: {
+            id: playlistId,
+          },
+        });
+
+        if (playlist.private) throw error;
+      }
     }
   }
 }
