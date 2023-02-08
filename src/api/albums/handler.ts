@@ -1,7 +1,5 @@
-import { notFound } from "@hapi/boom";
 import { Lifecycle } from "@hapi/hapi";
 import { Album } from "@prisma/client";
-import fs from "fs";
 import path from "path";
 
 import AlbumsService from "../../services/database/AlbumsService";
@@ -81,10 +79,7 @@ export default class AlbumsHandler {
     const { id } = <Album>request.params;
     const { filename } = await this._albumsService.getAlbumCoverById(id);
 
-    await this._storageService.remove({
-      relativePaths: [this._albumCoverDir, filename],
-      storage: process.env.NODE_ENV === "production" ? "remote" : "local",
-    });
+    await this._storageService.remove(this._albumCoverDir, filename);
     await this._albumsService.deleteAlbumById(id);
 
     return {
@@ -99,18 +94,13 @@ export default class AlbumsHandler {
 
     const { id } = <Album>request.params;
     const { filename } = await this._albumsService.getAlbumCoverById(id);
-    const storage = process.env.NODE_ENV === "production" ? "remote" : "local";
-    await this._storageService.remove({
-      relativePaths: [this._albumCoverDir, filename],
-      storage,
-    });
+    await this._storageService.remove(this._albumCoverDir, filename);
 
     const extname = path.extname(cover.hapi.filename);
     const fileLocation = await this._storageService.upload({
       content: cover,
       contentType: cover.hapi.headers["content-type"],
       relativePaths: [this._albumCoverDir, id + extname],
-      storage,
     });
 
     let coverUrl: string;
@@ -135,12 +125,13 @@ export default class AlbumsHandler {
     const { filename, source } = await this._albumsService.getAlbumCoverById(
       id
     );
-    const filePath = this._storageService.getLocalFile(
+
+    const filePath = this._storageService.getFilePath(
       this._albumCoverDir,
       filename
     );
+    this._storageService.validateFilePath(filePath);
 
-    if (!fs.existsSync(filePath)) throw notFound("Album cover not found");
     return h.file(filePath).header("X-Data-Source", source);
   };
 

@@ -1,7 +1,5 @@
-import { notFound } from "@hapi/boom";
 import { Lifecycle } from "@hapi/hapi";
 import { Song } from "@prisma/client";
-import fs from "fs";
 import path from "path";
 
 import SongsService from "../../services/database/SongsService";
@@ -84,10 +82,7 @@ export default class SongsHandler {
     const { id } = <Song>request.params;
     const { filename } = await this._songsService.getSongAudioById(id);
 
-    await this._storageService.remove({
-      relativePaths: [this._songAudioDir, filename],
-      storage: process.env.NODE_ENV === "production" ? "remote" : "local",
-    });
+    await this._storageService.remove(this._songAudioDir, filename);
     await this._songsService.deleteSongById(id);
 
     return {
@@ -102,18 +97,13 @@ export default class SongsHandler {
 
     const { id } = <Song>request.params;
     const { filename } = await this._songsService.getSongAudioById(id);
-    const storage = process.env.NODE_ENV === "production" ? "remote" : "local";
-    await this._storageService.remove({
-      relativePaths: [this._songAudioDir, filename],
-      storage,
-    });
+    await this._storageService.remove(this._songAudioDir, filename);
 
     const extname = path.extname(audio.hapi.filename);
     const fileLocation = await this._storageService.upload({
       content: audio,
       contentType: audio.hapi.headers["content-type"],
       relativePaths: [this._songAudioDir, id + extname],
-      storage,
     });
 
     let audioUrl: string;
@@ -136,12 +126,13 @@ export default class SongsHandler {
   getSongAudioById: Lifecycle.Method = async (request, h) => {
     const { id } = <Song>request.params;
     const { filename, source } = await this._songsService.getSongAudioById(id);
-    const filePath = this._storageService.getLocalFile(
+
+    const filePath = this._storageService.getFilePath(
       this._songAudioDir,
       filename
     );
+    this._storageService.validateFilePath(filePath);
 
-    if (!fs.existsSync(filePath)) throw notFound("Song audio not found");
     return h.file(filePath).header("X-Data-Source", source);
   };
 

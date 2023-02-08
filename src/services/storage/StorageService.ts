@@ -1,16 +1,13 @@
+import { notFound } from "@hapi/boom";
 import S3 from "aws-sdk/clients/s3.js";
 import fs from "fs";
 import path from "path";
 import { Readable } from "stream";
 
-export type FileParams = {
-  relativePaths: Array<string>;
-  storage?: "local" | "remote";
-};
-
-export type UploadFileParams = FileParams & {
+type FileParams = {
   content: Readable;
   contentType: string;
+  relativePaths: Array<string>;
 };
 
 export default class StorageService {
@@ -35,7 +32,7 @@ export default class StorageService {
     content: Readable,
     ...relativePaths: Array<string>
   ): Promise<string> {
-    const filePath = path.resolve(this._directory, ...relativePaths);
+    const filePath = this.getFilePath(...relativePaths);
     const fileStream = fs.createWriteStream(filePath);
 
     return new Promise((resolve, reject) => {
@@ -63,26 +60,24 @@ export default class StorageService {
     return data.Location;
   }
 
-  async upload(params: UploadFileParams): Promise<string> {
-    const { content, contentType, relativePaths, storage = "local" } = params;
-
-    if (storage === "remote") {
+  async upload(params: FileParams): Promise<string> {
+    if (process.env.NODE_ENV === "production") {
       return await this._uploadToRemote(
-        path.join(...relativePaths),
-        content,
-        contentType
+        path.join(...params.relativePaths),
+        params.content,
+        params.contentType
       );
     }
 
-    return await this._uploadToLocal(content, ...relativePaths);
+    return await this._uploadToLocal(params.content, ...params.relativePaths);
   }
 
-  getLocalFile(...relativePaths: Array<string>): string {
+  getFilePath(...relativePaths: Array<string>): string {
     return path.resolve(this._directory, ...relativePaths);
   }
 
   private _removeLocalFile(...relativePaths: Array<string>) {
-    const filePath = this.getLocalFile(...relativePaths);
+    const filePath = this.getFilePath(...relativePaths);
     fs.rmSync(filePath, { force: true });
   }
 
@@ -95,13 +90,16 @@ export default class StorageService {
     await this._s3.deleteObject(parameter).promise();
   }
 
-  async remove(params: FileParams) {
-    const { relativePaths, storage = "local" } = params;
-
-    if (storage === "remote") {
+  async remove(...relativePaths: Array<string>) {
+    if (process.env.NODE_ENV === "production") {
       await this._removeRemoteFile(path.join(...relativePaths));
     }
 
     this._removeLocalFile(...relativePaths);
+  }
+
+  validateFilePath(filePath: string): string {
+    if (fs.existsSync(filePath)) return filePath;
+    throw notFound("File not found");
   }
 }
