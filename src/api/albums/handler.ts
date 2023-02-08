@@ -3,21 +3,17 @@ import { Album } from "@prisma/client";
 import path from "path";
 
 import AlbumsService from "../../services/database/AlbumsService";
-import StorageService from "../../services/storage/StorageService";
+import AlbumsStorageService from "../../services/storage/AlbumsStorageService";
 import albumsValidator from "../../validator/albums";
 import uploadsValidator from "../../validator/uploads";
 
 export default class AlbumsHandler {
-  private readonly _albumCoverDir: string;
-
   constructor(
     private readonly _albumsService: AlbumsService,
-    private readonly _storageService: StorageService,
+    private readonly _storageService: AlbumsStorageService,
     private readonly _albumsValidator: typeof albumsValidator,
     private readonly _uploadsValidator: typeof uploadsValidator
-  ) {
-    this._albumCoverDir = "covers";
-  }
+  ) {}
 
   postAlbum: Lifecycle.Method = async (request, h) => {
     await this._albumsValidator.validateAlbumPayload(request.payload);
@@ -79,7 +75,7 @@ export default class AlbumsHandler {
     const { id } = <Album>request.params;
     const { filename } = await this._albumsService.getAlbumCoverById(id);
 
-    await this._storageService.remove(this._albumCoverDir, filename);
+    await this._storageService.removeAlbumCover(filename);
     await this._albumsService.deleteAlbumById(id);
 
     return {
@@ -94,13 +90,13 @@ export default class AlbumsHandler {
 
     const { id } = <Album>request.params;
     const { filename } = await this._albumsService.getAlbumCoverById(id);
-    await this._storageService.remove(this._albumCoverDir, filename);
+    await this._storageService.removeAlbumCover(filename);
 
     const extname = path.extname(cover.hapi.filename);
-    const fileLocation = await this._storageService.upload({
+    const fileLocation = await this._storageService.uploadAlbumCover({
       content: cover,
       contentType: cover.hapi.headers["content-type"],
-      relativePaths: [this._albumCoverDir, id + extname],
+      filename: id + extname,
     });
 
     let coverUrl: string;
@@ -125,12 +121,7 @@ export default class AlbumsHandler {
     const { filename, source } = await this._albumsService.getAlbumCoverById(
       id
     );
-
-    const filePath = this._storageService.getFilePath(
-      this._albumCoverDir,
-      filename
-    );
-    this._storageService.validateFilePath(filePath);
+    const filePath = this._storageService.getCoverFilePath(filename);
 
     return h.file(filePath).header("X-Data-Source", source);
   };

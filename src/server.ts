@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 
 import albums from "./api/albums/index.js";
 import AlbumsService from "./services/database/AlbumsService.js";
+import AlbumsStorageService from "./services/storage/AlbumsStorageService.js";
 import albumsValidator from "./validator/albums/index.js";
 
 import songs from "./api/songs/index.js";
@@ -80,7 +81,7 @@ const init = async () => {
 
   const cacheService = new CacheService();
   const albumsService = new AlbumsService(cacheService);
-  const albumsStorageService = new StorageService("uploads", "albums");
+  const albumsStorageService = new AlbumsStorageService("uploads", "albums");
   const songsService = new SongsService(cacheService);
   const songsStorageService = new StorageService("uploads", "songs");
   const usersService = new UsersService();
