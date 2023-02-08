@@ -1,7 +1,7 @@
 import { badRequest } from "@hapi/boom";
 import { Request } from "@hapi/hapi";
 
-import { playlistPayloadSchema, songPayloadSchema } from "./schema.js";
+import { playlistPayloadSchema, playlistSongPayloadSchema } from "./schema.js";
 
 export default {
   validatePlaylistPayload: async (payload: Request["payload"]) => {
@@ -12,9 +12,9 @@ export default {
     }
   },
 
-  validateSongPayload: async (payload: Request["payload"]) => {
+  validatePlaylistSongPayload: async (payload: Request["payload"]) => {
     try {
-      await songPayloadSchema.validateAsync(payload);
+      await playlistSongPayloadSchema.validateAsync(payload);
     } catch (error) {
       throw badRequest((<Error>error).message);
     }

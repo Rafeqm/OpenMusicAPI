@@ -5,6 +5,6 @@ export const playlistPayloadSchema = Joi.object({
   private: Joi.boolean(),
 });
 
-export const songPayloadSchema = Joi.object({
+export const playlistSongPayloadSchema = Joi.object({
   songId: Joi.string().required(),
 });

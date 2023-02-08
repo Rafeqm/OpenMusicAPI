@@ -39,7 +39,7 @@ export default (handler: PlaylistsHandler): Array<ServerRoute> => [
   {
     method: "POST",
     path: "/playlists/{id}/songs",
-    handler: handler.postSongToPlaylistById,
+    handler: handler.postPlaylistSongById,
     options: {
       auth: "openmusicapi_jwt",
     },
@@ -47,7 +47,7 @@ export default (handler: PlaylistsHandler): Array<ServerRoute> => [
   {
     method: "GET",
     path: "/playlists/{id}/songs",
-    handler: handler.getSongsInPlaylistById,
+    handler: handler.getPlaylistSongsById,
     options: {
       auth: "openmusicapi_jwt",
     },
@@ -55,7 +55,7 @@ export default (handler: PlaylistsHandler): Array<ServerRoute> => [
   {
     method: "DELETE",
     path: "/playlists/{id}/songs",
-    handler: handler.deleteSongFromPlaylistById,
+    handler: handler.deletePlaylistSongById,
     options: {
       auth: "openmusicapi_jwt",
     },

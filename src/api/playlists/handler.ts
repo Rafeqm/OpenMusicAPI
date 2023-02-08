@@ -75,15 +75,15 @@ export default class PlaylistsHandler {
     };
   };
 
-  postSongToPlaylistById: Lifecycle.Method = async (request, h) => {
+  postPlaylistSongById: Lifecycle.Method = async (request, h) => {
     const { id } = <Playlist>request.params;
     const { userId } = <any>request.auth.credentials;
 
     await this._service.verifyPlaylistAccess(id, userId);
-    await this._validator.validateSongPayload(request.payload);
+    await this._validator.validatePlaylistSongPayload(request.payload);
 
     const { songId } = <any>request.payload;
-    await this._service.addSongToPlaylistById(id, songId, userId);
+    await this._service.addPlaylistSongById(id, songId, userId);
 
     return h
       .response({
@@ -93,13 +93,12 @@ export default class PlaylistsHandler {
       .code(201);
   };
 
-  getSongsInPlaylistById: Lifecycle.Method = async (request, h) => {
+  getPlaylistSongsById: Lifecycle.Method = async (request, h) => {
     const { id } = <Playlist>request.params;
     const { userId } = <any>request.auth.credentials;
 
     await this._service.verifyPlaylistPrivacy(id, userId);
-    const { playlist, source } =
-      await this._service.getSongsInPlaylistByPlaylistId(id);
+    const { playlist, source } = await this._service.getPlaylistSongsById(id);
 
     return h
       .response({
@@ -111,15 +110,15 @@ export default class PlaylistsHandler {
       .header("X-Data-Source", source);
   };
 
-  deleteSongFromPlaylistById: Lifecycle.Method = async (request) => {
+  deletePlaylistSongById: Lifecycle.Method = async (request) => {
     const { id } = <Playlist>request.params;
     const { userId } = <any>request.auth.credentials;
 
     await this._service.verifyPlaylistAccess(id, userId);
-    await this._validator.validateSongPayload(request.payload);
+    await this._validator.validatePlaylistSongPayload(request.payload);
 
     const { songId } = <any>request.payload;
-    await this._service.deleteSongFromPlaylistById(id, songId, userId);
+    await this._service.deletePlaylistSongById(id, songId, userId);
 
     return {
       status: "success",

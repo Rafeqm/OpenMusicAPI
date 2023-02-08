@@ -46,8 +46,8 @@ export default class AuthenticationsHandler {
     const { refreshToken } = <any>request.payload;
     await this._authenticationsService.verifyRefreshToken(refreshToken);
 
-    const { userId } = this._tokenManager.verifyRefreshToken(refreshToken);
-    const accessToken = this._tokenManager.generateAccessToken({ userId });
+    const payload = this._tokenManager.verifyRefreshToken(refreshToken);
+    const accessToken = this._tokenManager.generateAccessToken(payload);
 
     return {
       status: "success",

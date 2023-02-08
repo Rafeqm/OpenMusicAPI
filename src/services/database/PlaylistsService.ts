@@ -183,7 +183,7 @@ export default class PlaylistsService {
     }
   }
 
-  async addSongToPlaylistById(
+  async addPlaylistSongById(
     playlistId: Playlist["id"],
     songId: Song["id"],
     userId: User["id"]
@@ -226,7 +226,7 @@ export default class PlaylistsService {
     }
   }
 
-  async getSongsInPlaylistByPlaylistId(
+  async getPlaylistSongsById(
     id: Playlist["id"]
   ): Promise<DataSource<PlaylistData>> {
     const cachedPlaylist = await this._cacheService.get(`playlists:${id}`);
@@ -265,7 +265,7 @@ export default class PlaylistsService {
     };
   }
 
-  async deleteSongFromPlaylistById(
+  async deletePlaylistSongById(
     playlistId: Playlist["id"],
     songId: Song["id"],
     userId: User["id"]
