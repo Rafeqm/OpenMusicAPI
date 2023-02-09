@@ -76,7 +76,7 @@ export default class SongsHandler {
 
   deleteSongById: Lifecycle.Method = async (request) => {
     const { id } = <Song>request.params;
-    const { filename } = await this._songsService.getSongAudioById(id);
+    const filename = await this._songsService.getSongAudioById(id);
 
     await this._storageService.removeSongAudio(filename);
     await this._songsService.deleteSongById(id);
@@ -92,7 +92,7 @@ export default class SongsHandler {
     await this._uploadsValidator.validateAudioHeaders(audio.hapi.headers);
 
     const { id } = <Song>request.params;
-    const { filename } = await this._songsService.getSongAudioById(id);
+    const filename = await this._songsService.getSongAudioById(id);
     await this._storageService.removeSongAudio(filename);
 
     const extname = path.extname(audio.hapi.filename);
@@ -121,10 +121,10 @@ export default class SongsHandler {
 
   getSongAudioById: Lifecycle.Method = async (request, h) => {
     const { id } = <Song>request.params;
-    const { filename, source } = await this._songsService.getSongAudioById(id);
+    const filename = await this._songsService.getSongAudioById(id);
     const filePath = this._storageService.getAudioFilePath(filename);
 
-    return h.file(filePath).header("X-Data-Source", source);
+    return h.file(filePath);
   };
 
   postSongLikeById: Lifecycle.Method = async (request, h) => {

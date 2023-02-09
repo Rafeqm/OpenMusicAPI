@@ -224,14 +224,11 @@ export default class SongsService {
     }
   }
 
-  async getSongAudioById(id: Song["id"]): Promise<DataSource<string>> {
+  async getSongAudioById(id: Song["id"]): Promise<string> {
     const cachedFilename = await this._cacheService.get(`songs:${id}:audio`);
 
     if (cachedFilename !== null) {
-      return {
-        filename: cachedFilename,
-        source: "cache",
-      };
+      return cachedFilename;
     }
 
     try {
@@ -247,10 +244,7 @@ export default class SongsService {
       const filename = id + song.audioFileExt;
       await this._cacheService.set(`songs:${id}:audio`, filename);
 
-      return {
-        filename,
-        source: "database",
-      };
+      return filename;
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2025") {

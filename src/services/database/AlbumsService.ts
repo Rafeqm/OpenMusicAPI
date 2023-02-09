@@ -199,14 +199,11 @@ export default class AlbumsService {
     }
   }
 
-  async getAlbumCoverById(id: Album["id"]): Promise<DataSource<string>> {
+  async getAlbumCoverById(id: Album["id"]): Promise<string> {
     const cachedFilename = await this._cacheService.get(`albums:${id}:cover`);
 
     if (cachedFilename !== null) {
-      return {
-        filename: cachedFilename,
-        source: "cache",
-      };
+      return cachedFilename;
     }
 
     try {
@@ -222,10 +219,7 @@ export default class AlbumsService {
       const filename = id + album.coverFileExt;
       await this._cacheService.set(`albums:${id}:cover`, filename);
 
-      return {
-        filename,
-        source: "database",
-      };
+      return filename;
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2025") {

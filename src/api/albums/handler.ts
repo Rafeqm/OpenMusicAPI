@@ -73,7 +73,7 @@ export default class AlbumsHandler {
 
   deleteAlbumById: Lifecycle.Method = async (request) => {
     const { id } = <Album>request.params;
-    const { filename } = await this._albumsService.getAlbumCoverById(id);
+    const filename = await this._albumsService.getAlbumCoverById(id);
 
     await this._storageService.removeAlbumCover(filename);
     await this._albumsService.deleteAlbumById(id);
@@ -89,7 +89,7 @@ export default class AlbumsHandler {
     await this._uploadsValidator.validateImageHeaders(cover.hapi.headers);
 
     const { id } = <Album>request.params;
-    const { filename } = await this._albumsService.getAlbumCoverById(id);
+    const filename = await this._albumsService.getAlbumCoverById(id);
     await this._storageService.removeAlbumCover(filename);
 
     const extname = path.extname(cover.hapi.filename);
@@ -118,12 +118,10 @@ export default class AlbumsHandler {
 
   getAlbumCoverImageById: Lifecycle.Method = async (request, h) => {
     const { id } = <Album>request.params;
-    const { filename, source } = await this._albumsService.getAlbumCoverById(
-      id
-    );
+    const filename = await this._albumsService.getAlbumCoverById(id);
     const filePath = this._storageService.getCoverFilePath(filename);
 
-    return h.file(filePath).header("X-Data-Source", source);
+    return h.file(filePath);
   };
 
   postAlbumLikeById: Lifecycle.Method = async (request, h) => {
