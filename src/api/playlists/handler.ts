@@ -149,7 +149,6 @@ export default class PlaylistsHandler {
     const { id } = <Playlist>request.params;
     const { userId } = <any>request.auth.credentials;
 
-    await this._service.assertPlaylistLikable(id, userId);
     await this._service.updatePlaylistLikesById({
       playlistId: id,
       userId,
@@ -163,11 +162,9 @@ export default class PlaylistsHandler {
       .code(201);
   };
 
-  getPlaylistLikesById: Lifecycle.Method = async (request, h) => {
+  getPlaylistLikesCountById: Lifecycle.Method = async (request, h) => {
     const { id } = <Playlist>request.params;
-
-    await this._service.assertPlaylistIsPublic(id);
-    const { likes, source } = await this._service.getPlaylistLikesById(id);
+    const { likes, source } = await this._service.getPlaylistLikesCountById(id);
 
     return h
       .response({

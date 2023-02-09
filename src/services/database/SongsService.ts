@@ -282,7 +282,7 @@ export default class SongsService {
     }
   }
 
-  async getSongLikesById(
+  async getSongLikesCountById(
     id: FavoriteSong["songId"]
   ): Promise<DataSource<number>> {
     const cachedLikesCount = await this._cacheService.get(`songs:${id}:likes`);
@@ -295,21 +295,28 @@ export default class SongsService {
     }
 
     try {
-      const likeCount = await this._prisma.favoriteSong.count({
+      const song = await this._prisma.song.findUniqueOrThrow({
         where: {
-          songId: id,
+          id,
+        },
+        select: {
+          _count: {
+            select: {
+              likes: true,
+            },
+          },
         },
       });
 
-      await this._cacheService.set(`songs:${id}:likes`, likeCount);
+      await this._cacheService.set(`songs:${id}:likes`, song._count.likes);
 
       return {
-        likes: likeCount,
+        likes: song._count.likes,
         source: "database",
       };
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === "P2003") {
+        if (error.code === "P2025") {
           throw notFound("Song not found");
         }
       }

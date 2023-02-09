@@ -68,6 +68,6 @@ export default (handler: AlbumsHandler): Array<ServerRoute> => [
   {
     method: "GET",
     path: "/albums/{id}/likes",
-    handler: handler.getAlbumLikeById,
+    handler: handler.getAlbumLikesCountById,
   },
 ];

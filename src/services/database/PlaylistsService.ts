@@ -347,6 +347,7 @@ export default class PlaylistsService {
 
   async updatePlaylistLikesById(data: FavoritePlaylist) {
     try {
+      await this._assertPlaylistLikable(data.playlistId, data.userId);
       await this._prisma.favoritePlaylist.create({ data });
       await this._cacheService.delete(`playlists:${data.playlistId}:likes`);
     } catch (error) {
@@ -371,9 +372,11 @@ export default class PlaylistsService {
     }
   }
 
-  async getPlaylistLikesById(
+  async getPlaylistLikesCountById(
     id: FavoritePlaylist["playlistId"]
   ): Promise<DataSource<number>> {
+    await this._assertPlaylistIsPublic(id);
+
     const cachedLikesCount = await this._cacheService.get(
       `playlists:${id}:likes`
     );
@@ -386,21 +389,31 @@ export default class PlaylistsService {
     }
 
     try {
-      const likeCount = await this._prisma.favoritePlaylist.count({
+      const playlist = await this._prisma.playlist.findUniqueOrThrow({
         where: {
-          playlistId: id,
+          id,
+        },
+        select: {
+          _count: {
+            select: {
+              likes: true,
+            },
+          },
         },
       });
 
-      await this._cacheService.set(`playlists:${id}:likes`, likeCount);
+      await this._cacheService.set(
+        `playlists:${id}:likes`,
+        playlist._count.likes
+      );
 
       return {
-        likes: likeCount,
+        likes: playlist._count.likes,
         source: "database",
       };
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === "P2003") {
+        if (error.code === "P2025") {
           throw notFound("Playlist not found");
         }
       }
@@ -465,11 +478,11 @@ export default class PlaylistsService {
         throw error;
       }
 
-      await this.assertPlaylistIsPublic(playlistId);
+      await this._assertPlaylistIsPublic(playlistId);
     }
   }
 
-  async assertPlaylistLikable(
+  private async _assertPlaylistLikable(
     playlistId: Playlist["id"],
     userId: Playlist["ownerId"]
   ) {
@@ -484,12 +497,12 @@ export default class PlaylistsService {
       try {
         await this.verifyPlaylistAccess(playlistId, userId);
       } catch {
-        await this.assertPlaylistIsPublic(playlistId);
+        await this._assertPlaylistIsPublic(playlistId);
       }
     }
   }
 
-  async assertPlaylistIsPublic(id: Playlist["id"]) {
+  private async _assertPlaylistIsPublic(id: Playlist["id"]) {
     try {
       const playlist = await this._prisma.playlist.findUniqueOrThrow({
         where: {

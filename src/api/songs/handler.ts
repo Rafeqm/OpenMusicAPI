@@ -144,9 +144,11 @@ export default class SongsHandler {
       .code(201);
   };
 
-  getSongLikesById: Lifecycle.Method = async (request, h) => {
+  getSongLikesCountById: Lifecycle.Method = async (request, h) => {
     const { id } = <Song>request.params;
-    const { likes, source } = await this._songsService.getSongLikesById(id);
+    const { likes, source } = await this._songsService.getSongLikesCountById(
+      id
+    );
 
     return h
       .response({

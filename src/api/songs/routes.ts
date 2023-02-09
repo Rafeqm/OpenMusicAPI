@@ -68,6 +68,6 @@ export default (handler: SongsHandler): Array<ServerRoute> => [
   {
     method: "GET",
     path: "/songs/{id}/likes",
-    handler: handler.getSongLikesById,
+    handler: handler.getSongLikesCountById,
   },
 ];
