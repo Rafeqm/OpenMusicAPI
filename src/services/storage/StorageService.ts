@@ -76,18 +76,8 @@ export default class StorageService {
     return await this._uploadToLocal(params.content, ...params.relativePaths);
   }
 
-  // TODO: Remove this getter after song audio handler functions is refactored
-  get upload() {
-    return this._upload;
-  }
-
   protected _getFilePath(...relativePaths: Array<string>): string {
     return path.resolve(this._directory, ...relativePaths);
-  }
-
-  // TODO: Remove this getter after song audio handler functions is refactored
-  get getFilePath() {
-    return this._getFilePath;
   }
 
   private _removeLocalFile(...relativePaths: Array<string>) {
@@ -112,18 +102,8 @@ export default class StorageService {
     this._removeLocalFile(...relativePaths);
   }
 
-  // TODO: Remove this getter after song audio handler functions is refactored
-  get remove() {
-    return this._remove;
-  }
-
   protected _validateFilePath(filePath: string): string {
     if (fs.existsSync(filePath)) return filePath;
     throw notFound("File not found");
-  }
-
-  // TODO: Remove this getter after song audio handler functions is refactored
-  get validateFilePath() {
-    return this._validateFilePath;
   }
 }

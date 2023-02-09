@@ -10,6 +10,7 @@ import albumsValidator from "./validator/albums/index.js";
 
 import songs from "./api/songs/index.js";
 import SongsService from "./services/database/SongsService.js";
+import SongsStorageService from "./services/storage/SongsStorageService.js";
 import songsValidator from "./validator/songs/index.js";
 
 import users from "./api/users/index.js";
@@ -33,7 +34,6 @@ import _exports from "./api/exports/index.js";
 import exportsService from "./services/message_queue/exportsService.js";
 import exportsValidator from "./validator/exports/index.js";
 
-import StorageService from "./services/storage/StorageService.js";
 import uploadsValidator from "./validator/uploads/index.js";
 
 import CacheService from "./services/cache/CacheService.js";
@@ -83,7 +83,7 @@ const init = async () => {
   const albumsService = new AlbumsService(cacheService);
   const albumsStorageService = new AlbumsStorageService("uploads", "albums");
   const songsService = new SongsService(cacheService);
-  const songsStorageService = new StorageService("uploads", "songs");
+  const songsStorageService = new SongsStorageService("uploads", "songs");
   const usersService = new UsersService();
   const authenticationsService = new AuthenticationsService();
   const collaborationsService = new CollaborationsService(cacheService);

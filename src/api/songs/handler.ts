@@ -3,21 +3,17 @@ import { Song } from "@prisma/client";
 import path from "path";
 
 import SongsService from "../../services/database/SongsService";
-import StorageService from "../../services/storage/StorageService";
+import SongsStorageService from "../../services/storage/SongsStorageService";
 import songsValidator from "../../validator/songs";
 import uploadsValidator from "../../validator/uploads";
 
 export default class SongsHandler {
-  private readonly _songAudioDir: string;
-
   constructor(
     private readonly _songsService: SongsService,
-    private readonly _storageService: StorageService,
+    private readonly _storageService: SongsStorageService,
     private readonly _songsValidator: typeof songsValidator,
     private readonly _uploadsValidator: typeof uploadsValidator
-  ) {
-    this._songAudioDir = "audio";
-  }
+  ) {}
 
   postSong: Lifecycle.Method = async (request, h) => {
     await this._songsValidator.validateSongPayload(request.payload);
@@ -82,7 +78,7 @@ export default class SongsHandler {
     const { id } = <Song>request.params;
     const { filename } = await this._songsService.getSongAudioById(id);
 
-    await this._storageService.remove(this._songAudioDir, filename);
+    await this._storageService.removeSongAudio(filename);
     await this._songsService.deleteSongById(id);
 
     return {
@@ -97,13 +93,13 @@ export default class SongsHandler {
 
     const { id } = <Song>request.params;
     const { filename } = await this._songsService.getSongAudioById(id);
-    await this._storageService.remove(this._songAudioDir, filename);
+    await this._storageService.removeSongAudio(filename);
 
     const extname = path.extname(audio.hapi.filename);
-    const fileLocation = await this._storageService.upload({
+    const fileLocation = await this._storageService.uploadSongAudio({
       content: audio,
       contentType: audio.hapi.headers["content-type"],
-      relativePaths: [this._songAudioDir, id + extname],
+      filename: id + extname,
     });
 
     let audioUrl: string;
@@ -126,12 +122,7 @@ export default class SongsHandler {
   getSongAudioById: Lifecycle.Method = async (request, h) => {
     const { id } = <Song>request.params;
     const { filename, source } = await this._songsService.getSongAudioById(id);
-
-    const filePath = this._storageService.getFilePath(
-      this._songAudioDir,
-      filename
-    );
-    this._storageService.validateFilePath(filePath);
+    const filePath = this._storageService.getAudioFilePath(filename);
 
     return h.file(filePath).header("X-Data-Source", source);
   };
