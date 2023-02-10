@@ -26,8 +26,9 @@ export default class UsersHandler {
       .code(201);
   };
 
-  getUsers: Lifecycle.Method = async () => {
-    const users = await this._service.getUsers();
+  getUsers: Lifecycle.Method = async (request) => {
+    const { username, fullname } = <User>request.query;
+    const users = await this._service.getUsers(username, fullname);
 
     return {
       status: "success",

@@ -36,8 +36,21 @@ export default class UsersService {
     }
   }
 
-  async getUsers(): Promise<Array<Omit<User, "password">>> {
+  async getUsers(
+    username: User["username"] = "",
+    fullname: User["fullname"] = ""
+  ): Promise<Array<Omit<User, "password">>> {
     return await this._prisma.user.findMany({
+      where: {
+        username: {
+          contains: username,
+          mode: "insensitive",
+        },
+        fullname: {
+          contains: fullname,
+          mode: "insensitive",
+        },
+      },
       select: {
         id: true,
         username: true,
