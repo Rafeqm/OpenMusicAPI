@@ -13,4 +13,9 @@ export default (handler: UsersHandler): Array<ServerRoute> => [
     path: "/users",
     handler: handler.getUsers,
   },
+  {
+    method: "GET",
+    path: "/users/{id}",
+    handler: handler.getUserById,
+  },
 ];

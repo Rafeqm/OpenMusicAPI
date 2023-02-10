@@ -37,4 +37,16 @@ export default class UsersHandler {
       },
     };
   };
+
+  getUserById: Lifecycle.Method = async (request) => {
+    const { id } = <User>request.params;
+    const user = await this._service.getUserById(id);
+
+    return {
+      status: "success",
+      data: {
+        user,
+      },
+    };
+  };
 }
