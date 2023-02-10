@@ -36,6 +36,16 @@ export default class UsersService {
     }
   }
 
+  async getUsers(): Promise<Array<Omit<User, "password">>> {
+    return await this._prisma.user.findMany({
+      select: {
+        id: true,
+        username: true,
+        fullname: true,
+      },
+    });
+  }
+
   async verifyUserCredential(
     username: User["username"],
     password: User["password"]

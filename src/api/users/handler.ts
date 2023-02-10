@@ -25,4 +25,15 @@ export default class UsersHandler {
       })
       .code(201);
   };
+
+  getUsers: Lifecycle.Method = async () => {
+    const users = await this._service.getUsers();
+
+    return {
+      status: "success",
+      data: {
+        users,
+      },
+    };
+  };
 }
