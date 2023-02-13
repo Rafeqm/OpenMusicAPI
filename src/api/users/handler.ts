@@ -40,15 +40,17 @@ export default class UsersHandler {
       .header("X-Data-Source", source);
   };
 
-  getUserById: Lifecycle.Method = async (request) => {
+  getUserById: Lifecycle.Method = async (request, h) => {
     const { id } = <User>request.params;
-    const user = await this._service.getUserById(id);
+    const { user, source } = await this._service.getUserById(id);
 
-    return {
-      status: "success",
-      data: {
-        user,
-      },
-    };
+    return h
+      .response({
+        status: "success",
+        data: {
+          user,
+        },
+      })
+      .header("X-Data-Source", source);
   };
 }

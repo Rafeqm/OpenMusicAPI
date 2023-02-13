@@ -88,9 +88,18 @@ export default class UsersService {
     );
   }
 
-  async getUserById(id: User["id"]): Promise<UserData> {
+  async getUserById(id: User["id"]): Promise<DataSource<UserData>> {
+    const cachedUser = await this._cacheService.get(`users:${id}`);
+
+    if (cachedUser !== null) {
+      return {
+        user: JSON.parse(cachedUser),
+        source: "cache",
+      };
+    }
+
     try {
-      return await this._prisma.user.findUniqueOrThrow({
+      const user = await this._prisma.user.findUniqueOrThrow({
         where: {
           id,
         },
@@ -109,6 +118,13 @@ export default class UsersService {
           },
         },
       });
+
+      await this._cacheService.set(`users:${id}`, JSON.stringify(user));
+
+      return {
+        user,
+        source: "database",
+      };
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2025") {
