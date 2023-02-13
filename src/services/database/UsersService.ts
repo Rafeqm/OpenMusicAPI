@@ -1,13 +1,21 @@
+/* eslint-disable no-undef */
+
 import { badData, badRequest, notFound, unauthorized } from "@hapi/boom";
 import { Prisma, PrismaClient, User } from "@prisma/client";
 import bcrypt from "bcrypt";
 
+import CacheService from "../cache/CacheService";
+
 type UserData = Omit<User, "password">;
+
+type UsersData = Array<UserData>;
+
+type UsersFilter = Pick<User, "username" | "fullname">;
 
 export default class UsersService {
   private readonly _prisma: PrismaClient;
 
-  constructor() {
+  constructor(private readonly _cacheService: CacheService) {
     this._prisma = new PrismaClient({
       errorFormat: "pretty",
     });
@@ -21,6 +29,8 @@ export default class UsersService {
           password: await bcrypt.hash(data.password, 10),
         },
       });
+
+      await this._cacheService.delete("users");
 
       return user.id;
     } catch (error) {
@@ -41,24 +51,41 @@ export default class UsersService {
   async getUsers(
     username: User["username"] = "",
     fullname: User["fullname"] = ""
-  ): Promise<Array<UserData>> {
-    return await this._prisma.user.findMany({
-      where: {
-        username: {
-          contains: username,
-          mode: "insensitive",
-        },
-        fullname: {
-          contains: fullname,
-          mode: "insensitive",
-        },
-      },
+  ): Promise<DataSource<UsersData>> {
+    const cachedUsers = await this._cacheService.get("users");
+
+    if (cachedUsers !== null) {
+      return {
+        users: this._filterUsers(JSON.parse(cachedUsers), {
+          username,
+          fullname,
+        }),
+        source: "cache",
+      };
+    }
+
+    const users = await this._prisma.user.findMany({
       select: {
         id: true,
         username: true,
         fullname: true,
       },
     });
+
+    await this._cacheService.set("users", JSON.stringify(users));
+
+    return {
+      users: this._filterUsers(users, { username, fullname }),
+      source: "database",
+    };
+  }
+
+  private _filterUsers(users: UsersData, filter: UsersFilter): UsersData {
+    return users.filter(
+      (user) =>
+        user.username.toLowerCase().includes(filter.username.toLowerCase()) &&
+        user.fullname.toLowerCase().includes(filter.fullname.toLowerCase())
+    );
   }
 
   async getUserById(id: User["id"]): Promise<UserData> {

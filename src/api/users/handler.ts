@@ -26,16 +26,18 @@ export default class UsersHandler {
       .code(201);
   };
 
-  getUsers: Lifecycle.Method = async (request) => {
+  getUsers: Lifecycle.Method = async (request, h) => {
     const { username, fullname } = <User>request.query;
-    const users = await this._service.getUsers(username, fullname);
+    const { users, source } = await this._service.getUsers(username, fullname);
 
-    return {
-      status: "success",
-      data: {
-        users,
-      },
-    };
+    return h
+      .response({
+        status: "success",
+        data: {
+          users,
+        },
+      })
+      .header("X-Data-Source", source);
   };
 
   getUserById: Lifecycle.Method = async (request) => {
