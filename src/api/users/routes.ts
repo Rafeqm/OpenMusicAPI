@@ -18,4 +18,12 @@ export default (handler: UsersHandler): Array<ServerRoute> => [
     path: "/users/{id}",
     handler: handler.getUserById,
   },
+  {
+    method: "PUT",
+    path: "/users",
+    handler: handler.putUserByCredential,
+    options: {
+      auth: "openmusicapi_jwt",
+    },
+  },
 ];

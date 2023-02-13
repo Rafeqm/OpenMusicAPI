@@ -136,6 +136,32 @@ export default class UsersService {
     }
   }
 
+  async editUserById(id: User["id"], data: User) {
+    try {
+      await this._prisma.user.update({
+        where: {
+          id,
+        },
+        data,
+      });
+
+      await this._cacheService.delete("users");
+      await this._cacheService.delete(`users:${id}`);
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          throw unauthorized("Unauthorized action");
+        }
+      }
+
+      if (error instanceof Prisma.PrismaClientValidationError) {
+        throw badData("Data unprocessable");
+      }
+
+      throw error;
+    }
+  }
+
   async verifyUserCredential(
     username: User["username"],
     password: User["password"]

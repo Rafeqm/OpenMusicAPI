@@ -11,7 +11,7 @@ export default class UsersHandler {
   ) {}
 
   postUser: Lifecycle.Method = async (request, h) => {
-    await this._validator.validateUserPayload(request.payload);
+    await this._validator.validatePostUserPayload(request.payload);
 
     const userId = await this._service.addUser(<User>request.payload);
 
@@ -52,5 +52,17 @@ export default class UsersHandler {
         },
       })
       .header("X-Data-Source", source);
+  };
+
+  putUserByCredential: Lifecycle.Method = async (request) => {
+    await this._validator.validatePutUserPayload(request.payload);
+
+    const { userId } = <any>request.auth.credentials;
+    await this._service.editUserById(userId, <User>request.payload);
+
+    return {
+      status: "success",
+      message: "User updated",
+    };
   };
 }
