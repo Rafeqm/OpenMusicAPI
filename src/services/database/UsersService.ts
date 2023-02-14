@@ -6,7 +6,7 @@ import bcrypt from "bcrypt";
 
 import CacheService from "../cache/CacheService";
 
-type UserData = Omit<User, "password">;
+type UserData = Omit<User, "password" | "avatarFileExt">;
 
 type UsersData = Array<UserData>;
 
@@ -69,6 +69,7 @@ export default class UsersService {
         id: true,
         username: true,
         fullname: true,
+        avatarUrl: true,
       },
     });
 
@@ -107,6 +108,7 @@ export default class UsersService {
           id: true,
           username: true,
           fullname: true,
+          avatarUrl: true,
           playlists: {
             where: {
               private: false,
