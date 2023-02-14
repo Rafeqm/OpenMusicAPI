@@ -2,18 +2,22 @@ import { Lifecycle } from "@hapi/hapi";
 import { User } from "@prisma/client";
 
 import UsersService from "../../services/database/UsersService";
+import UsersStorageService from "../../services/storage/UsersStorageService";
+import uploadsValidator from "../../validator/uploads";
 import usersValidator from "../../validator/users";
 
 export default class UsersHandler {
   constructor(
-    private readonly _service: UsersService,
-    private readonly _validator: typeof usersValidator
+    private readonly _usersService: UsersService,
+    private readonly _storageService: UsersStorageService,
+    private readonly _usersValidator: typeof usersValidator,
+    private readonly _uploadsValidator: typeof uploadsValidator
   ) {}
 
   postUser: Lifecycle.Method = async (request, h) => {
-    await this._validator.validatePostUserPayload(request.payload);
+    await this._usersValidator.validatePostUserPayload(request.payload);
 
-    const userId = await this._service.addUser(<User>request.payload);
+    const userId = await this._usersService.addUser(<User>request.payload);
 
     return h
       .response({
@@ -28,7 +32,10 @@ export default class UsersHandler {
 
   getUsers: Lifecycle.Method = async (request, h) => {
     const { username, fullname } = <User>request.query;
-    const { users, source } = await this._service.getUsers(username, fullname);
+    const { users, source } = await this._usersService.getUsers(
+      username,
+      fullname
+    );
 
     return h
       .response({
@@ -42,7 +49,7 @@ export default class UsersHandler {
 
   getUserById: Lifecycle.Method = async (request, h) => {
     const { id } = <User>request.params;
-    const { user, source } = await this._service.getUserById(id);
+    const { user, source } = await this._usersService.getUserById(id);
 
     return h
       .response({
@@ -55,10 +62,10 @@ export default class UsersHandler {
   };
 
   putUserByCredential: Lifecycle.Method = async (request) => {
-    await this._validator.validatePutUserPayload(request.payload);
+    await this._usersValidator.validatePutUserPayload(request.payload);
 
     const { userId } = <any>request.auth.credentials;
-    await this._service.editUserById(userId, <User>request.payload);
+    await this._usersService.editUserById(userId, <User>request.payload);
 
     return {
       status: "success",

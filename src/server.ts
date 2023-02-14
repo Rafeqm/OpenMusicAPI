@@ -15,6 +15,7 @@ import songsValidator from "./validator/songs/index.js";
 
 import users from "./api/users/index.js";
 import UsersService from "./services/database/UsersService.js";
+import UsersStorageService from "./services/storage/UsersStorageService.js";
 import usersValidator from "./validator/users/index.js";
 
 import authentications from "./api/authentications/index.js";
@@ -85,6 +86,7 @@ const init = async () => {
   const songsService = new SongsService(cacheService);
   const songsStorageService = new SongsStorageService("uploads", "songs");
   const usersService = new UsersService(cacheService);
+  const usersStorageService = new UsersStorageService("uploads", "users");
   const authenticationsService = new AuthenticationsService();
   const collaborationsService = new CollaborationsService(cacheService);
   const playlistsService = new PlaylistsService(
@@ -115,8 +117,10 @@ const init = async () => {
     {
       plugin: users,
       options: {
-        service: usersService,
-        validator: usersValidator,
+        usersService,
+        storageService: usersStorageService,
+        usersValidator,
+        uploadsValidator,
       },
     },
     {
