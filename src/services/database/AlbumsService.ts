@@ -168,8 +168,8 @@ export default class AlbumsService {
 
   async updateAlbumCoverById(
     id: Album["id"],
-    coverUrl: Album["coverUrl"] = null,
-    fileExt: Album["coverFileExt"] = null
+    coverUrl: Album["coverUrl"],
+    fileExt: Album["coverFileExt"]
   ) {
     try {
       await this._prisma.album.update({

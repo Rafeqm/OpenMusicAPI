@@ -26,4 +26,19 @@ export default (handler: UsersHandler): Array<ServerRoute> => [
       auth: "openmusicapi_jwt",
     },
   },
+  {
+    method: "POST",
+    path: "/users/avatars",
+    handler: handler.postUserAvatarById,
+    options: {
+      auth: "openmusicapi_jwt",
+      payload: {
+        allow: "multipart/form-data",
+        multipart: {
+          output: "stream",
+        },
+        maxBytes: 524_288,
+      },
+    },
+  },
 ];

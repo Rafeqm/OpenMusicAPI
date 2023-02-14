@@ -1,5 +1,6 @@
 import { Lifecycle } from "@hapi/hapi";
 import { User } from "@prisma/client";
+import path from "path";
 
 import UsersService from "../../services/database/UsersService";
 import UsersStorageService from "../../services/storage/UsersStorageService";
@@ -71,5 +72,37 @@ export default class UsersHandler {
       status: "success",
       message: "User updated",
     };
+  };
+
+  postUserAvatarById: Lifecycle.Method = async (request, h) => {
+    const { avatar } = <any>request.payload;
+    await this._uploadsValidator.validateImageHeaders(avatar.hapi.headers);
+
+    const { userId } = <any>request.auth.credentials;
+    const filename = await this._usersService.getUserAvatarById(userId);
+    await this._storageService.removeUserAvatar(filename);
+
+    const extname = path.extname(avatar.hapi.filename);
+    const fileLocation = await this._storageService.uploadUserAvatar({
+      content: avatar,
+      contentType: avatar.hapi.headers["content-type"],
+      filename: userId + extname,
+    });
+
+    let avatarUrl: string;
+    try {
+      avatarUrl = new URL(fileLocation).toString();
+    } catch {
+      avatarUrl = `${request.url.origin}/users/${userId}/avatar`;
+    }
+
+    await this._usersService.updateUserAvatarById(userId, avatarUrl, extname);
+
+    return h
+      .response({
+        status: "success",
+        message: "User avatar uploaded",
+      })
+      .code(201);
   };
 }

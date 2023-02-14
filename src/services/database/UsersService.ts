@@ -189,4 +189,57 @@ export default class UsersService {
       throw error;
     }
   }
+
+  async updateUserAvatarById(
+    id: User["id"],
+    avatarUrl: User["avatarUrl"],
+    fileExt: User["avatarFileExt"]
+  ) {
+    try {
+      await this._prisma.user.update({
+        where: {
+          id,
+        },
+        data: {
+          avatarUrl,
+          avatarFileExt: fileExt,
+        },
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          throw notFound("User not found");
+        }
+      }
+
+      if (error instanceof Prisma.PrismaClientValidationError) {
+        throw badData("Data unprocessable");
+      }
+
+      throw error;
+    }
+  }
+
+  async getUserAvatarById(id: User["id"]): Promise<string> {
+    try {
+      const user = await this._prisma.user.findUniqueOrThrow({
+        where: {
+          id,
+        },
+        select: {
+          avatarFileExt: true,
+        },
+      });
+
+      return id + user.avatarFileExt;
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          throw notFound("User not found");
+        }
+      }
+
+      throw error;
+    }
+  }
 }

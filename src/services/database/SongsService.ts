@@ -193,8 +193,8 @@ export default class SongsService {
 
   async updateSongAudioById(
     id: Song["id"],
-    audioUrl: Song["audioUrl"] = null,
-    fileExt: Song["audioFileExt"] = null
+    audioUrl: Song["audioUrl"],
+    fileExt: Song["audioFileExt"]
   ) {
     try {
       await this._prisma.song.update({
