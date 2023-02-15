@@ -40,7 +40,7 @@ export default (handler: AlbumsHandler): Array<ServerRoute> => [
   {
     method: "POST",
     path: "/albums/{id}/covers",
-    handler: handler.postAlbumCoverImageById,
+    handler: handler.postAlbumCoverById,
     options: {
       auth: "openmusicapi_jwt",
       payload: {
@@ -55,7 +55,7 @@ export default (handler: AlbumsHandler): Array<ServerRoute> => [
   {
     method: "GET",
     path: "/albums/{id}/cover",
-    handler: handler.getAlbumCoverImageById,
+    handler: handler.getAlbumCoverById,
   },
   {
     method: "POST",

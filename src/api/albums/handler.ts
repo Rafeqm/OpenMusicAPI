@@ -84,7 +84,7 @@ export default class AlbumsHandler {
     };
   };
 
-  postAlbumCoverImageById: Lifecycle.Method = async (request, h) => {
+  postAlbumCoverById: Lifecycle.Method = async (request, h) => {
     const { cover } = <any>request.payload;
     await this._uploadsValidator.validateImageHeaders(cover.hapi.headers);
 
@@ -116,7 +116,7 @@ export default class AlbumsHandler {
       .code(201);
   };
 
-  getAlbumCoverImageById: Lifecycle.Method = async (request, h) => {
+  getAlbumCoverById: Lifecycle.Method = async (request, h) => {
     const { id } = <Album>request.params;
     const filename = await this._albumsService.getAlbumCoverById(id);
     const filePath = this._storageService.getCoverFilePath(filename);

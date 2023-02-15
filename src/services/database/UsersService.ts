@@ -205,6 +205,10 @@ export default class UsersService {
           avatarFileExt: fileExt,
         },
       });
+
+      await this._cacheService.delete("users");
+      await this._cacheService.delete(`users:${id}`);
+      await this._cacheService.delete(`users:${id}:avatar`);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2025") {
@@ -221,6 +225,12 @@ export default class UsersService {
   }
 
   async getUserAvatarById(id: User["id"]): Promise<string> {
+    const cachedFilename = await this._cacheService.get(`users:${id}:avatar`);
+
+    if (cachedFilename !== null) {
+      return cachedFilename;
+    }
+
     try {
       const user = await this._prisma.user.findUniqueOrThrow({
         where: {
@@ -231,7 +241,10 @@ export default class UsersService {
         },
       });
 
-      return id + user.avatarFileExt;
+      const filename = id + user.avatarFileExt;
+      await this._cacheService.set(`users:${id}:avatar`, filename);
+
+      return filename;
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2025") {
