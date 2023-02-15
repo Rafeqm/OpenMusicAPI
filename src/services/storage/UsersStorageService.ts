@@ -15,6 +15,11 @@ export default class UsersStorageService extends StorageService {
     });
   }
 
+  getAvatarFilePath(filename: string) {
+    const filePath = this._getFilePath(this._avatarFileDir, filename);
+    return this._validateFilePath(filePath);
+  }
+
   async removeUserAvatar(filename: string) {
     await this._remove(this._avatarFileDir, filename);
   }

@@ -41,4 +41,9 @@ export default (handler: UsersHandler): Array<ServerRoute> => [
       },
     },
   },
+  {
+    method: "GET",
+    path: "/users/{id}/avatar",
+    handler: handler.getUserAvatarById,
+  },
 ];

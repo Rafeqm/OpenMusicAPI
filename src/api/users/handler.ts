@@ -105,4 +105,12 @@ export default class UsersHandler {
       })
       .code(201);
   };
+
+  getUserAvatarById: Lifecycle.Method = async (request, h) => {
+    const { id } = <User>request.params;
+    const filename = await this._usersService.getUserAvatarById(id);
+    const filePath = this._storageService.getAvatarFilePath(filename);
+
+    return h.file(filePath);
+  };
 }
