@@ -46,4 +46,12 @@ export default (handler: UsersHandler): Array<ServerRoute> => [
     path: "/users/{id}/avatar",
     handler: handler.getUserAvatarById,
   },
+  {
+    method: "DELETE",
+    path: "/users/avatars",
+    handler: handler.deleteUserAvatarById,
+    options: {
+      auth: "openmusicapi_jwt",
+    },
+  },
 ];

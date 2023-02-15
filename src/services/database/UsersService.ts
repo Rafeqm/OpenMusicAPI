@@ -242,4 +242,29 @@ export default class UsersService {
       throw error;
     }
   }
+
+  async deleteUserAvatarById(id: User["id"]): Promise<string> {
+    try {
+      const filename = await this.getUserAvatarById(id);
+      await this._prisma.user.update({
+        where: {
+          id,
+        },
+        data: {
+          avatarUrl: null,
+          avatarFileExt: null,
+        },
+      });
+
+      return filename;
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          throw notFound("User not found");
+        }
+      }
+
+      throw error;
+    }
+  }
 }

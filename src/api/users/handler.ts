@@ -113,4 +113,15 @@ export default class UsersHandler {
 
     return h.file(filePath);
   };
+
+  deleteUserAvatarById: Lifecycle.Method = async (request) => {
+    const { userId } = <any>request.auth.credentials;
+    const filename = await this._usersService.deleteUserAvatarById(userId);
+    await this._storageService.removeUserAvatar(filename);
+
+    return {
+      status: "success",
+      message: "User avatar removed",
+    };
+  };
 }
