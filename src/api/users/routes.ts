@@ -62,4 +62,9 @@ export default (handler: UsersHandler): Array<ServerRoute> => [
       auth: "openmusicapi_jwt",
     },
   },
+  {
+    method: "GET",
+    path: "/users/{id}/followers",
+    handler: handler.getUserFollowersById,
+  },
 ];

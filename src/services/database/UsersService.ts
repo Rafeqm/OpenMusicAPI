@@ -304,4 +304,16 @@ export default class UsersService {
       throw error;
     }
   }
+
+  async getUserFollowersById(id: Social["followeeId"]): Promise<UsersData> {
+    return await this._prisma.$queryRaw`
+      SELECT
+        users.id,
+        users.username,
+        users.fullname,
+        users.avatar_url AS "avatarUrl"
+      FROM users
+      LEFT JOIN socials ON users.id = socials.follower_id
+      WHERE socials.followee_id = ${id}`;
+  }
 }
