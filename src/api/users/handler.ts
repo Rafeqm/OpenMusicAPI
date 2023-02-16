@@ -124,4 +124,21 @@ export default class UsersHandler {
       message: "User avatar removed",
     };
   };
+
+  postUserFollowerById: Lifecycle.Method = async (request, h) => {
+    const { id } = <User>request.params;
+    const { userId } = <any>request.auth.credentials;
+
+    await this._usersService.updateUserFollowersById({
+      followeeId: id,
+      followerId: userId,
+    });
+
+    return h
+      .response({
+        status: "success",
+        message: "Social relations updated",
+      })
+      .code(201);
+  };
 }

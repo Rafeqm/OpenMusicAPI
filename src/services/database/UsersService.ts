@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 
 import { badData, badRequest, notFound, unauthorized } from "@hapi/boom";
-import { Prisma, PrismaClient, User } from "@prisma/client";
+import { Prisma, PrismaClient, Social, User } from "@prisma/client";
 import bcrypt from "bcrypt";
 
 import CacheService from "../cache/CacheService";
@@ -273,6 +273,30 @@ export default class UsersService {
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2025") {
+          throw notFound("User not found");
+        }
+      }
+
+      throw error;
+    }
+  }
+
+  async updateUserFollowersById(data: Social) {
+    try {
+      await this._prisma.social.create({ data });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2002") {
+          await this._prisma.social.delete({
+            where: {
+              followerId_followeeId: data,
+            },
+          });
+
+          return;
+        }
+
+        if (error.code === "P2003") {
           throw notFound("User not found");
         }
       }
