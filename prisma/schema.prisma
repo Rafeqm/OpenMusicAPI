@@ -53,6 +53,8 @@ model User {
   favoriteAlbums       FavoriteAlbum[]
   favoriteSongs        FavoriteSong[]
   favoritePlaylist     FavoritePlaylist[]
+  followers            Social[]             @relation("FolloweeToFollowers")
+  following            Social[]             @relation("FollowerToFollowees")
 
   @@map("users")
 }
@@ -129,4 +131,14 @@ model FavoritePlaylist {
 
   @@id([userId, playlistId])
   @@map("favorite_playlists")
+}
+
+model Social {
+  follower   User   @relation("FollowerToFollowees", fields: [followerId], references: [id], onDelete: Cascade)
+  followerId String @map("follower_id") @db.VarChar(50)
+  followee   User   @relation("FolloweeToFollowers", fields: [followeeId], references: [id], onDelete: Cascade)
+  followeeId String @map("followee_id") @db.VarChar(50)
+
+  @@id([followerId, followeeId])
+  @@map("socials")
 }
