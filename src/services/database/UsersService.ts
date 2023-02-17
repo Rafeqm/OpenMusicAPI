@@ -284,6 +284,7 @@ export default class UsersService {
   async updateUserFollowersById(data: Social) {
     try {
       await this._prisma.social.create({ data });
+      await this._cacheService.delete(`users:${data.followeeId}:followers`);
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === "P2002") {
@@ -292,6 +293,7 @@ export default class UsersService {
               followerId_followeeId: data,
             },
           });
+          await this._cacheService.delete(`users:${data.followeeId}:followers`);
 
           return;
         }
@@ -305,8 +307,21 @@ export default class UsersService {
     }
   }
 
-  async getUserFollowersById(id: Social["followeeId"]): Promise<UsersData> {
-    return await this._prisma.$queryRaw`
+  async getUserFollowersById(
+    id: Social["followeeId"]
+  ): Promise<DataSource<UsersData>> {
+    const cachedFollowers = await this._cacheService.get(
+      `users:${id}:followers`
+    );
+
+    if (cachedFollowers !== null) {
+      return {
+        followers: JSON.parse(cachedFollowers),
+        source: "cache",
+      };
+    }
+
+    const followers: UsersData = await this._prisma.$queryRaw`
       SELECT
         users.id,
         users.username,
@@ -315,6 +330,16 @@ export default class UsersService {
       FROM users
       LEFT JOIN socials ON users.id = socials.follower_id
       WHERE socials.followee_id = ${id}`;
+
+    await this._cacheService.set(
+      `users:${id}:followers`,
+      JSON.stringify(followers)
+    );
+
+    return {
+      followers,
+      source: "database",
+    };
   }
 
   async getUserFollowingById(id: Social["followerId"]): Promise<UsersData> {

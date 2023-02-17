@@ -142,16 +142,20 @@ export default class UsersHandler {
       .code(201);
   };
 
-  getUserFollowersById: Lifecycle.Method = async (request) => {
+  getUserFollowersById: Lifecycle.Method = async (request, h) => {
     const { id } = <User>request.params;
-    const followers = await this._usersService.getUserFollowersById(id);
+    const { followers, source } = await this._usersService.getUserFollowersById(
+      id
+    );
 
-    return {
-      status: "success",
-      data: {
-        followers,
-      },
-    };
+    return h
+      .response({
+        status: "success",
+        data: {
+          followers,
+        },
+      })
+      .header("X-Data-Source", source);
   };
 
   getUserFollowingById: Lifecycle.Method = async (request) => {

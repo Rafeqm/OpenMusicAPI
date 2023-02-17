@@ -87,13 +87,13 @@ export default class PlaylistsService {
       };
     }
 
-    const userPlaylists = await this._prisma.$queryRaw<PlaylistsData>`
+    const userPlaylists: PlaylistsData = await this._prisma.$queryRaw`
       SELECT playlists.id, playlists.name, users.username FROM playlists
       LEFT JOIN users ON playlists.owner = users.id
       LEFT JOIN collaborations ON playlists.id = collaborations.playlist_id
       WHERE playlists.owner = ${userId} OR collaborations.user_id = ${userId}`;
 
-    const publicPlaylists = await this._prisma.$queryRaw<PlaylistsData>`
+    const publicPlaylists: PlaylistsData = await this._prisma.$queryRaw`
       SELECT playlists.id, playlists.name, users.username FROM playlists
       LEFT JOIN users ON playlists.owner = users.id
       LEFT JOIN collaborations ON playlists.id = collaborations.playlist_id
@@ -322,7 +322,7 @@ export default class PlaylistsService {
       };
     }
 
-    const activities = await this._prisma.$queryRaw<ActivitiesOnPlaylist>`
+    const activities: ActivitiesOnPlaylist = await this._prisma.$queryRaw`
       SELECT
         users.username,
         songs.title,
