@@ -67,4 +67,9 @@ export default (handler: UsersHandler): Array<ServerRoute> => [
     path: "/users/{id}/followers",
     handler: handler.getUserFollowersById,
   },
+  {
+    method: "GET",
+    path: "/users/{id}/following",
+    handler: handler.getUserFollowingById,
+  },
 ];

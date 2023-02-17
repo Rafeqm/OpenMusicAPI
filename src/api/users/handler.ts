@@ -153,4 +153,16 @@ export default class UsersHandler {
       },
     };
   };
+
+  getUserFollowingById: Lifecycle.Method = async (request) => {
+    const { id } = <User>request.params;
+    const following = await this._usersService.getUserFollowingById(id);
+
+    return {
+      status: "success",
+      data: {
+        following,
+      },
+    };
+  };
 }
