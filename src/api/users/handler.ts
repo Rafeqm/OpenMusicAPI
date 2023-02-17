@@ -158,15 +158,19 @@ export default class UsersHandler {
       .header("X-Data-Source", source);
   };
 
-  getUserFollowingById: Lifecycle.Method = async (request) => {
+  getUserFollowingById: Lifecycle.Method = async (request, h) => {
     const { id } = <User>request.params;
-    const following = await this._usersService.getUserFollowingById(id);
+    const { following, source } = await this._usersService.getUserFollowingById(
+      id
+    );
 
-    return {
-      status: "success",
-      data: {
-        following,
-      },
-    };
+    return h
+      .response({
+        status: "success",
+        data: {
+          following,
+        },
+      })
+      .header("X-Data-Source", source);
   };
 }
