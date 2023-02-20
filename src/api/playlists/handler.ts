@@ -95,9 +95,14 @@ export default class PlaylistsHandler {
 
   getPlaylistSongsById: Lifecycle.Method = async (request, h) => {
     const { id } = <Playlist>request.params;
-    const { userId } = <any>request.auth.credentials;
 
-    await this._service.verifyPlaylistPrivacy(id, userId);
+    try {
+      await this._service.assertPlaylistIsPublic(id);
+    } catch {
+      const { userId } = <any>request.auth.credentials;
+      await this._service.verifyPlaylistAccess(id, userId);
+    }
+
     const { playlist, source } = await this._service.getPlaylistSongsById(id);
 
     return h

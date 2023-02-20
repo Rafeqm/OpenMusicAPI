@@ -49,7 +49,10 @@ export default (handler: PlaylistsHandler): Array<ServerRoute> => [
     path: "/playlists/{id}/songs",
     handler: handler.getPlaylistSongsById,
     options: {
-      auth: "openmusicapi_jwt",
+      auth: {
+        strategy: "openmusicapi_jwt",
+        mode: "optional",
+      },
     },
   },
   {
@@ -80,8 +83,5 @@ export default (handler: PlaylistsHandler): Array<ServerRoute> => [
     method: "GET",
     path: "/playlists/{id}/likes",
     handler: handler.getPlaylistLikesCountById,
-    options: {
-      auth: "openmusicapi_jwt",
-    },
   },
 ];
