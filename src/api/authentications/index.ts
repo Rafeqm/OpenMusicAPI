@@ -9,7 +9,6 @@ export default <Plugin<Record<string, any>>>{
   // eslint-disable-next-line require-await
   register: async (
     server,
-    // eslint-disable-next-line no-shadow
     { authenticationsService, usersService, validator, tokenManager }
   ) => {
     const authenticationsHandler = new AuthenticationsHandler(
