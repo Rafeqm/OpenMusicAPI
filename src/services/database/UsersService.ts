@@ -312,6 +312,8 @@ export default class UsersService {
   async getUserFollowersById(
     id: Social["followeeId"]
   ): Promise<DataSource<UsersData>> {
+    await this._assertUserExistsById(id);
+
     const cachedFollowers = await this._cacheService.get(
       `users:${id}:followers`
     );
@@ -347,6 +349,8 @@ export default class UsersService {
   async getUserFollowingById(
     id: Social["followerId"]
   ): Promise<DataSource<UsersData>> {
+    await this._assertUserExistsById(id);
+
     const cachedFollowing = await this._cacheService.get(
       `users:${id}:following`
     );
@@ -377,5 +381,19 @@ export default class UsersService {
       following,
       source: "database",
     };
+  }
+
+  private async _assertUserExistsById(id: User["id"]) {
+    try {
+      await this._prisma.user.findUniqueOrThrow({ where: { id } });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === "P2025") {
+          throw notFound("User not found");
+        }
+      }
+
+      throw error;
+    }
   }
 }
