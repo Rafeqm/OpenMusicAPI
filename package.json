@@ -39,7 +39,7 @@
     "@hapi/jwt": "^3.0.0",
     "@prisma/client": "^4.9.0",
     "amqplib": "^0.10.3",
-    "aws-sdk": "2.1294",
+    "aws-sdk": "2.1354",
     "bcrypt": "^5.1.0",
     "dotenv": "^16.0.3",
     "joi": "^17.7.0",
